@@ -1,0 +1,33 @@
+{
+    "TRIGGERS": [],
+    "STOPTRIGGERS": [
+        "остановись",
+        "хотя нет",
+        "не нужно",
+        "прекрати",
+        "стой",
+        "хотя ничего"
+    ],
+    "settings": {
+        "voice": {
+            "f0_key_up": 8,
+            "f0_method": "rmvpe",
+            "index_rate": 1,
+            "protect0": 0.2,
+            "speed": 9,
+            "tts": "ru-RU-SvetlanaNeural-Female"
+        },
+        "models": [],
+        "lang_models": [
+            "ru-RU-SvetlanaNeural-Female",
+            "ru-RU-DmitryNeural-Male"
+        ],
+        "voiceActive": false,
+        "active": 0,
+        "ATactive": true,
+        "pause": false,
+        "loader": false,
+        "import": false,
+        "debugging": 0
+    }
+}

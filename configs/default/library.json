@@ -1,0 +1,134 @@
+{
+    "data_set": {
+        "какая погода": "weather 1",
+        "узнай погоду": "weather 2",
+        "какая сейчас погода": "weather 3",
+        "хочу погоду": "weather 4",
+        "сколько время": "time 1",
+        "какое время": "time 2",
+        "сколько часов": "time 3",
+        "скажи время": "time 4",
+        "какой сегодня день": "date 1",
+        "какая сегодня дата": "date 2",
+        "скажи сегодняшную дату": "date 3",
+        "какое сегодня число": "date 4",
+        "отключись": "offbot 1",
+        "выключись": "offbot 2",
+        "выключи процесс": "offbot 3",
+        "выключи себя": "offbot 4",
+        "выключи пк": "sysout 1",
+        "выключи компьютер": "sysout 2",
+        "заверши работу": "sysout 3",
+        "выруби пк": "sysout 4"
+    },
+    "CDCTRIGGERS": [
+        "delete",
+        "uninstal",
+        "unins",
+        "удалить",
+        "windows",
+        "python",
+        "readme",
+        "administrative tools",
+        "startup",
+        "windows powershell",
+        "system tools",
+        "accessibility",
+        "explorer",
+        "program manager"
+    ],
+    "programs": {
+        "браузер": "_BROWSER",
+        "browser": "_BROWSER",
+        "яндекс": "_YANDEX",
+        "yandex": "_YANDEX",
+        "гугл": "_GOOGLE",
+        "google": "_GOOGLE",
+        "бинг": "_BING",
+        "bing": "_BING",
+        "настройки": "_SETTINGS",
+        "параметры": "_SETTINGS",
+        "консоль": "_CMD",
+        "повершел": "_POWERSHELL",
+        "powershell": "_POWERSHELL",
+        "проводник": "_EXPLORER"
+    },
+    "SPECIALS": [
+        "все окна",
+        "всё",
+        "все",
+        "окна"
+    ],
+    "browsers": [
+        "google chrome",
+        "microsoft edge",
+        "yandex",
+        "яндекс",
+        "браузер",
+        "firefox"
+    ],
+    "weblink": {
+        "ютуб": "https://www.youtube.com/",
+        "youtube": "https://www.youtube.com/",
+        "вк": "https://vk.com/",
+        "вконтакте": "https://vk.com/",
+        "твич": "https://www.twitch.tv/",
+        "twitch": "https://www.twitch.tv/",
+        "гитхаб": "https://github.com/",
+        "github": "https://github.com/"
+    },
+    "createCommands": [
+        "запусти",
+        "открой",
+        "инициализируй",
+        "включи"
+    ],
+    "destroyCommands": [
+        "закрой",
+        "выключи",
+        "выруби",
+        "заверши"
+    ],
+    "configureCommands": [
+        "поставь",
+        "заведи",
+        "укажи",
+        "настрой"
+    ],
+    "controlCommands": [
+        "отключись",
+        "выключись",
+        "офнись",
+        "останови"
+    ],
+    "maximizeCommands": [
+        "выведи",
+        "разверни",
+        "покажи",
+        "раскрой"
+    ],
+    "minimizeCommands": [
+        "уведи",
+        "сверни",
+        "скрой",
+        "убери"
+    ],
+    "openweathermap": {
+        "city": "CITY",
+        "city_id": 0,
+        "app_id": ""
+    },
+    "RUALPH": [
+        "а", "б", "в", "г", "д", "е",
+        "ё", "ж", "з", "и", "й", "к",
+        "л", "м", "н", "о", "п", "р",
+        "с", "т", "у", "ф", "х", "ц",
+        "ч", "щ", "ш", "ы", "ь", "ъ",
+        "э", "ю", "я"
+    ],
+    "MONTHS": {
+        "1": "января", "2": "февраля", "3": "марта", "4": "апреля",
+        "5": "мая", "6": "июня", "7": "июля", "8": "августа",
+        "9": "сентября", "10": "октября", "11": "ноября", "12": "декабря"
+    }
+}

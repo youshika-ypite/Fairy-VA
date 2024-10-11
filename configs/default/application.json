@@ -1,0 +1,23 @@
+{
+    "settings": {
+        "readyAppslen": 0,
+        "needDataAppslen": 0,
+        "needAcceptAppslen": 0,
+        "load": true,
+        "triggers": [
+            "windows",
+            "java",
+            "python",
+            "nvidia",
+            "microsoft",
+            "realtek",
+            "@bios",
+            "tools",
+            "intel(r)",
+            "core"
+        ],
+        "readyApps": {},
+        "needDataApps": {},
+        "needAcceptApps": {}
+    }
+}

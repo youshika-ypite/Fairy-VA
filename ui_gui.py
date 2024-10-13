@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'assistQQfzoG.ui'
+## Form generated from reading UI file 'assistHYNkmz.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.3
 ##
@@ -36,6 +36,12 @@ class Ui_MainWindow(object):
 "\n"
 "#frame_3, #frame_4, #frame_5, #frame_15, #frame_16, #frame_17, #frame_9, #frame_13, #frame_11 {\n"
 "	background-color: rgba(229, 229, 234, 130);\n"
+"}\n"
+"QPushButton:hover {\n"
+"   background-color: lightblue;\n"
+"}\n"
+"QComboBox:hover {\n"
+"   background-color: lightblue;\n"
 "}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -195,10 +201,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_14.addWidget(self.reloadAppButton)
 
-        self.pushButton_2 = QPushButton(self.widget_7)
-        self.pushButton_2.setObjectName(u"pushButton_2")
+        self.appConfigureButton = QPushButton(self.widget_7)
+        self.appConfigureButton.setObjectName(u"appConfigureButton")
 
-        self.horizontalLayout_14.addWidget(self.pushButton_2)
+        self.horizontalLayout_14.addWidget(self.appConfigureButton)
 
 
         self.verticalLayout_7.addWidget(self.widget_7)
@@ -256,7 +262,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_8 = QVBoxLayout(self.widget_6)
         self.verticalLayout_8.setSpacing(0)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_8.setContentsMargins(9, 0, 9, 0)
         self.frame_13 = QFrame(self.widget_6)
         self.frame_13.setObjectName(u"frame_13")
         self.frame_13.setFrameShape(QFrame.Shape.StyledPanel)
@@ -314,7 +320,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4 = QVBoxLayout(self.widget_5)
         self.verticalLayout_4.setSpacing(0)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.verticalLayout_4.setContentsMargins(-1, 0, 0, 0)
+        self.verticalLayout_4.setContentsMargins(9, 0, 9, 0)
         self.frame_9 = QFrame(self.widget_5)
         self.frame_9.setObjectName(u"frame_9")
         self.frame_9.setFrameShape(QFrame.Shape.StyledPanel)
@@ -372,7 +378,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5 = QVBoxLayout(self.widget_4)
         self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
-        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_5.setContentsMargins(9, 0, 9, 0)
         self.frame_11 = QFrame(self.widget_4)
         self.frame_11.setObjectName(u"frame_11")
         self.frame_11.setFrameShape(QFrame.Shape.StyledPanel)
@@ -521,7 +527,7 @@ class Ui_MainWindow(object):
         self.infoStatus.setText(QCoreApplication.translate("MainWindow", u"https://github.com/youshika-ypite", None))
         self.checkAppButton.setText(QCoreApplication.translate("MainWindow", u"Check app configuration (0)", None))
         self.reloadAppButton.setText(QCoreApplication.translate("MainWindow", u"Reload Apps", None))
-        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.appConfigureButton.setText(QCoreApplication.translate("MainWindow", u"Configurate app", None))
         self.stopButton.setText(QCoreApplication.translate("MainWindow", u"Stop - Start", None))
         self.updateModelButton.setText(QCoreApplication.translate("MainWindow", u"Update voice models", None))
         self.hideButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))

@@ -4,7 +4,7 @@ import sys
 from win11toast import notify
 
 from configure__main import Configuration, Applicator
-from applicate_dialogs import EnumerateApps
+from applicate_dialogs import AppConfigurator, EnumerateApps
 
 from ui_gui import *
 
@@ -12,7 +12,6 @@ from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QSystemTrayIcon, QMenu
 from PySide6.QtCore import Qt
 NoBrush = Qt.NoBrush
-del Qt
 
 notificate = ["Miko!! Notificate", "Please reopen main app for the changes to take effect"]
 
@@ -36,6 +35,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Miko!!")
         self.setWindowIcon(icon)
+        self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.dia = notify
 
@@ -59,6 +59,7 @@ class MainWindow(QMainWindow):
         self.ui.updateModelButton.clicked.connect(self._update_model_list_)
         self.ui.checkAppButton.clicked.connect(self.enumerating)
         self.ui.reloadAppButton.clicked.connect(self.appUpdate)
+        self.ui.appConfigureButton.clicked.connect(self.configurating)
 
         self.ui.stopStatus.setText(f"Pause is: {self.config._PAUSE()}")
 
@@ -115,9 +116,14 @@ class MainWindow(QMainWindow):
     def __appUpdater(self):
         countAll = Applicator.getAppsCount()
         countReady = Applicator.getReadyAppsCount()
+        countData = Applicator.getNeedDataAppsCount()
         countConfirm = Applicator.getNeedAcceptAppsCount()
-        self.ui.appCount.setText(f"App found - {countAll}\nReady to use - {countReady}")
-        self.ui.appConfirmCount.setText(f"Need confirmation - {countConfirm} apps")
+        self.ui.appCount.setText(
+            f"⚫️App found - {countAll}\n"\
+            f"🟢Ready to use - {countReady}\n"\
+            f"🔴Need enter path - {countData}"
+            )
+        self.ui.appConfirmCount.setText(f"🟡Need confirmation - {countConfirm} apps")
         self.ui.checkAppButton.setText(f"Check app configuration ({countConfirm})")
 
     def __updater(self):
@@ -210,9 +216,14 @@ class MainWindow(QMainWindow):
         self.newWindow = EnumerateApps(self.__appUpdater)
         self.newWindow.show()
 
+    def configurating(self):
+        self.confWindow = AppConfigurator(self.__appUpdater)
+        self.confWindow.show()
+
     def appUpdate(self):
         Applicator.reloadAppList()
         self.__appUpdater()
+
 
 class Tray(QSystemTrayIcon):
     def __init__(self, window, icon=None) -> None:

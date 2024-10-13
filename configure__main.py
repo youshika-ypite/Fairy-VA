@@ -32,6 +32,8 @@ class Applicator:
         Applicator.__save()
 
     @staticmethod
+    def getApps()                -> dict: return Applicator.application
+    @staticmethod
     def getAppsCount()           ->  int: return Applicator.applicationcount
     
     @staticmethod
@@ -50,17 +52,44 @@ class Applicator:
     def getNeedAcceptAppsCount() ->  int: return Applicator.application['settings']['needAcceptAppslen']
 
     @staticmethod
-    def deleteReadyApps(): pass
+    def __deleteUpdater(name: str = None, path: str = None, flg: bool = 0):
+        """Only DRA | DNDA | DNAA"""
+        if not flg:
+            Applicator.__updateApplication(name, path)
+        else:
+            Applicator.deleteApp(name)
+            Applicator.saveOption = True
+
+        Applicator.__updateCount()
+
     @staticmethod
-    def deleteNeedDataApps(): pass
+    def deleteApp(name: str):
+        try: del Applicator.application[name]
+        except KeyError as exc_ke: print("Not found", exc_ke)
+        for ctg in ['readyApps', 'needDataApps', 'needAcceptApps']:
+            try:
+                del Applicator.application['settings'][ctg][name]
+            except Exception as exc_ke: print(f"can't find {name} in {ctg}\n", exc_ke)
+        Applicator.applicationcount -= 1
+        Applicator.saveOption = True
+        Applicator.__updateCount()
+
     @staticmethod
-    def deleteNeedAcceptApps(appName: str, appPath: str):
+    def deleteReadyApps(appName: str, appPath: str = None): Applicator.deleteApp(appName)
+    @staticmethod
+    def deleteNeedDataApps(appName: str, appPath: str, deleteAction: bool = False):
+        try: 
+            del Applicator.application['settings']['needDataApps'][appName]
+            if not deleteAction: Applicator.application['settings']['readyApps'][appName] = appPath
+            Applicator.__deleteUpdater(appName, appPath, 0 if not deleteAction else 1)
+        except Exception as exc: print(f"App not found |configure.py | {appName}\n", exc)
+    @staticmethod
+    def deleteNeedAcceptApps(appName: str, appPath: str, deleteAction: bool = False):
         try: 
             del Applicator.application['settings']['needAcceptApps'][appName]
-            Applicator.application['settings']['readyApps'][appName] = appPath
-            Applicator.__updateApplication(appName, appPath)
-            Applicator.__updateCount()
-        except Exception as exc: print("App not found |configure.py 70\n", exc)
+            if not deleteAction: Applicator.application['settings']['readyApps'][appName] = appPath
+            Applicator.__deleteUpdater(appName, appPath, 0 if not deleteAction else 1)
+        except Exception as exc: print(f"App not found |configure.py | {appName}\n", exc)
     @staticmethod
     def _checkSave():
         if Applicator.saveOption: Applicator.__save()

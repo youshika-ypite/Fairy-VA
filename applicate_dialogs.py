@@ -1,9 +1,12 @@
 import os
 
+from PySide6.QtCore import Qt
+
 from ui_assistDialog import *
 from ui_changerPath import *
+from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
 
-from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout
+from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout, QWidget
 from PySide6.QtGui import QIcon
 from configure__main import Applicator
 from win11toast import notify
@@ -19,69 +22,36 @@ class NotifyDialog(QDialog):
         self.setWindowTitle("Miko!! notificate")
         self.setWindowIcon(icon)
 
-def new_app(data: dict, updater, pch) -> QWidget:
- 
-    def confirm(layout: QLayout, widget: QWidget):
-        layout.removeWidget(widget)
-        widget.deleteLater()
-        Applicator.deleteNeedAcceptApps(data["name"], data['possible_path'])
-        updater()
+class AppCreator(QMainWindow):
+    def __init__(self, updater) -> None:
+        QMainWindow.__init__(self)
+        self.ui = ac_Ui_MainWindow()
+        self.ui.setupUi(self)
 
-    def change(layout: QLayout, widget: QWidget):
-        pch(PathChanger(
-            data,
-            updater,
-            [layout, widget]))
- 
-    def delete(layout: QLayout, widget: QWidget):
-        layout.removeWidget(widget)
-        widget.deleteLater()
-        Applicator.deleteNeedAcceptApps(data["name"], data['possible_path'], True)
-        updater()
+        self.setWindowTitle(f"Miko!!")
+        self.setStyleSheet(
+            "QPushButton:hover {background-color: lightblue;}"
+        )
 
-    widget = QWidget()
-    #widget.setStyleSheet(
-    #    "* {background-color: rgb(229, 229, 234);}\n"
-    #    "QPushButton {border: 1px solid;}"
-    #    )
-    layout      = QVBoxLayout(widget)
-    seplayoutf  = QHBoxLayout()
-    seplayouts  = QHBoxLayout()
-    s1 = QFrame()
-    s2 = QFrame()
+        self.updater = updater
+        self.ui.saveButton.clicked.connect(self.save_app)
 
-    _ = "Relative path is: "
-    labelName   = QLabel(data['name'])
-    labelUsapp  = QLabel(str(data['user_application']))
-    labelPath   = QLabel(_+str(data['possible_path']))
+    def save_app(self):
+        _name = self.ui.inputName.toPlainText()
+        _path = self.ui.inputPath.toPlainText()
 
-    btn_change  = QPushButton(text="Change path")
-    btn_confirm = QPushButton(text="Confirm path")
-    btn_delete  = QPushButton(text="Delete")
-
-    btn_change.clicked.connect(lambda: change(layout, widget))
-    btn_confirm.clicked.connect(lambda: confirm(layout, widget))
-    btn_delete.clicked.connect(lambda: delete(layout, widget))
-
-    seplayoutf.addWidget(labelName,  Qt.AlignLeft, Qt.AlignTop)
-    seplayoutf.addWidget(labelUsapp, Qt.AlignLeft, Qt.AlignTop)
-
-    seplayoutf.addWidget(btn_change,  Qt.AlignRight, Qt.AlignTop)
-    seplayoutf.addWidget(btn_confirm, Qt.AlignRight, Qt.AlignTop)
-    seplayoutf.addWidget(btn_delete, Qt.AlignRight, Qt.AlignTop)
-
-    seplayouts.addWidget(labelPath, Qt.AlignLeft, Qt.AlignTop)
-
-    seplayoutf.setContentsMargins(0, 0, 0, 0)
-    seplayouts.setContentsMargins(0, 0, 0, 0)
-
-    s1.setLayout(seplayoutf)
-    s2.setLayout(seplayouts)
-
-    layout.addWidget(s1, alignment=Qt.AlignTop)
-    layout.addWidget(s2, alignment=Qt.AlignTop)
- 
-    return widget
+        if _name in ["", " ", None]:
+            notify("Miko!! Error!", "The name cannot be empty!", app_id="youshika")
+            return
+        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])):
+            notify("Miko!! Error!", "The path was entered incorrectly!", app_id="youshika")
+            return
+        if not os.path.isfile(_path):
+            notify("Miko!! Error!", "There is no such way!", app_id="youshika")
+            return
+        
+        Applicator.appendApp(_name, _path)
+        self.updater()
 
 class PathChanger(QMainWindow):
     def __init__(
@@ -103,36 +73,28 @@ class PathChanger(QMainWindow):
 
         self.setWindowTitle(f"Miko!! {datapack['name']}")
         self.ui.t1.setText(f"Please select your Path to {datapack['name']}")
-        self.ui.comboBox.setCurrentText(datapack['possible_path'])
+        self.ui.comboBox.addItem(datapack['possible_path'])
         self.ui.path.setText(datapack['possible_path'])
 
-        self.ui.saveButton.clicked.connect(lambda: self._savePath(datapack['possible_path']))
+        self.ui.comboBox.activated.connect(self.boxTrigger)
+
+        self.ui.saveButton.clicked.connect(
+            lambda: self._savePath(datapack['possible_path'])
+            )
+
+    def boxTrigger(self):
+        self.ui.inputPath.setText(self.ui.comboBox.currentText())
 
     def _savePath(self, activePath) -> None:
-        def checkAttr(path: str) -> int | list:
-            errors = -1
-            if any(
-                [
-                    path[1] != ":",
-                    not path.endswith(tuple([".exe", ".lnk", ".url"]))
-                ]
-            ): errors = 1
-
-            if errors == -1:
-                if not os.path.isfile(path): errors = 0
-
-            if errors == -1: return 0
-            elif errors == 1: return 1
-            else: return -1
 
         _name = self.ui.t1.text().replace("Please select your Path to ", "")
         _path = self.ui.inputPath.toPlainText()
-        if _path is None or _path == "": _path = activePath
-        result = checkAttr(path=_path)
-        if result != 0:
-            if result == -1: notify("Miko!! Error!", "Выбранный вами файл не найден!")
-            elif result == 1: notify("Miko!! Error!", "Выбранный вами путь содержит ошибки!")
-            return
+        if any([_path is None, _path == "", _path == " "]):
+            selected = self.ui.comboBox.currentText()
+            _path = selected if selected == activePath else activePath
+        if _path[0] == '"': _path = _path.replace('"', '')
+        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])) or not os._path.isfile(_path):
+            notify("Miko!! Error!", "There is no such way or it is wrong!", app_id="youshika")
 
         Applicator.deleteNeedAcceptApps(_name, _path)
         self.updater()
@@ -141,46 +103,13 @@ class PathChanger(QMainWindow):
             self.windows[1].deleteLater()
         self.close()
 
-class EnumerateApps(QMainWindow):
-    def __init__(self, updater) -> None:
-        super().__init__()
+def generateApp(data: dict, updater, pch, confirmBtn: bool):
 
-        self.setStyleSheet(
-            "QPushButton:hover {background-color: lightblue;}"
-        )
-
-        self.setWindowIcon(QIcon("ui/icon.png"))
-        self.setWindowTitle("Miko!! App configurator")
-  
-        self.grid = QGridLayout()
-        self.grid.setSpacing(5)
-        self.widget = QWidget()
-        self.layout = QGridLayout(self.widget)
-  
-        self.apps = [
-            new_app(
-                app, updater, self.pchangershow
-                ) for app in Applicator.getNeedAcceptApps().values()
-            ]
-
-        for i, app in enumerate(self.apps):
-            self.layout.addWidget(
-                app, i, 0,
-                alignment=Qt.AlignTop)
-  
-        self.scroller = QScrollArea()
-        self.scroller.setWidgetResizable(True)
-        self.scroller.setWidget(self.widget)
-        self.setCentralWidget(self.scroller)
-
-        self.setMinimumWidth(self.scroller.width()+25)
-        self.setMinimumHeight(204)
-
-    def pchangershow(self, pchange: PathChanger):
-        self.pchange = pchange
-        self.pchange.show()
-
-def generateApp(data: dict, updater, pch):
+    def confirm(layout: QLayout, widget: QWidget):
+        layout.removeWidget(widget)
+        widget.deleteLater()
+        Applicator.deleteNeedAcceptApps(data["name"], data['possible_path'])
+        updater()
 
     def openRoot(path: str | None):
         if path is None:
@@ -202,7 +131,8 @@ def generateApp(data: dict, updater, pch):
         Applicator.deleteApp(name)
         updater()
 
-    def change(): pch(PathChanger(data, updater))
+    def change(layout: QLayout, widget: QWidget):
+        pch(PathChanger(data, updater, [layout, widget]))
 
     widget = QWidget()
     mainlayout = QVBoxLayout(widget)
@@ -219,16 +149,24 @@ def generateApp(data: dict, updater, pch):
 
     openButton = QPushButton("Open directory")
     deleteButton = QPushButton("Delete App")
-    changeButton = QPushButton("Change App")
+    changeButton = QPushButton("Change path")
 
     openButton.setToolTip(data['possible_path'])
-
+    deleteButton.setStyleSheet("QPushButton {background-color: #ff5252;}")
     openButton.clicked.connect(lambda: openRoot(appPath))
     deleteButton.clicked.connect(lambda: delete(mainlayout, widget, data["name"]))
-    changeButton.clicked.connect(change)
+    changeButton.clicked.connect(lambda: change(mainlayout, widget))
 
     firstlayout.addWidget(appLabel)
     firstlayout.addWidget(openButton)
+
+    if confirmBtn:
+        confirmButton = QPushButton("Confirm")
+        confirmButton.setStyleSheet("QPushButton {background-color: #00d26a;}")
+        confirmButton.clicked.connect(
+            lambda: confirm(mainlayout, widget)
+            )
+        secondlayout.addWidget(confirmButton)
 
     secondlayout.addWidget(changeButton)
     secondlayout.addWidget(deleteButton)
@@ -245,13 +183,15 @@ def generateApp(data: dict, updater, pch):
     return widget
 
 class AppConfigurator(QMainWindow):
-    def __init__(self, updater):
+    def __init__(self, updater, enumerator):
         super().__init__()
+
+        self.matrixMax = 1
+        self.updater = updater
 
         self.setStyleSheet(
             "QPushButton:hover {background-color: lightblue;}"
         )
-
         self.setWindowTitle(f"Miko!! App Configurator")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
@@ -264,6 +204,7 @@ class AppConfigurator(QMainWindow):
         self.infoFrame = QFrame()
         self.infoLayout = QHBoxLayout()
         self.addAppButton = QPushButton("Add another app")
+
         self.addAppButton.clicked.connect(self.newApp)
         self.infoLayout.addWidget(QLabel(
             f"{colors['green']} - Good |"\
@@ -274,23 +215,42 @@ class AppConfigurator(QMainWindow):
 
         self.infoFrame.setLayout(self.infoLayout)
 
-        matrix = [0, 0]
-
-        self.apps = [
+        if enumerator:
+            self.apps = [
             generateApp(
-                data, updater, self.pchangershow
-                ) for data in Applicator.getApps().values() if 'name' in data
-            ]
+                data, self.updater, self.pchangershow, confirmBtn=True
+                ) for data in Applicator.getNeedAcceptApps().values() if 'name' in data
+                ]
+        else:
+            self.matrixMax = 2
+            self.apps = [
+                generateApp(
+                    data, self.updater, self.pchangershow, confirmBtn=False
+                    ) for data in Applicator.getApps().values() if 'name' in data
+                ]
+
+        self._generate()
+        self.setMinimumWidth(self.scroller.width()+25)
+        self.setMinimumHeight(570)
+
+    def _generate(self):
+        self.matrix_build()
+        self.paint()
+
+    def matrix_build(self):
+        matrix = [0, 0]
         for i, app in enumerate(self.apps):
             self.appLayout.addWidget(
                 app, matrix[0], matrix[1],
-                alignment=Qt.AlignTop)
-            if matrix[1] != 1:
+                alignment=Qt.AlignTop
+                )
+            if matrix[1] != self.matrixMax:
                 matrix[1] += 1
             else:
                 matrix[0] += 1
                 matrix[1] = 0
 
+    def paint(self):
         self.scroller = QScrollArea()
         self.scroller.setWidgetResizable(True)
 
@@ -300,11 +260,11 @@ class AppConfigurator(QMainWindow):
         self.scroller.setWidget(self.appWidget)
 
         self.setCentralWidget(self.widget)
-        self.setMinimumWidth(self.scroller.width()+25)
-        self.setMinimumHeight(570)
 
     def pchangershow(self, pchange: PathChanger):
         self.pchange = pchange
         self.pchange.show()
 
-    def newApp(self): pass
+    def newApp(self):
+        self.appCreator = AppCreator(self.updater)
+        self.appCreator.show()

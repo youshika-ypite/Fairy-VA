@@ -4,7 +4,7 @@ import sys
 from win11toast import notify
 
 from configure__main import Configuration, Applicator
-from applicate_dialogs import AppConfigurator, EnumerateApps
+from applicate_dialogs import AppConfigurator
 
 from ui_gui import *
 
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
             f"🔴Need enter path - {countData}"
             )
         self.ui.appConfirmCount.setText(f"🟡Need confirmation - {countConfirm} apps")
-        self.ui.checkAppButton.setText(f"Check app configuration ({countConfirm})")
+        self.ui.checkAppButton.setText(f"Confirm app path (need - {countConfirm})")
 
     def __updater(self):
         if self.config._CONFIG()['settings']['voiceActive']:
@@ -213,11 +213,11 @@ class MainWindow(QMainWindow):
             str(self.config._CONFIG()['settings']['voice']['f0_key_up']))
 
     def enumerating(self):
-        self.newWindow = EnumerateApps(self.__appUpdater)
+        self.newWindow = AppConfigurator(self.__appUpdater, 1)
         self.newWindow.show()
 
     def configurating(self):
-        self.confWindow = AppConfigurator(self.__appUpdater)
+        self.confWindow = AppConfigurator(self.__appUpdater, 0)
         self.confWindow.show()
 
     def appUpdate(self):
@@ -234,7 +234,7 @@ class Tray(QSystemTrayIcon):
         self.window = window
 
         self.showB = QAction("Show")
-        self.hideB = QAction("Hide")
+        self.hideB = QAction("Minimize to tray")
         self.stopB = QAction("Pause <> Continue")
         self.quitB = QAction("Quit")
 
@@ -245,7 +245,7 @@ class Tray(QSystemTrayIcon):
 
         self.mainMenu = Menu("Miko!!")
 
-        self.mainMenu.newSection("Miko!! GUI")
+        self.mainMenu.newSection("youshika control")
         self.mainMenu.newSeparator()
         self.mainMenu.newAction(self.showB)
         self.mainMenu.newAction(self.hideB)

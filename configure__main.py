@@ -52,14 +52,17 @@ class Applicator:
     def getNeedAcceptAppsCount() ->  int: return Applicator.application['settings']['needAcceptAppslen']
 
     @staticmethod
-    def __deleteUpdater(name: str = None, path: str = None, flg: bool = 0):
-        """Only DRA | DNDA | DNAA"""
-        if not flg:
-            Applicator.__updateApplication(name, path)
-        else:
-            Applicator.deleteApp(name)
-            Applicator.saveOption = True
-
+    def appendApp(name: str, path: str):
+        Applicator.application[name] = {
+            'name': name,
+            'relative_path': path,
+            'possible_path': path,
+            'user_application': True,
+            'status': True
+        }
+        Applicator.application['settings']['readyApps'][name] = path
+        Applicator.applicationcount += 1
+        Applicator.saveOption = True
         Applicator.__updateCount()
 
     @staticmethod
@@ -94,6 +97,16 @@ class Applicator:
     def _checkSave():
         if Applicator.saveOption: Applicator.__save()
     # Private functions
+    @staticmethod
+    def __deleteUpdater(name: str = None, path: str = None, flg: bool = 0):
+        """Only DRA | DNDA | DNAA"""
+        if not flg:
+            Applicator.__updateApplication(name, path)
+        else:
+            Applicator.deleteApp(name)
+            Applicator.saveOption = True
+
+        Applicator.__updateCount()
     @staticmethod
     def __updateApplication(appName: dict, appPath: str) -> None:
         Applicator.application[appName]['relative_path'] = appPath

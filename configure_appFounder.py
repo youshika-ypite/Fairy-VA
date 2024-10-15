@@ -4,20 +4,24 @@ from difflib import SequenceMatcher
 
 def start_menu_searcher() -> list[dict[str, str]]:
     paths = [
-        os.path.join(os.environ['USERPROFILE'],
-        'AppData', 'Roaming', 'Microsoft', 'Windows', 'Start Menu', 'Programs')]
+        os.path.join(os.environ['ProgramData'], 'Microsoft', 'Windows', 'Start Menu', 'Programs'),
+        os.path.join(os.environ['USERPROFILE'], 'AppData', 'Roaming', 'Microsoft', 'Windows', 'Start Menu', 'Programs')]
     t = [
-        'python', 'steam', 'desktop', 'powershell', 'tools',
+        'python', 'steam', 'desktop', 'powershell', 'tools', 'access',
         'unins', 'удал', 'инсталл', 'nsight', 'nvidia', 'profiler',
-        'bash', 'cmd', 'gui', 'java', '@', 'help', 'application verifier']
+        'bash', 'cmd', 'gui', 'java', 'help', 'application verifier'
+        ]
     _pathslinked = {}
     _nameslinked = {}
     for path in paths:
         for root, dirs, files in os.walk(path):
             for file in files:
-                if not any([True for i in t if i in str(files).lower()]):
-                    _pathslinked[str(files[0])] = os.path.join(root, file)
-                    _nameslinked[str(files[0])[:files[0].index(".")]] = str(files[0])
+                tbool = []
+                for item in t:
+                    if item in file.lower(): tbool.append(True)
+                if not any(tbool):
+                    _pathslinked[str(file)] = os.path.join(root, file)
+                    _nameslinked[str(file)[:file.index(".")]] = str(file)
 
     return [_pathslinked, _nameslinked]
 
@@ -114,12 +118,21 @@ def search(triggers) -> list[list[InstallApplication]]:
     appNames = [app.name.split(maxsplit=1)[0].lower() for app in [item for item in sorteds]]
 
     for name in startMnames.keys():
-        if name.split(maxsplit=1)[0].lower() not in appNames:
+        namer = name.split(maxsplit=1)[0].lower()
+        if namer not in appNames:
             sorteds.append(InstallApplication(
-                name=startMnames[name],
+                name=startMnames[name][:startMnames[name].index(".")],
                 path=startMpaths[startMnames[name]],
                 append=True
             ))
+            appNames.append(namer.split(maxsplit=1)[0].lower())
+        
+        elif namer in appNames:
+            index = appNames.index(namer)
+            app = sorteds[index]
+            if app.launchFile is None and app.expectLaunchFile is None:
+                app.launchFile = startMpaths[startMnames[name]]
+                app.expectLaunchFile = startMpaths[startMnames[name]]
 
     readyApp, needData, needAccept = [], [], []
 

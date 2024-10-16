@@ -531,7 +531,7 @@ class Ui_MainWindow(object):
         self.stopButton.setText(QCoreApplication.translate("MainWindow", u"Stop - Start", None))
         self.updateModelButton.setText(QCoreApplication.translate("MainWindow", u"Update voice models", None))
         self.hideButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
-        self.closeButton.setText(QCoreApplication.translate("MainWindow", u"Close app", None))
+        self.closeButton.setText(QCoreApplication.translate("MainWindow", u"Quit", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Protect", None))
         self.protectCount.setText(QCoreApplication.translate("MainWindow", u"x", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"V-speed", None))

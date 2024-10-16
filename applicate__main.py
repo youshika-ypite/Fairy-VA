@@ -5,7 +5,7 @@ from applicate_dialogs import AppConfigurator, NotifyDialog
 
 from ui_gui import *
 
-from PySide6.QtGui import QAction, QIcon, QPixmap
+from PySide6.QtGui import QAction, QIcon, QMouseEvent, QPixmap
 from PySide6.QtWidgets import QSystemTrayIcon, QMenu
 from PySide6.QtCore import Qt
 NoBrush = Qt.NoBrush
@@ -16,7 +16,6 @@ class Application:
     def __init__(self):
         self.app = QApplication(sys.argv + ['-platform', 'windows:darkmode=0'])
         self.app.setStyle('Fusion')
-        self.app.setApplicationName("Miko vUI")
 
         icon        = QIcon("ui/icon.png")
         self.window = MainWindow(icon)
@@ -37,6 +36,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Miko!!")
         self.setWindowIcon(icon)
         self.setWindowFlags(Qt.FramelessWindowHint)
+
+        self.oldpos = None
 
         self.pixmap = QPixmap.fromImage(QImage("ui/white.jpg"))
 
@@ -86,6 +87,28 @@ class MainWindow(QMainWindow):
         self.__updater()
         self.__appUpdater()
 
+    def showNormal(self): self.show()
+    def hideNormal(self): self.hide()
+    def closeFROMTRAY(self):
+        Configuration.stop()
+        Applicator._checkSave()
+        self.close()
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.oldpos = event.globalPos()
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self.oldpos is not None:
+            diff = event.globalPos() - self.oldpos
+            self.move(self.pos() + diff)
+            self.oldpos = event.globalPos()
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        self.oldpos = None
+
+    def closeEvent(self, event):
+        self.hide()
+        event.ignore() 
+
     def paintEvent(self, event):
         qp = QPainter()
         qp.begin(self)
@@ -94,17 +117,6 @@ class MainWindow(QMainWindow):
         qp.drawPixmap(0, 0, self.pixmap)
 
         qp.end()
-
-    def showNormal(self): self.show()
-    def hideNormal(self): self.hide()
-
-    def closeEvent(self, event):
-        self.hide()
-        event.ignore() 
-    def closeFROMTRAY(self):
-        Configuration.stop()
-        Applicator._checkSave()
-        self.close()
 
     def pause(self):
         Configuration.pause()
@@ -222,7 +234,7 @@ class MainWindow(QMainWindow):
 
 
 class Tray(QSystemTrayIcon):
-    def __init__(self, window, icon=None) -> None:
+    def __init__(self, window: MainWindow, icon=None) -> None:
         QSystemTrayIcon.__init__(self)
         self.setIcon(icon)
         self.setVisible(True)
@@ -253,7 +265,7 @@ class Tray(QSystemTrayIcon):
 
     def pause(self):
         self.window.pause()
-        self.stopB.setText(str(self.window.config._PAUSE()))
+        self.stopB.setText(str(Configuration._PAUSE()))
 
 class Menu(QMenu):
     def __init__(self, title: str) -> None:

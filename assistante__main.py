@@ -75,11 +75,6 @@ class Assistant:
         print("@youshika--ecosys. ")
 
     def __play_trigger__(self, type: int) -> None: # subsequent
-        """
-        Start listen -> 1\n
-        Stop listen  -> 0\n
-        Notify       -> -1
-        """
         {
              1 :self.soundModule._start_listen,
              0 :self.soundModule._stop_listen,
@@ -172,8 +167,7 @@ class Assistant:
                         if any(x in result for x in Configuration._STOPTRIGGERS()):
                             self._stop_listen()
                         else: self._recognize(result)
-                except Exception as exc:
-                    print(__name__, f"recognize ERROR\n{exc}")
+                except Exception as exc: print(exc)
 
     def _listener(self):
         self.__start__()

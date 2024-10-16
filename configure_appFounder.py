@@ -2,15 +2,45 @@ import os
 import winapps
 from difflib import SequenceMatcher
 
+def start_menu_searcher() -> list[dict[str, str]]:
+    paths = [
+        os.path.join(os.environ['ProgramData'], 'Microsoft', 'Windows', 'Start Menu', 'Programs'),
+        os.path.join(os.environ['USERPROFILE'], 'AppData', 'Roaming', 'Microsoft', 'Windows', 'Start Menu', 'Programs')]
+    t = [
+        'python', 'steam', 'desktop', 'powershell', 'tools', 'access',
+        'unins', 'удал', 'инсталл', 'nsight', 'nvidia', 'profiler',
+        'bash', 'cmd', 'gui', 'java', 'help', 'application verifier'
+        ]
+    _pathslinked = {}
+    _nameslinked = {}
+    for path in paths:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                tbool = []
+                for item in t:
+                    if item in file.lower(): tbool.append(True)
+                if not any(tbool):
+                    _pathslinked[str(file)] = os.path.join(root, file)
+                    _nameslinked[str(file)[:file.index(".")]] = str(file)
+
+    return [_pathslinked, _nameslinked]
+
 class InstallApplication:
 
-    def __init__(self, name: str, path, uninstall_string) -> None:
+    def __init__(self, name: str, path, uninstall_string=None, append=False) -> None:
         
+        if append:
+            self.name = name
+            self.expectLaunchFile = path
+            self.launchFile = path
+            return
+
         self.name = name
         self.install_location = str(path).replace('"', '')
         self.uninstall_string = str(uninstall_string).replace('"', '')
 
-        res = self.install_location if self.install_location not in ['', None] else self.uninstall_string
+        res = self.install_location if self.install_location not in [
+            '', None] else self.uninstall_string
 
         self.expectLaunchFile = None
         self.launchFile = None
@@ -75,7 +105,9 @@ class InstallApplication:
 def search(triggers) -> list[list[InstallApplication]]:
     installed = [x for x in winapps.search_installed()]
 
-    # Standart iteration : [x for x in installed if not set(x.name.lower().split()).intersection(triggers)]
+    startM = start_menu_searcher()
+    startMpaths = startM[0]
+    startMnames = startM[1]
 
     sorteds = [
         InstallApplication(
@@ -83,15 +115,31 @@ def search(triggers) -> list[list[InstallApplication]]:
         ) for x in installed if not set(x.name.lower().split()).intersection(triggers)
     ]
 
+    appNames = [app.name.split(maxsplit=1)[0].lower() for app in [item for item in sorteds]]
+
+    for name in startMnames.keys():
+        namer = name.split(maxsplit=1)[0].lower()
+        if namer not in appNames:
+            sorteds.append(InstallApplication(
+                name=startMnames[name][:startMnames[name].index(".")],
+                path=startMpaths[startMnames[name]],
+                append=True
+            ))
+            appNames.append(namer.split(maxsplit=1)[0].lower())
+        
+        elif namer in appNames:
+            index = appNames.index(namer)
+            app = sorteds[index]
+            if app.launchFile is None and app.expectLaunchFile is None:
+                app.launchFile = startMpaths[startMnames[name]]
+                app.expectLaunchFile = startMpaths[startMnames[name]]
+
     readyApp, needData, needAccept = [], [], []
 
     for i in [item for item in sorteds]:
-        if i.expectLaunchFile is None:
-            needData.append(i)
+        if i.expectLaunchFile is None: needData.append(i)
         else:
-            if i.launchFile is None:
-                needAccept.append(i)
-            else:
-                readyApp.append(i)
+            if i.launchFile is None: needAccept.append(i)
+            else: readyApp.append(i)
 
     return [sorteds, [readyApp, needData, needAccept]]

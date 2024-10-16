@@ -1,10 +1,7 @@
 import sys
-import sys
-
-from win11toast import notify
 
 from configure__main import Configuration, Applicator
-from applicate_dialogs import AppConfigurator
+from applicate_dialogs import AppConfigurator, NotifyDialog
 
 from ui_gui import *
 
@@ -19,27 +16,27 @@ class Application:
     def __init__(self):
         self.app = QApplication(sys.argv + ['-platform', 'windows:darkmode=0'])
         self.app.setStyle('Fusion')
+        self.app.setApplicationName("Miko vUI")
 
         icon        = QIcon("ui/icon.png")
-        self.window = MainWindow(Configuration, icon)
+        self.window = MainWindow(icon)
         self.tray   = Tray(self.window, icon)
 
         self.window.show()
         self.app.exec()
 
 class MainWindow(QMainWindow):
-    def __init__(self, configuration: Configuration, icon=None):
+    def __init__(self, icon=None):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.dia = NotifyDialog(icon)
+        self.dia.setText(key="voiceWarn")
+
         self.setWindowTitle("Miko!!")
         self.setWindowIcon(icon)
         self.setWindowFlags(Qt.FramelessWindowHint)
-
-        self.dia = notify
-
-        self.config = configuration
 
         self.pixmap = QPixmap.fromImage(QImage("ui/white.jpg"))
 
@@ -48,10 +45,10 @@ class MainWindow(QMainWindow):
         self.ui.langModels.activated.connect(self._get_langMobels_choice)
 
         self.ui.comboBoxVoice.addItem("None") # List active weights models
-        self.ui.comboBoxVoice.addItems(self.config._CONFIG()['settings']['models'])
+        self.ui.comboBoxVoice.addItems(Configuration._CONFIG()['settings']['models'])
 
         self.ui.langModels.addItem("None")
-        self.ui.langModels.addItems(self.config._CONFIG()['settings']['lang_models'])
+        self.ui.langModels.addItems(Configuration._CONFIG()['settings']['lang_models'])
 
         self.ui.closeButton.clicked.connect(self.closeFROMTRAY)
         self.ui.hideButton.clicked.connect(self.hideNormal)
@@ -61,7 +58,7 @@ class MainWindow(QMainWindow):
         self.ui.reloadAppButton.clicked.connect(self.appUpdate)
         self.ui.appConfigureButton.clicked.connect(self.configurating)
 
-        self.ui.stopStatus.setText(f"Pause is: {self.config._PAUSE()}")
+        self.ui.stopStatus.setText(f"Pause is: {Configuration._PAUSE()}")
 
         self.ui.speedSlider.setMinimum(0)
         self.ui.speedSlider.setMaximum(12)
@@ -78,13 +75,13 @@ class MainWindow(QMainWindow):
         self.ui.tempSlider.setSingleStep(1)
         self.ui.tempSlider.valueChanged.connect(self.tempChanged)
 
-        self.ui.speedSlider.setValue(self.config._CONFIG()['settings']['voice']['speed'])
-        self.ui.protectSlider.setValue(int(self.config._CONFIG()['settings']['voice']['protect0']*100))
-        self.ui.tempSlider.setValue(self.config._CONFIG()['settings']['voice']['f0_key_up'])
+        self.ui.speedSlider.setValue(Configuration._CONFIG()['settings']['voice']['speed'])
+        self.ui.protectSlider.setValue(int(Configuration._CONFIG()['settings']['voice']['protect0']*100))
+        self.ui.tempSlider.setValue(Configuration._CONFIG()['settings']['voice']['f0_key_up'])
 
-        self.ui.speedCount.setText(str(self.config._CONFIG()['settings']['voice']['speed']))
-        self.ui.protectCount.setText(str(self.config._CONFIG()['settings']['voice']['protect0']))
-        self.ui.tempCount.setText(str(self.config._CONFIG()['settings']['voice']['f0_key_up']))
+        self.ui.speedCount.setText(str(Configuration._CONFIG()['settings']['voice']['speed']))
+        self.ui.protectCount.setText(str(Configuration._CONFIG()['settings']['voice']['protect0']))
+        self.ui.tempCount.setText(str(Configuration._CONFIG()['settings']['voice']['f0_key_up']))
 
         self.__updater()
         self.__appUpdater()
@@ -105,13 +102,13 @@ class MainWindow(QMainWindow):
         self.hide()
         event.ignore() 
     def closeFROMTRAY(self):
-        self.config.stop()
+        Configuration.stop()
         Applicator._checkSave()
         self.close()
 
     def pause(self):
-        self.config.pause()
-        self.ui.stopStatus.setText(f"Pause is: {self.config._PAUSE()}")
+        Configuration.pause()
+        self.ui.stopStatus.setText(f"Pause is: {Configuration._PAUSE()}")
 
     def __appUpdater(self):
         countAll = Applicator.getAppsCount()
@@ -127,18 +124,17 @@ class MainWindow(QMainWindow):
         self.ui.checkAppButton.setText(f"Confirm app path (need - {countConfirm})")
 
     def __updater(self):
-        if self.config._CONFIG()['settings']['voiceActive']:
+        if Configuration._CONFIG()['settings']['voiceActive']:
             self.ui.typeLabel.setText('Model is active')
             self.ui.modelLabel.setText(
-                self.config._CONFIG()['settings']['models'][self.config._ACTIVE()])
+                Configuration._CONFIG()['settings']['models'][Configuration._ACTIVE()])
             
             self.ui.comboBoxType.setCurrentIndex(1)
-            self.ui.comboBoxVoice.setCurrentIndex(self.config._ACTIVE()+1)
+            self.ui.comboBoxVoice.setCurrentIndex(Configuration._ACTIVE()+1)
             self.ui.langModels.setCurrentIndex(
-                self.config._CONFIG()['settings']['lang_models'].index(
-                self.config._CONFIG()['settings']['voice']['tts'])+1
+                Configuration._CONFIG()['settings']['lang_models'].index(
+                Configuration._CONFIG()['settings']['voice']['tts'])+1
                 )
-
         else:
             self.ui.typeLabel.setText('Model is not active')
             self.ui.modelLabel.setText('Model is not active')
@@ -150,67 +146,67 @@ class MainWindow(QMainWindow):
     def _update_model_list_(self):
         self.ui.comboBoxVoice.clear()
         self.ui.comboBoxVoice.addItem('None')
-        self.ui.comboBoxVoice.addItems(self.config._CONFIG()['settings']['models'])
-        if self.config._CONFIG()['settings']['voiceActive']:
+        self.ui.comboBoxVoice.addItems(Configuration._CONFIG()['settings']['models'])
+        if Configuration._CONFIG()['settings']['voiceActive']:
             self.ui.comboBoxVoice.setCurrentIndex(
-                self.config._ACTIVE()+1)
+                Configuration._ACTIVE()+1)
         else: self.ui.comboBoxVoice.setCurrentIndex(0)
 
     def _get_comboBoxVoice_choice(self):
         active = self.ui.comboBoxVoice.currentText()
         if active != "None":
-            self.config.update_voice(active)
-            if not self.config._CONFIG()['settings']['voiceActive']:
-                self.config.reverse_active()
-            self.config.loaderON()
+            Configuration.update_voice(active)
+            if not Configuration._CONFIG()['settings']['voiceActive']:
+                Configuration.reverse_active()
+            Configuration.loaderON()
         else:
-            if self.config._CONFIG()['settings']['voiceActive']:
-                self.config.reverse_active()
-            self.dia(notificate[0], notificate[1])
+            if Configuration._CONFIG()['settings']['voiceActive']:
+                Configuration.reverse_active()
+                self.dia.show()
         self.__updater()
 
     def _get_comboBoxType_choice(self):
         active = self.ui.comboBoxType.currentText()
         if "Prime" in active.split()[0]:
-            if not self.config._CONFIG()['settings']['voiceActive']:
-                self.config.reverse_active()
+            if not Configuration._CONFIG()['settings']['voiceActive']:
+                Configuration.reverse_active()
         else:
-            if self.config._CONFIG()['settings']['voiceActive']:
-                self.config.reverse_active()
-            self.dia(notificate[0], notificate[1])
+            if Configuration._CONFIG()['settings']['voiceActive']:
+                Configuration.reverse_active()
+                self.dia.show()
         self.__updater()
 
     def _get_langMobels_choice(self):
         active = self.ui.langModels.currentText()
-        if active not in self.config._CONFIG()['settings']['lang_models']:
-            if self.config._CONFIG()['settings']['voiceActive']:
-                self.config.reverse_active()
-            self.dia(notificate[0], notificate[1])
+        if active not in Configuration._CONFIG()['settings']['lang_models']:
+            if Configuration._CONFIG()['settings']['voiceActive']:
+                Configuration.reverse_active()
+                self.dia.show()
         else:
-            index = self.config._CONFIG()['settings']['lang_models'].index(active)
-            self.config.update_tts(index)
+            index = Configuration._CONFIG()['settings']['lang_models'].index(active)
+            Configuration.update_tts(index)
         self.__updater()
 
     def speedChanged(self, value):
-        self.config.change_speed(value)
+        Configuration.change_speed(value)
         self.ui.speedSlider.setValue(
-            self.config._CONFIG()['settings']['voice']['speed'])
+            Configuration._CONFIG()['settings']['voice']['speed'])
         self.ui.speedCount.setText(
-            str(self.config._CONFIG()['settings']['voice']['speed']))
+            str(Configuration._CONFIG()['settings']['voice']['speed']))
 
     def protectChanged(self, value):
-        self.config.change_protect0(value/100)
+        Configuration.change_protect0(value/100)
         self.ui.protectSlider.setValue(
-            int(self.config._CONFIG()['settings']['voice']['protect0']*100))
+            int(Configuration._CONFIG()['settings']['voice']['protect0']*100))
         self.ui.protectCount.setText(
-            str(self.config._CONFIG()['settings']['voice']['protect0']))
+            str(Configuration._CONFIG()['settings']['voice']['protect0']))
 
     def tempChanged(self, value):
-        self.config.change_f0_key_up(value)
+        Configuration.change_f0_key_up(value)
         self.ui.tempSlider.setValue(
-            self.config._CONFIG()['settings']['voice']['f0_key_up'])
+            Configuration._CONFIG()['settings']['voice']['f0_key_up'])
         self.ui.tempCount.setText(
-            str(self.config._CONFIG()['settings']['voice']['f0_key_up']))
+            str(Configuration._CONFIG()['settings']['voice']['f0_key_up']))
 
     def enumerating(self):
         self.newWindow = AppConfigurator(self.__appUpdater, 1)

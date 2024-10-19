@@ -7,7 +7,12 @@ from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
 from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout, QWidget
 from configure__main import Applicator
 
-colors = {"red": "🔴", "yellow": "🟡", "green": "🟢"}
+colorCircles = {"red": "🔴", "yellow": "🟡", "green": "🟢"}
+toolTips = {
+    'green': "Nothing is needed, everything is fine!",
+    'red': "You need to enter your own path",
+    'yellow': "You need to confirm the found path OR enter it yourself"
+    }
 
 class NotifyDialog(QDialog):
     def __init__(self, icon=None):
@@ -31,15 +36,6 @@ class NotifyDialog(QDialog):
         
 
     def setText(self, text: str = None, key: str = None):
-        """
-        ### Keys : values
-        * voiceWarn - "Please, close and open again app for the changes to free up mem"
-        * pathError_f - "Path not found"
-        * pathError_w - "Path is incorrect"
-        * pathError_e - "Path cannot be an empty"
-        * pathError_n - "The path does not exist"
-        * nameError_e - "Name cannot be empty"
-        """
         if text is None: text = self.notificateTexts[key]
         trigger = text
         self.ui.label.setText(trigger)
@@ -65,9 +61,7 @@ class AppCreator(QMainWindow):
 
         self.setWindowTitle(f"Miko!!")
         self.setWindowIcon(icon)
-        self.setStyleSheet(
-            "QPushButton:hover {background-color: lightblue;}"
-            )
+        self.setStyleSheet("QPushButton:hover {background-color: green;}")
 
         self.updater = updater
         self.notificator = notificator
@@ -108,7 +102,7 @@ class PathChanger(QMainWindow):
 
         self.setWindowIcon(icon)
         self.setStyleSheet(
-            "QPushButton:hover {background-color: lightblue;}"
+            "QPushButton:hover {background-color: green;}"
             )
 
         self.windows = windows
@@ -184,28 +178,41 @@ def generateApp(data: dict, updater, icon: QIcon, pch, confirmBtn: bool, notific
     widget = QWidget()
 
     mainlayout = QVBoxLayout(widget)
+    mainframe = QFrame()
+    mainframe_Layout = QVBoxLayout()
+
     _firstdlayout = QVBoxLayout()
     _firstlayout_adt = QHBoxLayout()
     _secondlayout = QHBoxLayout()
 
-    __firstdFrame, __secondFrame, __firstFrame_adt = QFrame(), QFrame(), QFrame()
-    
-    color, status = colors["green"], 'ready'
-    styleSheet = '*{background-color: #00d26a; border: 0.5px solid gray; border-radius:2px;}'
+    __firstdFrame, __firstFrame_adt = QFrame(), QFrame()
+    __secondFrame = QFrame()
 
+    colorCircle, color = colorCircles["green"], '#00d26a'
+    status, toolTip = 'Ready', toolTips['green']
     if data["possible_path"] is None:
-        color, status = colors["red"], 'need confirm'
-        styleSheet = '*{background-color: #ff5252; border: 0.5px solid gray; border-radius:2px;}'
+        colorCircle, color = colorCircles["red"], '#ff5252'
+        status, toolTip = 'Need confirm', toolTips['red']
     elif data["relative_path"] is None:
-        color, status = colors["yellow"], 'need path'
-        styleSheet = '*{background-color: #ffda13; border: 0.5px solid gray; border-radius:2px;}'
+        colorCircle, color = colorCircles["yellow"], '#ffda13'
+        status, toolTip = 'Need path', toolTips['yellow']
 
-    appName, _appStatus, appPath = QLabel(color+data["name"]), QLabel(status), data["possible_path"]
+    mainframe.setObjectName("mainFrameB")
+    mainframe.setStyleSheet(
+        "#mainFrameB "\
+        "{\n"\
+        "   border-style: none none solid solid;\n"\
+        "   border-width: 3px;\n"\
+        "   border-color: "+color+";\n"\
+        "}")
+    
+    appName, appPath = QLabel(colorCircle+data["name"]), data["possible_path"]
     openButton = QPushButton("Open directory")
     chngButton, _delButton = QPushButton("Change path"), QPushButton("Delete app")
+    _appStatus = QLabel(status+"⚠️")
+    _appStatus.setToolTip(toolTip)
 
-    _appStatus.setStyleSheet(styleSheet)
-    _delButton.setStyleSheet("QPushButton {background-color: #ff5252;}")
+    _delButton.setStyleSheet("QPushButton:hover {background-color: #ff5252;}")
 
     openButton.setToolTip(data['possible_path'])
 
@@ -223,7 +230,7 @@ def generateApp(data: dict, updater, icon: QIcon, pch, confirmBtn: bool, notific
 
     if confirmBtn:
         confirmButton = QPushButton("Confirm")
-        confirmButton.setStyleSheet("QPushButton {background-color: #00d26a;}")
+        confirmButton.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
         confirmButton.clicked.connect(
             lambda: confirm(mainlayout, widget)
         )
@@ -237,8 +244,12 @@ def generateApp(data: dict, updater, icon: QIcon, pch, confirmBtn: bool, notific
     __firstdFrame.setLayout(_firstdlayout)
     __secondFrame.setLayout(_secondlayout)
 
-    mainlayout.addWidget(__firstdFrame)
-    mainlayout.addWidget(__secondFrame)
+    mainframe_Layout.addWidget(__firstdFrame)
+    mainframe_Layout.addWidget(__secondFrame)
+
+    mainframe.setLayout(mainframe_Layout)
+
+    mainlayout.addWidget(mainframe)
 
     return widget
 
@@ -249,7 +260,8 @@ class AppConfigurator(QMainWindow):
         icon = QIcon("ui/icon.png")
 
         self.setStyleSheet(
-            "QPushButton:hover {background-color: lightblue;}"
+            "QPushButton:hover {background-color: lightblue;}\n"\
+            "#infoLayout {border-bottom: 2px solid black;}"
             )
         self.setWindowTitle(f"Miko!! App Configurator")
         self.setWindowIcon(icon)
@@ -268,11 +280,13 @@ class AppConfigurator(QMainWindow):
         self.addAppButton = QPushButton("Add another app")
         self.addAppButton.clicked.connect(lambda: self.newApp(icon, updater))
         
+        self.infoLayout.setObjectName("infoLayout")
+
         self.infoLayout.addWidget(QLabel(
             "| "\
-            f"{colors['green']} - Good |"\
-            f"{colors['yellow']} - Need confirm to use |"\
-            f"{colors['red']} - Need path |"
+            f"{colorCircles['green']} - Good |"\
+            f"{colorCircles['yellow']} - Need confirm to use |"\
+            f"{colorCircles['red']} - Need path |"
             ))
         self.infoLayout.addWidget(self.addAppButton)
         self.infoFrame.setLayout(self.infoLayout)
@@ -293,7 +307,7 @@ class AppConfigurator(QMainWindow):
         self.matrix_build()
         self.paint()
 
-        self.setMinimumWidth(self.scroller.width()+75)
+        self.setMinimumWidth(int(self.scroller.width()*1.2))
         self.setMinimumHeight(570)
 
     def matrix_build(self):

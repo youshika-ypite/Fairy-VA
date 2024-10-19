@@ -8,7 +8,6 @@ from ui_gui import *
 from PySide6.QtGui import QAction, QIcon, QMouseEvent, QPixmap
 from PySide6.QtWidgets import QSystemTrayIcon, QMenu
 from PySide6.QtCore import Qt
-NoBrush = Qt.NoBrush
 
 notificate = ["Miko!! Notificate", "Please reopen main app for the changes to take effect"]
 
@@ -110,13 +109,13 @@ class MainWindow(QMainWindow):
         event.ignore() 
 
     def paintEvent(self, event):
-        qp = QPainter()
-        qp.begin(self)
+        qpainter = QPainter()
+        qpainter.begin(self)
 
-        qp.setBrush(NoBrush)
-        qp.drawPixmap(0, 0, self.pixmap)
+        qpainter.setBrush(Qt.NoBrush)
+        qpainter.drawPixmap(0, 0, self.pixmap)
 
-        qp.end()
+        qpainter.end()
 
     def pause(self):
         Configuration.pause()

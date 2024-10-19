@@ -5,35 +5,33 @@ from applicate_dialogs import AppConfigurator, NotifyDialog
 
 from ui_gui import *
 
-from PySide6.QtGui import QAction, QIcon, QMouseEvent, QPixmap
+from PySide6.QtGui import QAction, QMouseEvent, QPixmap
 from PySide6.QtWidgets import QSystemTrayIcon, QMenu
 from PySide6.QtCore import Qt
-
-notificate = ["Miko!! Notificate", "Please reopen main app for the changes to take effect"]
+from PySide6.QtGui import QIcon
 
 class Application:
     def __init__(self):
         self.app = QApplication(sys.argv + ['-platform', 'windows:darkmode=0'])
         self.app.setStyle('Fusion')
 
-        icon        = QIcon("ui/icon.png")
-        self.window = MainWindow(icon)
-        self.tray   = Tray(self.window, icon)
+        self.window = MainWindow()
+        self.tray   = Tray(self.window)
 
         self.window.show()
         self.app.exec()
 
 class MainWindow(QMainWindow):
-    def __init__(self, icon=None):
+    def __init__(self):
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.dia = NotifyDialog(icon)
+        self.dia = NotifyDialog()
         self.dia.setText(key="voiceWarn")
 
         self.setWindowTitle("Miko!!")
-        self.setWindowIcon(icon)
+        self.setWindowIcon(QIcon("ui/icon.png"))
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.oldpos = None
@@ -233,9 +231,9 @@ class MainWindow(QMainWindow):
 
 
 class Tray(QSystemTrayIcon):
-    def __init__(self, window: MainWindow, icon=None) -> None:
+    def __init__(self, window: MainWindow) -> None:
         QSystemTrayIcon.__init__(self)
-        self.setIcon(icon)
+        self.setIcon(QIcon("ui/icon.png"))
         self.setVisible(True)
 
         self.window = window

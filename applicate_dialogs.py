@@ -1,11 +1,14 @@
 import os
 
-from ui_assistDialog import *
-from ui_changerPath import *
+from configure__main import Applicator
+
 from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
 
-from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout, QWidget
-from configure__main import Applicator
+from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout
+from PySide6.QtWidgets import QWidget, QMainWindow, QLabel
+from PySide6.QtWidgets import QFrame, QComboBox, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
+from PySide6.QtGui import QMouseEvent, Qt, QIcon
 
 colorCircles = {"red": "🔴", "yellow": "🟡", "green": "🟢"}
 toolTips = {
@@ -14,14 +17,24 @@ toolTips = {
     'yellow': "You need to confirm the found path OR enter it yourself"
     }
 
-class NotifyDialog(QDialog):
-    def __init__(self, icon=None):
-        QDialog.__init__(self)
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
+class NotifyDialog(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
         self.setWindowTitle("Miko!! notificate")
-        self.setWindowIcon(icon)
+        self.setWindowIcon(QIcon("ui/icon.png"))
+
+        self.widget = QWidget()
+        self.mainlayout = QHBoxLayout(self.widget)
+
+        self.label = QLabel("Text")
+
+        self.mainlayout.addWidget(self.label)
+
+        self.setMinimumWidth(360)
+        self.setMaximumWidth(360)
+        self.setMinimumHeight(20)
+        self.setMaximumHeight(20)
 
         self.notificateTexts = {
             "voiceWarn": "Please, close and open again app for the changes to free up mem",
@@ -38,7 +51,7 @@ class NotifyDialog(QDialog):
     def setText(self, text: str = None, key: str = None):
         if text is None: text = self.notificateTexts[key]
         trigger = text
-        self.ui.label.setText(trigger)
+        self.label.setText(trigger)
 
     def fastNotificate(self, text: str = None, key: str = None):
         """
@@ -54,14 +67,14 @@ class NotifyDialog(QDialog):
         self.show()
 
 class AppCreator(QMainWindow):
-    def __init__(self, icon: QIcon, updater, notificator: NotifyDialog) -> None:
+    def __init__(self, updater, notificator: NotifyDialog) -> None:
         QMainWindow.__init__(self)
         self.ui = ac_Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.setWindowTitle(f"Miko!!")
-        self.setWindowIcon(icon)
-        self.setStyleSheet("QPushButton:hover {background-color: green;}")
+        self.setWindowIcon(QIcon("ui/icon.png"))
+        self.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
 
         self.updater = updater
         self.notificator = notificator
@@ -91,57 +104,137 @@ class PathChanger(QMainWindow):
     def __init__(
             self,
             datapack: dict, updater,
-            icon: QIcon,
             notificator: NotifyDialog,
             windows: list[QLayout, QWidget] = None
             ) -> None:
+        super().__init__()
         
-        QMainWindow.__init__(self)
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-
-        self.setWindowIcon(icon)
-        self.setStyleSheet(
-            "QPushButton:hover {background-color: green;}"
-            )
-
         self.windows = windows
         self.updater = updater
         self.notificator = notificator
 
-        self.setWindowTitle(f"Miko!! {datapack['name']}")
-        self.ui.t1.setText(f"Please select your Path to {datapack['name']}")
-        self.ui.comboBox.addItem(datapack['possible_path'])
-        self.ui.path.setText(datapack['possible_path'])
+        self.activePath = datapack['possible_path']
+        self.name = datapack['name']
 
-        self.ui.comboBox.activated.connect(self.boxTrigger)
-
-        self.ui.saveButton.clicked.connect(
-            lambda: self._savePath(datapack['possible_path'])
+        self.setWindowTitle("Miko!!"+self.name)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowIcon(QIcon("ui/icon.png"))
+        self.setStyleSheet(
+            "QFrame {border-color: black; border-width: 2px}\n"\
+            "#tittle {border-style: solid solid dotted solid;}\n"\
+            "#input {border-style: none solid none solid;}\n"\
+            "#info {border-style: dotted solid solid solid;}\n"\
+            "#saveButton:hover {background-color: #00d26a;}\n"\
+            "#deltButton:hover {background-color: #ff5252;}\n"\
+            "#cancButton:hover {background-color: lightblue;}"
             )
+        
+        self.oldpos = None
 
-    def boxTrigger(self):
-        self.ui.inputPath.setText(self.ui.comboBox.currentText())
+        self.widget = QWidget()
+        self.mainlayout = QVBoxLayout(self.widget)
 
-    def _savePath(self, activePath) -> None:
+        self.tittleFrame = QFrame()
+        self.inputFrame = QFrame()
+        self.infoFrame = QFrame()
 
-        _name = self.ui.t1.text().replace("Please select your Path to ", "")
-        _path = self.ui.inputPath.toPlainText()
+        self.inputFrame.setObjectName("input")
+        self.tittleFrame.setObjectName("tittle")
+        self.infoFrame.setObjectName("info")
+
+        self.tittlelayout = QHBoxLayout()
+        self.inputlayout = QHBoxLayout()
+        self.infolayout = QHBoxLayout()
+
+        self.tittle_infoText = QLabel("Please select your Path to "+self.name)
+        self.tittle_pathBox = QComboBox()
+        self.tittle_pathBox.addItem(self.activePath)
+        self.tittle_pathBox.activated.connect(self.boxTrigger)
+
+        self.tittlelayout.addWidget(self.tittle_infoText)
+        self.tittlelayout.addWidget(self.tittle_pathBox)
+
+        self.tittleFrame.setLayout(self.tittlelayout)
+
+        self.input_info = QLabel("OR enter path manualy")
+        self.input_inputPath = QTextEdit()
+        self.input_inputPath.setMaximumHeight(40)
+        self.input_saveButton = QPushButton("Save path")
+        self.input_saveButton.clicked.connect(self._savePath)
+        self.input_saveButton.setObjectName("saveButton")
+
+        self.inputlayout.addWidget(self.input_info)
+        self.inputlayout.addWidget(self.input_inputPath)
+        self.inputlayout.addWidget(self.input_saveButton)
+
+        self.inputFrame.setLayout(self.inputlayout)
+
+        self.info_path = QLabel("Active path: "+self.activePath)
+        self.info_deltButton = QPushButton("Delete")
+        self.info_deltButton.clicked.connect(self._delete)
+        self.info_deltButton.setObjectName("deltButton")
+        self.info_cancButton = QPushButton("Cancel")
+        self.info_cancButton.clicked.connect(self._cancel)
+        self.info_cancButton.setObjectName("cancButton")
+
+        self.infolayout.addWidget(self.info_path)
+        self.infolayout.addWidget(self.info_deltButton)
+        self.infolayout.addWidget(self.info_cancButton)
+
+        self.infoFrame.setLayout(self.infolayout)
+
+        self.mainlayout.addWidget(self.tittleFrame)
+        self.mainlayout.addWidget(self.inputFrame)
+        self.mainlayout.addWidget(self.infoFrame)
+
+        self.setCentralWidget(self.widget)
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.oldpos = event.globalPos()
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self.oldpos is not None:
+            diff = event.globalPos() - self.oldpos
+            self.move(self.pos() + diff)
+            self.oldpos = event.globalPos()
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        self.oldpos = None
+
+    def getBoxText_(self) -> str: return self.tittle_pathBox.currentText()
+
+    def getPath_(self) -> str:
+        _path = self.input_inputPath.toPlainText()
         if any([_path is None, _path == "", _path == " "]):
-            selected = self.ui.comboBox.currentText()
-            _path = selected if selected == activePath else activePath
+            selected = self.tittle_pathBox.currentText()
+            _path = selected if selected == self.activePath else self.activePath
         if _path[0] == '"': _path = _path.replace('"', '')
-        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])) or not os._path.isfile(_path):
+        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])) or not os.path.isfile(_path):
             self.notificator.fastNotificate(key="pathError_w")
-
-        Applicator.deleteNeedAcceptApps(_name, _path)
-        self.updater()
+        return _path
+    
+    def remove_(self) -> None:
         if self.windows is not None:
             self.windows[0].removeWidget(self.windows[1])
             self.windows[1].deleteLater()
+
+    def _delete(self) -> None:
+        Applicator.deleteApp(self.name)
+        self.updater()
+        self.remove_()
         self.close()
 
-def generateApp(data: dict, updater, icon: QIcon, pch, confirmBtn: bool, notificator: NotifyDialog):
+    def _savePath(self) -> None:
+        _path = self.getPath_()
+
+        Applicator.deleteNeedAcceptApps(self.name, _path)
+        self.updater()
+        self.remove_()
+        self.close()
+
+    def _cancel(self) -> None: self.close()
+    def boxTrigger(self): self.input_inputPath.setText(self.getBoxText_())
+
+def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyDialog):
 
     def remover(layout: QLayout, widget: QWidget):
         layout.removeWidget(widget)
@@ -173,7 +266,7 @@ def generateApp(data: dict, updater, icon: QIcon, pch, confirmBtn: bool, notific
         updater()
 
     def _change(layout: QLayout, widget: QWidget):
-        pch(PathChanger(data, updater, icon, notificator, [layout, widget]))
+        pch(PathChanger(data, updater, notificator, [layout, widget]))
 
     widget = QWidget()
 
@@ -192,10 +285,10 @@ def generateApp(data: dict, updater, icon: QIcon, pch, confirmBtn: bool, notific
     status, toolTip = 'Ready', toolTips['green']
     if data["possible_path"] is None:
         colorCircle, color = colorCircles["red"], '#ff5252'
-        status, toolTip = 'Need confirm', toolTips['red']
+        status, toolTip = 'Need path', toolTips['red']
     elif data["relative_path"] is None:
         colorCircle, color = colorCircles["yellow"], '#ffda13'
-        status, toolTip = 'Need path', toolTips['yellow']
+        status, toolTip = 'Need confirm', toolTips['yellow']
 
     mainframe.setObjectName("mainFrameB")
     mainframe.setStyleSheet(
@@ -257,16 +350,17 @@ class AppConfigurator(QMainWindow):
     def __init__(self, updater, enumerator):
         super().__init__()
 
-        icon = QIcon("ui/icon.png")
-
         self.setStyleSheet(
             "QPushButton:hover {background-color: lightblue;}\n"\
             "#infoLayout {border-bottom: 2px solid black;}"
             )
         self.setWindowTitle(f"Miko!! App Configurator")
-        self.setWindowIcon(icon)
+        self.setWindowIcon(QIcon("ui/icon.png"))
 
-        self.notificator = NotifyDialog(icon)
+        self.notificator = NotifyDialog()
+
+        self.pchange = None
+        self.appCreator = None
 
         self.widget = QWidget()
         self.appWidget = QWidget()
@@ -278,7 +372,7 @@ class AppConfigurator(QMainWindow):
         self.infoLayout = QHBoxLayout()
 
         self.addAppButton = QPushButton("Add another app")
-        self.addAppButton.clicked.connect(lambda: self.newApp(icon, updater))
+        self.addAppButton.clicked.connect(lambda: self.newApp(updater))
         
         self.infoLayout.setObjectName("infoLayout")
 
@@ -294,21 +388,29 @@ class AppConfigurator(QMainWindow):
         if enumerator:
             self.apps = [
                 generateApp(
-                    data, updater, icon, self.pchangershow, confirmBtn=True, notificator=self.notificator
+                    data, updater, self.pchangershow, confirmBtn=True, notificator=self.notificator
                     ) for data in Applicator.getNeedAcceptApps().values() if 'name' in data
                 ]
         else:
             self.apps = [
                 generateApp(
-                    data, updater, icon, self.pchangershow, confirmBtn=False, notificator=self.notificator
+                    data, updater, self.pchangershow, confirmBtn=False, notificator=self.notificator
                     ) for data in Applicator.getApps().values() if 'name' in data
                 ]
 
         self.matrix_build()
-        self.paint()
+        self.paintMatrix()
 
         self.setMinimumWidth(int(self.scroller.width()*1.2))
         self.setMinimumHeight(570)
+
+    def closeEvent(self, event):
+        if self.pchange is not None:
+            try: self.pchange.close()
+            except: pass
+        if self.appCreator is not None:
+            try: self.appCreator.close()
+            except: pass
 
     def matrix_build(self):
         matrix = [0, 0]
@@ -322,7 +424,7 @@ class AppConfigurator(QMainWindow):
                 matrix[0] += 1
                 matrix[1] = 0
 
-    def paint(self):
+    def paintMatrix(self):
         self.scroller = QScrollArea()
         self.scroller.setWidgetResizable(True)
 
@@ -337,6 +439,6 @@ class AppConfigurator(QMainWindow):
         self.pchange = pchange
         self.pchange.show()
 
-    def newApp(self, icon, updater):
-        self.appCreator = AppCreator(icon, updater, self.notificator)
+    def newApp(self, updater):
+        self.appCreator = AppCreator(updater, self.notificator)
         self.appCreator.show()

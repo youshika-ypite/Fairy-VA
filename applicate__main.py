@@ -33,10 +33,14 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Miko!!")
         self.setWindowIcon(QIcon("ui/icon.png"))
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setStyleSheet(
+            "QPushButton, QComboBox {color: white; background-color: #373737;}\n"\
+            "QLabel {color: white;}"
+        )
 
         self.oldpos = None
 
-        self.pixmap = QPixmap.fromImage(QImage("ui/white.jpg"))
+        self.pixmap = QPixmap.fromImage(QImage("ui/whiteALT.jpg"))
 
         self.ui.comboBoxType.activated.connect(self._get_comboBoxType_choice)
         self.ui.comboBoxVoice.activated.connect(self._get_comboBoxVoice_choice)

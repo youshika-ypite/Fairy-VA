@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QFrame, QComboBox, QVBoxLayout
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
 from PySide6.QtGui import QMouseEvent, Qt, QIcon
 
-colorCircles = {"red": "🔴", "yellow": "🟡", "green": "🟢"}
+colorCircles = {"red": "🟥", "yellow": "🟨", "green": "🟩"}
 toolTips = {
     'green': "Nothing is needed, everything is fine!",
     'red': "You need to enter your own path",
@@ -34,7 +34,6 @@ class NotifyDialog(QMainWindow):
         self.setMinimumWidth(360)
         self.setMaximumWidth(360)
         self.setMinimumHeight(20)
-        self.setMaximumHeight(20)
 
         self.notificateTexts = {
             "voiceWarn": "Please, close and open again app for the changes to free up mem",
@@ -208,7 +207,8 @@ class PathChanger(QMainWindow):
             selected = self.tittle_pathBox.currentText()
             _path = selected if selected == self.activePath else self.activePath
         if _path[0] == '"': _path = _path.replace('"', '')
-        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])) or not os.path.isfile(_path):
+        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])
+                                                 ) or not os.path.isfile(_path):
             self.notificator.fastNotificate(key="pathError_w")
         return _path
     
@@ -292,17 +292,19 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
 
     mainframe.setObjectName("mainFrameB")
     mainframe.setStyleSheet(
+        "* {background-color: #373737;}\n"\
         "#mainFrameB "\
         "{\n"\
-        "   border-style: none none solid solid;\n"\
-        "   border-width: 3px;\n"\
+        "   border-style: none none none solid;\n"\
+        "   border-width: 5px;\n"\
+        "   border-radius: 10px;\n"\
         "   border-color: "+color+";\n"\
         "}")
     
-    appName, appPath = QLabel(colorCircle+data["name"]), data["possible_path"]
+    appName, appPath = QLabel(data["name"]), data["possible_path"]
     openButton = QPushButton("Open directory")
     chngButton, _delButton = QPushButton("Change path"), QPushButton("Delete app")
-    _appStatus = QLabel(status+"⚠️")
+    _appStatus = QLabel(colorCircle+status)
     _appStatus.setToolTip(toolTip)
 
     _delButton.setStyleSheet("QPushButton:hover {background-color: #ff5252;}")
@@ -324,9 +326,7 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
     if confirmBtn:
         confirmButton = QPushButton("Confirm")
         confirmButton.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
-        confirmButton.clicked.connect(
-            lambda: confirm(mainlayout, widget)
-        )
+        confirmButton.clicked.connect(lambda: confirm(mainlayout, widget))
         _secondlayout.addWidget(confirmButton)
     _secondlayout.addWidget(chngButton)
     _secondlayout.addWidget(_delButton)
@@ -351,13 +351,17 @@ class AppConfigurator(QMainWindow):
         super().__init__()
 
         self.setStyleSheet(
-            "QPushButton:hover {background-color: lightblue;}\n"\
-            "#infoLayout {border-bottom: 2px solid black;}"
+            "* {background-color: #171717;}\n"\
+            "QLabel {color: white;}\n"\
+            "QPushButton {color: white;}\n"\
+            "QPushButton:hover {background-color: gray; color: black;}\n"\
+            "#CA_Button:hover {background-color: lightgreen;}"
             )
         self.setWindowTitle(f"Miko!! App Configurator")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notificator = NotifyDialog()
+        self.updater = updater
 
         self.pchange = None
         self.appCreator = None
@@ -366,40 +370,45 @@ class AppConfigurator(QMainWindow):
         self.appWidget = QWidget()
         self.mainlayout = QVBoxLayout(self.widget)
 
-        self.appLayout = QGridLayout(self.appWidget)
-
         self.infoFrame = QFrame()
         self.infoLayout = QHBoxLayout()
 
         self.addAppButton = QPushButton("Add another app")
         self.addAppButton.clicked.connect(lambda: self.newApp(updater))
-        
-        self.infoLayout.setObjectName("infoLayout")
 
-        self.infoLayout.addWidget(QLabel(
+        self.infotext = QLabel(
             "| "\
             f"{colorCircles['green']} - Good |"\
             f"{colorCircles['yellow']} - Need confirm to use |"\
             f"{colorCircles['red']} - Need path |"
-            ))
+            )
+        self.infotext.setAlignment(Qt.AlignCenter)
+
+        self.infoLayout.addWidget(self.infotext)
+
+        if enumerator:
+            self.confirmAllPathButton = QPushButton("Confirm all paths")
+            self.confirmAllPathButton.setObjectName("CA_Button")
+            self.confirmAllPathButton.setToolTip("Warning! The resulting path of any applications may lead to unwanted programs!")
+            self.confirmAllPathButton.clicked.connect(self.confirm)
+            self.infoLayout.addWidget(self.confirmAllPathButton)
+
+        confirmBtn = True if enumerator else False
+        apps = Applicator.getNeedAcceptApps().values() if enumerator else Applicator.getApps().values()
+        self.apps = []
+        self.appsPath = {}
+        for data in apps:
+            if "name" in data:
+                self.apps.append(generateApp(
+                    data, self.updater, self.pchangershow, confirmBtn, self.notificator)
+                    )
+                if data['relative_path'] is None and data['possible_path'] is not None:
+                    self.appsPath[data['name']] = data['possible_path']  
+
         self.infoLayout.addWidget(self.addAppButton)
         self.infoFrame.setLayout(self.infoLayout)
 
-        if enumerator:
-            self.apps = [
-                generateApp(
-                    data, updater, self.pchangershow, confirmBtn=True, notificator=self.notificator
-                    ) for data in Applicator.getNeedAcceptApps().values() if 'name' in data
-                ]
-        else:
-            self.apps = [
-                generateApp(
-                    data, updater, self.pchangershow, confirmBtn=False, notificator=self.notificator
-                    ) for data in Applicator.getApps().values() if 'name' in data
-                ]
-
         self.matrix_build()
-        self.paintMatrix()
 
         self.setMinimumWidth(int(self.scroller.width()*1.2))
         self.setMinimumHeight(570)
@@ -414,6 +423,7 @@ class AppConfigurator(QMainWindow):
 
     def matrix_build(self):
         matrix = [0, 0]
+        self.appLayout = QGridLayout(self.appWidget)
         for i, app in enumerate(self.apps):
             self.appLayout.addWidget(
                 app, matrix[0], matrix[1],
@@ -424,7 +434,6 @@ class AppConfigurator(QMainWindow):
                 matrix[0] += 1
                 matrix[1] = 0
 
-    def paintMatrix(self):
         self.scroller = QScrollArea()
         self.scroller.setWidgetResizable(True)
 
@@ -442,3 +451,51 @@ class AppConfigurator(QMainWindow):
     def newApp(self, updater):
         self.appCreator = AppCreator(updater, self.notificator)
         self.appCreator.show()
+
+    def confirm(self):
+        def close(): self.tempFrame.deleteLater()
+        def agree():
+            for app in self.appsPath:
+                Applicator.deleteNeedAcceptApps(app, self.appsPath[app])
+            self.updater()
+            self.warningText.setText("Success")
+            self.agreeButton.deleteLater()
+            for i, app in enumerate(self.apps): app.deleteLater()
+
+        text = ""\
+            "Please make sure that there are no undesirable paths here\n"\
+            "If there are any, delete them manually in the configurator\n"
+        for app in self.appsPath.values():
+            text = f"{text}\n{str(app)}"
+
+        self.tempLayout = QVBoxLayout()
+        self.tempFrame = QFrame()
+        self.tempFrame.setObjectName("mainTempFrame")
+        self.tempFrame.setStyleSheet(
+            "QFrame {background-color: #373737;}\n"\
+            "QLabel {color: white}\n"\
+            "#mainTempFrame {border-style: dotted none none none; border-width: 1.5px; border-color: white;}\n"\
+            "#agreeButton:hover {background-color: #ff5252;}"
+            )
+        self.secondTempLayout = QHBoxLayout()
+        self.secondTempFrame = QFrame()
+
+        self.warningText = QLabel(text)
+
+        self.agreeButton = QPushButton("Yes I'm sure and agree")
+        self.agreeButton.setObjectName("agreeButton")
+        self.agreeButton.clicked.connect(agree)
+        
+        self.backButton = QPushButton("Back")
+        self.backButton.clicked.connect(close)
+
+        self.secondTempLayout.addWidget(self.agreeButton)
+        self.secondTempLayout.addWidget(self.backButton)
+        self.secondTempFrame.setLayout(self.secondTempLayout)
+
+        self.tempLayout.addWidget(self.warningText)
+        self.tempLayout.addWidget(self.secondTempFrame)
+
+        self.tempFrame.setLayout(self.tempLayout)
+
+        self.mainlayout.addWidget(self.tempFrame)

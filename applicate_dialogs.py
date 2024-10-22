@@ -1,5 +1,6 @@
 import os
 
+from configure_localization import Localization
 from configure__main import Applicator
 
 from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
@@ -11,17 +12,13 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
 from PySide6.QtGui import QMouseEvent, Qt, QIcon
 
 colorCircles = {"red": "🟥", "yellow": "🟨", "green": "🟩"}
-toolTips = {
-    'green': "Nothing is needed, everything is fine!",
-    'red': "You need to enter your own path",
-    'yellow': "You need to confirm the found path OR enter it yourself"
-    }
+toolTips = Localization.get_ToolLang()
 
 class NotifyDialog(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Miko!! notificate")
+        self.setWindowTitle("Miko!! Notificate/Уведомление")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.widget = QWidget()
@@ -35,16 +32,7 @@ class NotifyDialog(QMainWindow):
         self.setMaximumWidth(360)
         self.setMinimumHeight(20)
 
-        self.notificateTexts = {
-            "voiceWarn": "Please, close and open again app for the changes to free up mem",
-
-            "pathError_f": "Path not found",
-            "pathError_w": "Path is incorrect",
-            "pathError_e": "Path cannot be empty",
-            "pathError_n": "The path does not exist",
-            
-            "nameError_e": "Name cannot be empty"
-            }
+        self.notificateTexts = Localization.get_NotificateLang()
         
 
     def setText(self, text: str = None, key: str = None):
@@ -54,13 +42,7 @@ class NotifyDialog(QMainWindow):
 
     def fastNotificate(self, text: str = None, key: str = None):
         """
-        ### Keys : values
-        * voiceWarn - "Please, close and open again app for the changes to free up mem"
-        * pathError_f - "Path not found"
-        * pathError_w - "Path is incorrect"
-        * pathError_e - "Path cannot be an empty"
-        * pathError_n - "The path does not exist"
-        * nameError_e - "Name cannot be empty"
+        Keys [voiceWarn, pathError_f, pathError_w, pathError_e, pathError_n, nameError_e]
         """
         self.setText(text, key)
         self.show()
@@ -112,6 +94,8 @@ class PathChanger(QMainWindow):
         self.updater = updater
         self.notificator = notificator
 
+        self.secondWin = Localization.get_SecondsWinLang()
+
         self.activePath = datapack['possible_path']
         self.name = datapack['name']
 
@@ -145,7 +129,7 @@ class PathChanger(QMainWindow):
         self.inputlayout = QHBoxLayout()
         self.infolayout = QHBoxLayout()
 
-        self.tittle_infoText = QLabel("Please select your Path to "+self.name)
+        self.tittle_infoText = QLabel(self.secondWin['infoText']+self.name)
         self.tittle_pathBox = QComboBox()
         self.tittle_pathBox.addItem(self.activePath)
         self.tittle_pathBox.activated.connect(self.boxTrigger)
@@ -155,10 +139,10 @@ class PathChanger(QMainWindow):
 
         self.tittleFrame.setLayout(self.tittlelayout)
 
-        self.input_info = QLabel("OR enter path manualy")
+        self.input_info = QLabel(self.secondWin['inputText'])
         self.input_inputPath = QTextEdit()
         self.input_inputPath.setMaximumHeight(40)
-        self.input_saveButton = QPushButton("Save path")
+        self.input_saveButton = QPushButton(self.secondWin['saveButton'])
         self.input_saveButton.clicked.connect(self._savePath)
         self.input_saveButton.setObjectName("saveButton")
 
@@ -168,11 +152,11 @@ class PathChanger(QMainWindow):
 
         self.inputFrame.setLayout(self.inputlayout)
 
-        self.info_path = QLabel("Active path: "+self.activePath)
-        self.info_deltButton = QPushButton("Delete")
+        self.info_path = QLabel(self.secondWin["infoPath"]+self.activePath)
+        self.info_deltButton = QPushButton(self.secondWin["deleteButton"])
         self.info_deltButton.clicked.connect(self._delete)
         self.info_deltButton.setObjectName("deltButton")
-        self.info_cancButton = QPushButton("Cancel")
+        self.info_cancButton = QPushButton(self.secondWin["cancelButton"])
         self.info_cancButton.clicked.connect(self._cancel)
         self.info_cancButton.setObjectName("cancButton")
 
@@ -268,6 +252,8 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
     def _change(layout: QLayout, widget: QWidget):
         pch(PathChanger(data, updater, notificator, [layout, widget]))
 
+    localization = Localization().get_SecondsWinLang()
+
     widget = QWidget()
 
     mainlayout = QVBoxLayout(widget)
@@ -282,13 +268,13 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
     __secondFrame = QFrame()
 
     colorCircle, color = colorCircles["green"], '#00d26a'
-    status, toolTip = 'Ready', toolTips['green']
+    toolTip = toolTips['green']
     if data["possible_path"] is None:
         colorCircle, color = colorCircles["red"], '#ff5252'
-        status, toolTip = 'Need path', toolTips['red']
+        toolTip = toolTips['red']
     elif data["relative_path"] is None:
         colorCircle, color = colorCircles["yellow"], '#ffda13'
-        status, toolTip = 'Need confirm', toolTips['yellow']
+        toolTip = toolTips['yellow']
 
     mainframe.setObjectName("mainFrameB")
     mainframe.setStyleSheet(
@@ -302,9 +288,10 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
         "}")
     
     appName, appPath = QLabel(data["name"]), data["possible_path"]
-    openButton = QPushButton("Open directory")
-    chngButton, _delButton = QPushButton("Change path"), QPushButton("Delete app")
-    _appStatus = QLabel(colorCircle+status)
+    openButton = QPushButton(localization["openphButton"])
+    chngButton = QPushButton(localization["changeButton"])
+    _delButton = QPushButton(localization["deleteButton"])
+    _appStatus = QLabel(colorCircle)
     _appStatus.setToolTip(toolTip)
 
     _delButton.setStyleSheet("QPushButton:hover {background-color: #ff5252;}")
@@ -324,7 +311,7 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
     _firstdlayout.addWidget(openButton)
 
     if confirmBtn:
-        confirmButton = QPushButton("Confirm")
+        confirmButton = QPushButton(localization['confrmButton'])
         confirmButton.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
         confirmButton.clicked.connect(lambda: confirm(mainlayout, widget))
         _secondlayout.addWidget(confirmButton)
@@ -357,11 +344,14 @@ class AppConfigurator(QMainWindow):
             "QPushButton:hover {background-color: gray; color: black;}\n"\
             "#CA_Button:hover {background-color: lightgreen;}"
             )
-        self.setWindowTitle(f"Miko!! App Configurator")
+        self.setWindowTitle(f"Miko!! | App Configurator / Конфигуратор приложений")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notificator = NotifyDialog()
         self.updater = updater
+
+        self.localizationSeconds = Localization().get_SecondsWinLang()
+        self.localizationToolTip = Localization().get_ToolLang()
 
         self.pchange = None
         self.appCreator = None
@@ -373,7 +363,7 @@ class AppConfigurator(QMainWindow):
         self.infoFrame = QFrame()
         self.infoLayout = QHBoxLayout()
 
-        self.addAppButton = QPushButton("Add another app")
+        self.addAppButton = QPushButton(self.localizationSeconds["addAppButton"])
         self.addAppButton.clicked.connect(lambda: self.newApp(updater))
 
         self.infotext = QLabel(
@@ -387,9 +377,9 @@ class AppConfigurator(QMainWindow):
         self.infoLayout.addWidget(self.infotext)
 
         if enumerator:
-            self.confirmAllPathButton = QPushButton("Confirm all paths")
+            self.confirmAllPathButton = QPushButton(self.localizationSeconds['confirmAllBt'])
             self.confirmAllPathButton.setObjectName("CA_Button")
-            self.confirmAllPathButton.setToolTip("Warning! The resulting path of any applications may lead to unwanted programs!")
+            self.confirmAllPathButton.setToolTip(self.localizationToolTip['confirmTip'])
             self.confirmAllPathButton.clicked.connect(self.confirm)
             self.infoLayout.addWidget(self.confirmAllPathButton)
 
@@ -458,13 +448,15 @@ class AppConfigurator(QMainWindow):
             for app in self.appsPath:
                 Applicator.deleteNeedAcceptApps(app, self.appsPath[app])
             self.updater()
-            self.warningText.setText("Success")
+            self.warningText.setText(
+                self.localizationSeconds["warningText"]
+            )
             self.agreeButton.deleteLater()
             for i, app in enumerate(self.apps): app.deleteLater()
 
-        text = ""\
-            "Please make sure that there are no undesirable paths here\n"\
-            "If there are any, delete them manually in the configurator\n"
+        text = self.localizationSeconds["warningText_1"]+"\n"
+        text += self.localizationSeconds["warningText_2"]+"\n"
+
         for app in self.appsPath.values():
             text = f"{text}\n{str(app)}"
 
@@ -482,11 +474,11 @@ class AppConfigurator(QMainWindow):
 
         self.warningText = QLabel(text)
 
-        self.agreeButton = QPushButton("Yes I'm sure and agree")
+        self.agreeButton = QPushButton(self.localizationSeconds["agreeButton"])
         self.agreeButton.setObjectName("agreeButton")
         self.agreeButton.clicked.connect(agree)
         
-        self.backButton = QPushButton("Back")
+        self.backButton = QPushButton(self.localizationSeconds["backdButton"])
         self.backButton.clicked.connect(close)
 
         self.secondTempLayout.addWidget(self.agreeButton)

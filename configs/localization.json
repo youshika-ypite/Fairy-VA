@@ -1,0 +1,128 @@
+{
+    "settings": {
+        "LANG": "RU_TG"
+    },
+    "RU_TG_LOCAL": {
+        "App": {
+            "labelType": "Выберите тип ассистента и язык: ",
+            "labelVoice": "Выберите тип голоса модели: ",
+            "labelModel": "Выберите тип основной модели: ",
+            "appCountLabel_1": ":BLACK:Найдено приложений - :cA:",
+            "appCountLabel_2": ":GREEN:Готово - :cR:",
+            "appCountLabel_3": ":RED:Нужен путь - :cD:",
+            "appConfirmLabel": "Нужно подтверждение для - ",
+            "checkAppButton": "Проверить пути приложений",
+            "reloadAppButton": "Найти приложения",
+            "appConfigureButton": "Приложения",
+            "stopButton": "Пауза / Пуск",
+            "updateModelButton": "Перезагрузить голосовые модели",
+            "hideButton": "Скрыть",
+            "closeButton": "Выйти",
+            "ActiveTypeLabel": "Активный тип: ",
+            "ActiveVoiceLabel": "Активная модель: ",
+            "stopStatus": "Статус паузы: "
+        },
+        "ToolTips": {
+            "green": "Все в порядке, ничего не требуется!",
+            "red": "Вам нужно ввести собственный путь к приложению",
+            "yellow":"Нужно подтвердить путь или ввести собственный",
+
+            "confirmTip": "Предупреждение! Пути приложений могут привести к ненужным программам!"
+        },
+        "NotificateTexts": {
+            "voiceWarn": "Перезапустите приложение для применения изменений",
+
+            "pathError_f": "Путь не найден",
+            "pathError_w": "Путь не правильный",
+            "pathError_e": "Путь не может быть пустым",
+            "pathError_n": "Путь не существует",
+            
+            "nameError_e": "Имя не может быть пустым"
+        },
+        "SecondsWin": {
+            "infoText": "Выберите ваш путь к ",
+            "inputText": "ИЛИ введите его вручную",
+            "saveButton": "Сохранить",
+            "infoPath": "Активный путь: ",
+            "deleteButton": "Удалить",
+            "cancelButton": "Отменить",
+            "changeButton": "Изменить путь",
+            "openphButton": "Открыть директорию",
+            "confrmButton": "Подтвердить",
+            "addAppButton": "Добавить новое приложение",
+            "confirmAllBt": "Подтвердить все пути",
+            "agreeButton" : "Да, я уверен и согласен",
+            "backdButton" : "Назад",
+            "warningText": "Успешно",
+            "warningText_1": "Убедитесь, что здесь нет ненужных путей.",
+            "warningText_2": "Если они есть, удалите их вручную в конфигураторе."
+        },
+        "Menu": {
+            "showButton": "Показать",
+            "hideButton": "Свернуть в трей",
+            "stopButton": "Пауза / Пуск",
+            "quitButton": "Выход"
+        }
+    },
+    "EN_TG_LOCAL": {
+        "App": {
+            "labelType": "Choose assistant type and lang: ",
+            "labelVoice": "Choose voice model: ",
+            "labelModel": "Choose main model: ",
+            "appCountLabel_1": ":BLACK:Found apps - :cA:",
+            "appCountLabel_2": ":GREEN:Ready - :cR:",
+            "appCountLabel_3": ":RED:Need path - :cD:",
+            "appConfirmLabel": "Need confirm for - ",
+            "checkAppButton": "Check app paths",
+            "reloadAppButton": "Find apps",
+            "appConfigureButton": "Apps",
+            "stopButton": "Pause / Start",
+            "updateModelButton": "Reload voice models",
+            "hideButton": "Hide",
+            "closeButton": "Exit",
+            "ActiveTypeLabel": "Active type: ",
+            "ActiveVoiceLabel": "Active model: ",
+            "stopStatus": "Pause is: "
+        },
+        "ToolTips": {
+            "green": "Nothing is needed, everything is fine!",
+            "red": "You need to enter your own path",
+            "yellow": "You need to confirm the found path OR enter it yourself",
+            "confirmTip": "Warning! The resulting path of any applications may lead to unwanted programs!"
+        },
+        "NotificateTexts": {
+            "voiceWarn": "Restart the app to apply changes",
+
+            "pathError_f": "Path not found",
+            "pathError_w": "Path is incorrect",
+            "pathError_e": "Path cannot be empty",
+            "pathError_n": "The path does not exist",
+            
+            "nameError_e": "Name cannot be empty"
+            },
+        "SecondsWin": {
+            "infoText": "Select youre path to ",
+            "inputText": "OR enter path manualy",
+            "saveButton": "Save path",
+            "infoPath": "Active path: ",
+            "deleteButton": "Delete",
+            "cancelButton": "Cancel",
+            "changeButton": "Change path",
+            "openphButton": "Open directory",
+            "confrmButton": "Confirm",
+            "addAppButton": "Add another app",
+            "confirmAllBt": "Confirm all paths",
+            "agreeButton" : "Yes I'm, sure and agree",
+            "backdButton" : "Back",
+            "warningText": "Success",
+            "warningText_1": "Make sure that there are no undesirable paths here",
+            "warningText_2": "If there are any, delete them manualy in the configurator"
+        },
+        "Menu": {
+            "showButton": "Show",
+            "hideButton": "Minimize to tray",
+            "stopButton": "Pause / Start",
+            "quitButton": "Quit"
+        }
+    }
+}

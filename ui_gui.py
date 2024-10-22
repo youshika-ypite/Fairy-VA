@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'assistHYNkmz.ui'
+## Form generated from reading UI file 'assistOpRhUk.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.3
 ##
@@ -36,12 +36,6 @@ class Ui_MainWindow(object):
 "\n"
 "#frame_3, #frame_4, #frame_5, #frame_15, #frame_16, #frame_17, #frame_9, #frame_13, #frame_11 {\n"
 "	background-color: rgba(229, 229, 234, 130);\n"
-"}\n"
-"QPushButton:hover {\n"
-"   background-color: lightblue;\n"
-"}\n"
-"QComboBox:hover {\n"
-"   background-color: lightblue;\n"
 "}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -79,6 +73,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.comboBoxType)
 
+        self.comboBoxLang = QComboBox(self.frame)
+        self.comboBoxLang.addItem("")
+        self.comboBoxLang.addItem("")
+        self.comboBoxLang.setObjectName(u"comboBoxLang")
+
+        self.horizontalLayout_2.addWidget(self.comboBoxLang)
+
 
         self.verticalLayout_3.addWidget(self.frame)
 
@@ -111,10 +112,10 @@ class Ui_MainWindow(object):
         self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout_8 = QHBoxLayout(self.frame_6)
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.label_4 = QLabel(self.frame_6)
-        self.label_4.setObjectName(u"label_4")
+        self.labelModel = QLabel(self.frame_6)
+        self.labelModel.setObjectName(u"labelModel")
 
-        self.horizontalLayout_8.addWidget(self.label_4)
+        self.horizontalLayout_8.addWidget(self.labelModel)
 
         self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -163,20 +164,20 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_9.addWidget(self.stopStatus)
 
-        self.appCount = QLabel(self.frame_15)
-        self.appCount.setObjectName(u"appCount")
+        self.appCountLabel = QLabel(self.frame_15)
+        self.appCountLabel.setObjectName(u"appCountLabel")
 
-        self.verticalLayout_9.addWidget(self.appCount)
+        self.verticalLayout_9.addWidget(self.appCountLabel)
 
-        self.appConfirmCount = QLabel(self.frame_15)
-        self.appConfirmCount.setObjectName(u"appConfirmCount")
+        self.appConfirmLabel = QLabel(self.frame_15)
+        self.appConfirmLabel.setObjectName(u"appConfirmLabel")
 
-        self.verticalLayout_9.addWidget(self.appConfirmCount)
+        self.verticalLayout_9.addWidget(self.appConfirmLabel)
 
-        self.infoStatus = QLabel(self.frame_15)
-        self.infoStatus.setObjectName(u"infoStatus")
+        self.gitHubLabel = QLabel(self.frame_15)
+        self.gitHubLabel.setObjectName(u"gitHubLabel")
 
-        self.verticalLayout_9.addWidget(self.infoStatus)
+        self.verticalLayout_9.addWidget(self.gitHubLabel)
 
 
         self.verticalLayout_7.addWidget(self.frame_15)
@@ -443,10 +444,10 @@ class Ui_MainWindow(object):
         self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout_7 = QHBoxLayout(self.frame_4)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.label = QLabel(self.frame_4)
-        self.label.setObjectName(u"label")
+        self.ActiveTypeLabel = QLabel(self.frame_4)
+        self.ActiveTypeLabel.setObjectName(u"ActiveTypeLabel")
 
-        self.horizontalLayout_7.addWidget(self.label)
+        self.horizontalLayout_7.addWidget(self.ActiveTypeLabel)
 
         self.typeLabel = QLabel(self.frame_4)
         self.typeLabel.setObjectName(u"typeLabel")
@@ -457,10 +458,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.addItem(self.horizontalSpacer_4)
 
-        self.labelActiveVoice = QLabel(self.frame_4)
-        self.labelActiveVoice.setObjectName(u"labelActiveVoice")
+        self.ActiveVoiceLabel = QLabel(self.frame_4)
+        self.ActiveVoiceLabel.setObjectName(u"ActiveVoiceLabel")
 
-        self.horizontalLayout_7.addWidget(self.labelActiveVoice)
+        self.horizontalLayout_7.addWidget(self.ActiveVoiceLabel)
 
         self.modelLabel = QLabel(self.frame_4)
         self.modelLabel.setObjectName(u"modelLabel")
@@ -519,28 +520,31 @@ class Ui_MainWindow(object):
         self.comboBoxType.setItemText(0, QCoreApplication.translate("MainWindow", u"Main - no voice", None))
         self.comboBoxType.setItemText(1, QCoreApplication.translate("MainWindow", u"Prime - voice", None))
 
+        self.comboBoxLang.setItemText(0, QCoreApplication.translate("MainWindow", u"RU", None))
+        self.comboBoxLang.setItemText(1, QCoreApplication.translate("MainWindow", u"EN", None))
+
         self.labelVoice.setText(QCoreApplication.translate("MainWindow", u"Select voice for model", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select main lang model", None))
+        self.labelModel.setText(QCoreApplication.translate("MainWindow", u"Select main lang model", None))
         self.stopStatus.setText(QCoreApplication.translate("MainWindow", u"x", None))
-        self.appCount.setText(QCoreApplication.translate("MainWindow", u"App found  - x", None))
-        self.appConfirmCount.setText(QCoreApplication.translate("MainWindow", u"Need confirmation - x", None))
-        self.infoStatus.setText(QCoreApplication.translate("MainWindow", u"https://github.com/youshika-ypite", None))
+        self.appCountLabel.setText(QCoreApplication.translate("MainWindow", u"App found  - x", None))
+        self.appConfirmLabel.setText(QCoreApplication.translate("MainWindow", u"Need confirmation - x", None))
+        self.gitHubLabel.setText(QCoreApplication.translate("MainWindow", u"https://github.com/youshika-ypite", None))
         self.checkAppButton.setText(QCoreApplication.translate("MainWindow", u"Check app configuration (0)", None))
         self.reloadAppButton.setText(QCoreApplication.translate("MainWindow", u"Reload Apps", None))
         self.appConfigureButton.setText(QCoreApplication.translate("MainWindow", u"Configurate app", None))
         self.stopButton.setText(QCoreApplication.translate("MainWindow", u"Stop - Start", None))
         self.updateModelButton.setText(QCoreApplication.translate("MainWindow", u"Update voice models", None))
         self.hideButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
-        self.closeButton.setText(QCoreApplication.translate("MainWindow", u"Quit", None))
+        self.closeButton.setText(QCoreApplication.translate("MainWindow", u"Close app", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Protect", None))
         self.protectCount.setText(QCoreApplication.translate("MainWindow", u"x", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"V-speed", None))
         self.speedCount.setText(QCoreApplication.translate("MainWindow", u"x", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"V-temp", None))
         self.tempCount.setText(QCoreApplication.translate("MainWindow", u"x", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Active type:", None))
+        self.ActiveTypeLabel.setText(QCoreApplication.translate("MainWindow", u"Active type:", None))
         self.typeLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.labelActiveVoice.setText(QCoreApplication.translate("MainWindow", u"Active model:", None))
+        self.ActiveVoiceLabel.setText(QCoreApplication.translate("MainWindow", u"Active model:", None))
         self.modelLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"@youshika--ecosystem. 2024", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"background from artist: @adelie_cat", None))

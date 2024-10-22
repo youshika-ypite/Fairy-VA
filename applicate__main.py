@@ -1,5 +1,6 @@
 import sys
 
+from configure_localization import Localization
 from configure__main import Configuration, Applicator
 from applicate_dialogs import AppConfigurator, NotifyDialog
 
@@ -38,7 +39,10 @@ class MainWindow(QMainWindow):
 
         self.pixmap = QPixmap.fromImage(QImage("ui/white.jpg"))
 
+        self.loadLang()
+
         self.ui.comboBoxType.activated.connect(self._get_comboBoxType_choice)
+        self.ui.comboBoxLang.activated.connect(self._changeLang)
         self.ui.comboBoxVoice.activated.connect(self._get_comboBoxVoice_choice)
         self.ui.langModels.activated.connect(self._get_langMobels_choice)
 
@@ -55,8 +59,6 @@ class MainWindow(QMainWindow):
         self.ui.checkAppButton.clicked.connect(self.enumerating)
         self.ui.reloadAppButton.clicked.connect(self.appUpdate)
         self.ui.appConfigureButton.clicked.connect(self.configurating)
-
-        self.ui.stopStatus.setText(f"Pause is: {Configuration._PAUSE()}")
 
         self.ui.speedSlider.setMinimum(0)
         self.ui.speedSlider.setMaximum(12)
@@ -117,24 +119,26 @@ class MainWindow(QMainWindow):
 
     def pause(self):
         Configuration.pause()
-        self.ui.stopStatus.setText(f"Pause is: {Configuration._PAUSE()}")
+        self.loadLang()
 
     def __appUpdater(self):
         countAll = Applicator.getAppsCount()
         countReady = Applicator.getReadyAppsCount()
         countData = Applicator.getNeedDataAppsCount()
         countConfirm = Applicator.getNeedAcceptAppsCount()
-        self.ui.appCount.setText(
-            f"⚫️App found - {countAll}\n"\
-            f"🟢Ready to use - {countReady}\n"\
-            f"🔴Need enter path - {countData}"
-            )
-        self.ui.appConfirmCount.setText(f"🟡Need confirmation - {countConfirm} apps")
-        self.ui.checkAppButton.setText(f"Confirm app path (need - {countConfirm})")
+        text_1 = self.lang_Local[
+            'appCountLabel_1'].replace(":BLACK:", '⚫️').replace(":cA:", str(countAll))
+        text_2 = self.lang_Local[
+            "appCountLabel_2"].replace(":GREEN:", '🟢').replace(":cR:", str(countReady))
+        text_3 = self.lang_Local[
+            "appCountLabel_3"].replace(":RED:", '🔴').replace(":cD:", str(countData))
+        self.ui.appCountLabel.setText(f"{text_1}\n{text_2}\n{text_3}")
+        self.ui.appConfirmLabel.setText(f"🟡{self.lang_Local['appConfirmLabel']}{countConfirm}")
+        self.ui.checkAppButton.setText(f"{self.lang_Local['checkAppButton']} ({countConfirm})")
 
     def __updater(self):
         if Configuration._CONFIG()['settings']['voiceActive']:
-            self.ui.typeLabel.setText('Model is active')
+            self.ui.typeLabel.setText('True')
             self.ui.modelLabel.setText(
                 Configuration._CONFIG()['settings']['models'][Configuration._ACTIVE()])
             
@@ -145,12 +149,42 @@ class MainWindow(QMainWindow):
                 Configuration._CONFIG()['settings']['voice']['tts'])+1
                 )
         else:
-            self.ui.typeLabel.setText('Model is not active')
-            self.ui.modelLabel.setText('Model is not active')
+            self.ui.typeLabel.setText('False')
+            self.ui.modelLabel.setText('False')
 
             self.ui.comboBoxType.setCurrentIndex(0)
             self.ui.comboBoxVoice.setCurrentIndex(0)
             self.ui.langModels.setCurrentIndex(0)
+
+    def loadLang(self):
+        self.lang_Local = Localization.get_AppLang()
+
+        self.ui.labelType.setText(self.lang_Local['labelType'])
+        self.ui.labelVoice.setText(self.lang_Local['labelVoice'])
+        self.ui.labelModel.setText(self.lang_Local['labelModel'])
+
+        self.ui.checkAppButton.setText(self.lang_Local['checkAppButton'])
+        self.ui.reloadAppButton.setText(self.lang_Local['reloadAppButton'])
+        self.ui.appConfigureButton.setText(self.lang_Local['appConfigureButton'])
+
+        self.ui.stopButton.setText(self.lang_Local['stopButton'])
+        self.ui.updateModelButton.setText(self.lang_Local['updateModelButton'])
+
+        self.ui.hideButton.setText(self.lang_Local['hideButton'])
+        self.ui.closeButton.setText(self.lang_Local['closeButton'])
+
+        self.ui.ActiveTypeLabel.setText(self.lang_Local['ActiveTypeLabel'])
+        self.ui.ActiveVoiceLabel.setText(self.lang_Local['ActiveVoiceLabel'])
+
+        self.ui.stopStatus.setText(f"{self.lang_Local['stopButton']} {Configuration._PAUSE()}")
+
+    def _changeLang(self):
+        lang = self.ui.comboBoxLang.currentText()
+        index = 0 if lang == "RU" else 2
+        if Configuration._CONFIG()['settings']['voiceActive']:
+            self.ui.langModels.setCurrentIndex(index)
+        Localization.changeLang(lang)
+        self.loadLang()
 
     def _update_model_list_(self):
         self.ui.comboBoxVoice.clear()
@@ -238,14 +272,16 @@ class Tray(QSystemTrayIcon):
 
         self.window = window
 
-        self.showB = QAction("Show")
-        self.hideB = QAction("Minimize to tray")
-        self.stopB = QAction("Pause <> Continue")
-        self.quitB = QAction("Quit")
+        self.menuLang = Localization.get_MenuLang()
+
+        self.showB = QAction(self.menuLang['showButton'])
+        self.hideB = QAction(self.menuLang['hideButton'])
+        self.stopB = QAction(self.menuLang['stopButton'])
+        self.quitB = QAction(self.menuLang['quitButton'])
 
         self.showB.triggered.connect(window.showNormal)
         self.hideB.triggered.connect(window.hideNormal)
-        self.stopB.triggered.connect(self.pause)
+        self.stopB.triggered.connect(window.pause)
         self.quitB.triggered.connect(window.closeFROMTRAY)
 
         self.mainMenu = Menu("Miko!!")
@@ -259,10 +295,6 @@ class Tray(QSystemTrayIcon):
         self.mainMenu.newAction(self.quitB)
 
         self.setContextMenu(self.mainMenu)
-
-    def pause(self):
-        self.window.pause()
-        self.stopB.setText(str(Configuration._PAUSE()))
 
 class Menu(QMenu):
     def __init__(self, title: str) -> None:

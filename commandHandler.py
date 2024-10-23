@@ -379,7 +379,6 @@ class ComandHandler:
         requestUC = unidecode.unidecode(self.request)
         _path = None
         prob = {}
-        print(requestUC)
         for app in readyApps.keys():
             if self.request.lower() in app.lower():
                 _path = readyApps[app]
@@ -416,7 +415,6 @@ class ComandHandler:
             predicted_prob = clf.predict_proba(user_cv)
 
             max_probability = max(predicted_prob[0])
-            print(max_probability, active)
             for i in range(10):
                 if max_probability in prob.keys(): max_probability += 0.00000000001
                 else: break

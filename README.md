@@ -1,49 +1,63 @@
-# Miko!! Generative-Voice Assistant
+# Miko!! Голосовой ассистент
 
-Hello! My name is Miko!! your voice assistant!!
-I was created to simplify quick tasks on the PC, now you can use your voice to find out information about the world, or do simple actions on the PC!
-My program uses llama3.1 8b to generate answers to difficult questions and search for information
+Проект основан на способе генерации речи TTS: [RVC-tts-webui](https://github.com/litagin02/rvc-tts-webui)
 
-This GitHub project is used for the basis: [RVC-tts-webui](https://github.com/litagin02/rvc-tts-webui)
+Только в разработке, много функций отсутствуют, возможности:
+* Открытие найденных, утвержденных программ (точность совпадений 60-70%)
+* Открытие браузера и заготовленных ссылок из файла
+* Управление окнами активных приложений (точность совпадений ~75%)
+* Использование локальной модели Llama3.1 для генерации ответов (необходимо установить модель)
+* Уточнит время, погоду, дату (для погоды стоит указать настройки OpenWeatherMap)
+* Не привязан к имени, можно задать любое имя, главное легко произносимое
 
-0.6 test v.
-## Install
+Распознает только русский язык хоть и присутствует локализация приложения
 
-Requirements: Tested for Python 3.10 and pip 21.3.1 on Windows 11. So please use Python 3.10
+На фоне с играми, вероятно генерировать текст и голос не сможет, однако можно отключить эту функцию и просто оставить ассистента для остальных задач, разговаривать не будет но работать должен.
 
-Please check Troubleshooting on this page before install and make sure that everything is done
-Maybe fairseq needs Microsoft C++ Build Tools.
-[Download installer](https://visualstudio.microsoft.com/ja/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16) and install it.
+В планах:
+* Поменять дизайн
+* Добавить локализацию на английский для ассистента
+* Улучшить алгоритмы (мне нужно учится..)
+
+Буду экспериментировать с методами распознавания, чтобы не тыркать микрофон каждые 2 секунды и систему воском не нагружать
+
+Я считаю что задача минимум сделана, начал этот проект в конце августа 2024, сейчас 23 октября. Буду улучшать и потихоньку доделывать цели из плана, возможно добавлять новое.
+
+## Установка
+
+Тестировалось на Python 3.10 и pip 21.3.1 на Windows 11, работоспособнасть на этих версиях гарантирована.
+
+Возможно, придется установить Microsoft C++ Build Tools, но я не уверен.
+
+Microsoft C++ Build Tools: [Download installer](https://visualstudio.microsoft.com/ja/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16).
 
 ```bash
-git clone ####################### GITHUBLINK
-cd rvc-tts-webui
+git clone https://github.com/youshika-ypite/Miko-voice.git
 
-# Download models in root directory
+# В директории проекта
 curl -L -O https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt
 curl -L -O https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt
 
-# Make virtual environment
-python -m venv env
-# Activate venv (for Windows)
-env\Scripts\activate
+# Создание виртуального окружения
+python -m venv venv
+venv\Scripts\activate
 
-# python -m pip install -U pip==21.3.1
-
-# Install PyTorch manually if you want to use NVIDIA GPU (Windows)
-#   But you need to install CUDA before install PyTorch
+# Если видеокарта NVIDIA, устанавливаем
 #   CUDA https://developer.nvidia.com/cuda-12-4-0-download-archive?target_os=Windows&target_arch=x86_64
-# See https://pytorch.org/get-started/locally/ for more details
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
-# Install requirements
+# Модули
 pip install -r requirements.txt
 ```
 
-## Locate RVC models
+## Установка Llama
 
-Place your RVC models in `weights/` directory as follows:
+Берем столько, сколько можем и просто не выключаем [Llama3.1](https://ollama.com/library/llama3.1)
+У меня 32gb ОЗУ и 6gb видеопамяти, использую 8B версию.
 
+## Расположение моделей
+
+Расположите ваши модели в соответствии с этой схемой:
 ```bash
 weights
 ├── model1
@@ -53,51 +67,21 @@ weights
     ├── my_model2.pth
     └── my_index_file_for_model2.index
 ```
+Каждый каталог модели должен содержать ровно один файл `.pth` и не более одного файла `.index`. Имя директории
+используется как имя модели.
 
-Each model directory should contain exactly one `.pth` file and at most one `.index` file. Directory names are used as model names.
+Возникло впечатление, что в путях с не ASCII символами (например, `weights/モデル1/index.index`) происходят
+ошибки faiss. Поэтому, пожалуйста, избегайте их.
 
-It seems that non-ASCII characters in path names gave faiss errors (like `weights/モデル1/index.index`), so please avoid them.
+## Перемещение конфигов
 
-## Launch
+Переместите или скопируйте все .json файлы из `configs/default` в `configs/`
 
-```bash
-# Activate venv (for Windows)
-env\Scripts\activate
-```
+# Запуск 
 
-## Usage
+Запустите скрипт main.py из виртуального окружения.
+Наслаждайтесь.
 
-By default, the generation of responses and voices is disabled, you can enable it after launching the application.
+### Донат
 
-
-## Troubleshooting
-
-### Microsoft C++ BuildTools
-You need download Microsoft C++ Build Tools from Download installer on Install page if you have this trouble
-```
-error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
-      [end of output]
-
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-  ERROR: Failed building wheel for fairseq
-Failed to build fairseq
-ERROR: Could not build wheels for fairseq, which is required to install pyproject.toml-based projects
-```
-
-### assist ERROR
-You will probably see the inscription when you output it `assist ERROR` it doesn't affect the task execution, so just ignore it. xD
-But, if there is anything else after the `ERROR`, then it should not be ignored.
-
-### PyYAML or another trouble in installation process
-Most likely you don't have the correct version of python and pip, check it:
-```bash
-# If env not active
-env\Scripts\activate
-
-pip --version
-# There should be Python==3.10 and pip==21.3.1
-
-# If your pip version is different, run:
-
-python -m pip install pip==21.3.1
-```
+Поддержать меня можно здесь - [Boosty](https://boosty.to/ypite/donate)

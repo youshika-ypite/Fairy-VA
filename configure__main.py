@@ -171,8 +171,6 @@ class Commandlibrary_y:
     baseLinkDict      = library['weblink']
     createCommands    = library['createCommands']
     destroyCommands   = library['destroyCommands']
-    configureCommands = library['configureCommands']
-    controlCommands   = library['controlCommands']
     maximizeCommands  = library['maximizeCommands']
     minimizeCommands  = library['minimizeCommands']
     openweathermap    = library['openweathermap']
@@ -197,10 +195,6 @@ class Commandlibrary_y:
     def get_createCommands()    -> list: return Commandlibrary_y.createCommands
     @staticmethod
     def get_destroyCommands()   -> list: return Commandlibrary_y.destroyCommands
-    @staticmethod
-    def get_configureCommands() -> list: return Commandlibrary_y.configureCommands
-    @staticmethod
-    def get_controlCommands()   -> list: return Commandlibrary_y.controlCommands
     @staticmethod
     def get_maximizeCommands()  -> list: return Commandlibrary_y.maximizeCommands
     @staticmethod

@@ -1,5 +1,7 @@
 {
-    "TRIGGERS": [],
+    "TRIGGERS": [
+        "фея"
+    ],
     "STOPTRIGGERS": [
         "остановись",
         "хотя нет",

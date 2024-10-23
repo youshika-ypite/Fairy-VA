@@ -4,7 +4,7 @@ import speech_recognition as sr
 from configure__main import Configuration
 
 from assistante_soundModule import Sound
-from assistante_commandDispatcher import commandDispatcher
+from commandHandler import ComandHandler
 
 class Assistant:
 
@@ -13,8 +13,7 @@ class Assistant:
         self.listen = False
         self.blocker = False
 
-        self.command = None
-        self.response = "Скажи 'Готово!'"
+        self.response = "Готово!"
 
         self.duration = 2
 
@@ -41,7 +40,7 @@ class Assistant:
             except Exception as exc: print(exc)
     
     def _init(self) -> None:
-        self.cdispatcher = commandDispatcher()
+        self.com_handler = ComandHandler()
         self.soundModule = Sound()
         
     def __start__(self) -> None:
@@ -103,21 +102,32 @@ class Assistant:
         self.listen = False
         self.oldtime = None
 
-    def __checkCommand(self, data) -> str | None:
-        
-        input_RESULT = self.cdispatcher.checkInput(data)    
-        response = self.response
+    def __checkCommand(self, data) -> bool | None:
 
-        if input_RESULT in [1, 2]:
-            if input_RESULT == 2:
-                response = self.cdispatcher.response
-            self.command = True
+        botTrigger = self.com_handler.get_botTrigger(data)
+        if not botTrigger:
+            request = self.com_handler.get_Request(data)
+            if not request:
+                print("None commands")
+                return None
+            else: return True
         else:
-            command_RESULT = self.cdispatcher.checkCommandAvailable(data)
-            if command_RESULT: self.command = False
-            else: print("None commands")
+            return False
 
-        return response
+    def _recognize(self, data: str) -> None: # recognize command
+
+        result = self.__checkCommand(data)
+        
+        if Configuration._CONFIG()['settings']['voiceActive']:
+            if result is False:
+                response = self.com_handler.response
+            elif result is True:
+                response = self.response
+            else:
+                response = self._llama_get_(data)
+            self._voice_speak(response)
+
+        self._stop_listen()
 
     def __recognizer(self, data=None) -> None: # check target-word
         if data is None: return
@@ -127,21 +137,6 @@ class Assistant:
         if not target: return
 
         self._start_listen()
-
-    def _recognize(self, data: str) -> None: # recognize command
-
-        response = self.__checkCommand(data)
-        if Configuration._CONFIG()['settings']['voiceActive']:
-            if 'LLM ' in response:
-                response = self._llama_get_(response.replace("LLM ", ""))
-            else:
-                if self.command is None:
-                    response = self._llama_get_(data)
-            self.command = None
-            
-            self._voice_speak(response)
-
-        self._stop_listen()
 
     def _listen(self, source):
         while Configuration._CONFIG()['settings']['ATactive']:
@@ -167,7 +162,7 @@ class Assistant:
                         if any(x in result for x in Configuration._STOPTRIGGERS()):
                             self._stop_listen()
                         else: self._recognize(result)
-                except Exception as exc: print(exc)
+                except Exception as exc: print("main while: ", exc)
 
     def _listener(self):
         self.__start__()

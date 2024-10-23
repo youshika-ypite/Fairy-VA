@@ -47,7 +47,5 @@ class Llama:
         return response
     
     def _SAVE(self) -> None:
-        print("Saving llama chat history..")
         with open(self.history_path, "w", encoding="utf-8") as file:
             dump(self.chat_history, file, ensure_ascii=False)
-        print("Success")

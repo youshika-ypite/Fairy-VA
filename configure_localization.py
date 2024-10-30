@@ -35,6 +35,12 @@ class Localization:
 
         lang = Localization.getLANG()+"_LOCAL"
         return Localization.__get_MenuLang(lang)
+    
+    @staticmethod
+    def get_ReadyAnsw_lang() -> list:
+
+        lang = Localization.getLANG()+"_LOCAL"
+        return Localization.__get_ReadyAnswLang(lang)
 
 
 
@@ -71,6 +77,10 @@ class Localization:
     @staticmethod
     def __get_MenuLang(lang) -> dict:
         return Localization.configuration[lang]['Menu']
+    
+    @staticmethod
+    def __get_ReadyAnswLang(lang) -> list:
+        return Localization.configuration[lang]['ReadyAnswers']
 
 
 

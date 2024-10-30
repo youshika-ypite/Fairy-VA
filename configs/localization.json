@@ -62,7 +62,8 @@
             "hideButton": "Свернуть в трей",
             "stopButton": "Пауза / Пуск",
             "quitButton": "Выход"
-        }
+        },
+        "ReadyAnswers": ["Готово!", "Выполнено!", "Одну секунду!", "Всё!"]
     },
     "EN_TG_LOCAL": {
         "App": {
@@ -123,6 +124,7 @@
             "hideButton": "Minimize to tray",
             "stopButton": "Pause / Start",
             "quitButton": "Quit"
-        }
+        },
+        "ReadyAnswers": ["Ready!", "Complete!", "One second!", "Done!"]
     }
 }

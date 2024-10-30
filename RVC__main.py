@@ -129,6 +129,8 @@ class generateTTS():
         speed, tts_voice,
         f0_up_key, f0_method,
         index_rate, protect,
+        pattern = False,
+        filename = None,
         filter_radius=3,
         resample_sr=0,
         rms_mix_rate=0.25
@@ -200,8 +202,12 @@ class generateTTS():
             )
             if self.tgt_sr != resample_sr >= 16000: self.tgt_sr = resample_sr
 
-            filename = Pathlib_y.get_mainLOCALpath()+"/result.wav"
-            os.remove(filename)
+            if pattern:
+                filename = Pathlib_y.get_voicePatternspath()+"/"+filename
+            else:
+                filename = Pathlib_y.get_mainLOCALpath()+"/result.wav"
+                os.remove(filename)
+            
             processing_utils.audio_to_file(self.tgt_sr, audio_opt, filename, 'wav')
 
             print(f"tts-out || Success. Time: edge-tts: {edge_time}s, npy: {times[0]}s, f0: {times[1]}s, infer: {times[2]}s")        

@@ -97,6 +97,7 @@ class PathChanger(QMainWindow):
         self.secondWin = Localization.get_SecondsWinLang()
 
         self.activePath = datapack['possible_path']
+        if self.activePath is None: self.activePath = "None"
         self.name = datapack['name']
 
         self.setWindowTitle("Miko!!"+self.name)

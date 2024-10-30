@@ -6,9 +6,10 @@ from configure_appFounder import search
 
 class Pathlib_y:
 
-    userprofilePATH = str(environ["USERPROFILE"]).replace("\\", "/")
-    mainLOCALpath   = userprofilePATH + "/AppData/Local/youshika-es"
-    mainTEMPpath    = mainLOCALpath + "/cache"
+    userprofilePATH   = str(environ["USERPROFILE"]).replace("\\", "/")
+    mainLOCALpath     = userprofilePATH + "/AppData/Local/youshika-es"
+    mainTEMPpath      = mainLOCALpath + "/cache"
+    voicePatternspath = mainLOCALpath + "/voicePatterns"
 
     @staticmethod
     def get_userprofilePath()   -> str: return Pathlib_y.userprofilePATH
@@ -16,6 +17,8 @@ class Pathlib_y:
     def get_mainLOCALpath()     -> str: return Pathlib_y.mainLOCALpath
     @staticmethod
     def get_mainTEMPpath()      -> str: return Pathlib_y.mainTEMPpath
+    @staticmethod
+    def get_voicePatternspath() -> str: return Pathlib_y.voicePatternspath
         
 
 class Applicator:

@@ -18,9 +18,11 @@ class Assistant:
         self.com_handler = ComandHandler()
         self.soundModule = Sound()
 
+        self.restart = False
+
         self.import_llama_and_voice()
 
-    def import_llama_and_voice(self) -> None:
+    def import_llama_and_voice(self) -> None: # Импорт модулей
         if Configuration._CONFIG()['settings']['voiceActive']:
             try:
                 print("Voice module load..")
@@ -36,7 +38,7 @@ class Assistant:
             except Exception as exc:
                 print("assistant || ", exc)
 
-    def commandHandler(self, text: str) -> bool:
+    def commandHandler(self, text: str) -> bool: # Поиск команд
         botTrigger = self.com_handler.get_botTrigger(text)
         if not botTrigger:
             request = self.com_handler.get_Request(text)
@@ -71,6 +73,9 @@ class Assistant:
                 print(f"Generate response.. --> 0.0")
                 start = time.time()
                 response = self.llamaModule.getResponse(text)
+                if response is None:
+                    speaks = False
+                    self.soundModule._notify()
                 LLMtimer = round(time.time() - start, 2)
                 print(f"Response generated. --> {LLMtimer}")
 
@@ -79,39 +84,57 @@ class Assistant:
                 start = time.time()
                 self.voiceModule.generate(response)
                 RVCtimer = round(time.time() - start, 2)
+                timer = round(LLMtimer+RVCtimer, 2)
                 print(f"Voice generated. --> {RVCtimer}")
                 print("Speaking..")
                 self.voiceModule.speak()
-                print("All time spend -> ", LLMtimer+RVCtimer, )
+                print("All time spend -> ", timer)
 
     def callback(self, c_recognizer: sr.Recognizer, audio: sr.AudioData):
-        try: 
+        try: # Распознование речи
             text = c_recognizer.recognize_google(audio, language="ru_RU").lower()
+            # Распознование команд
             self.recognize_command(text)
-        except sr.UnknownValueError as exc:
+        except sr.UnknownValueError as exc: # Речь не найдена
             print("assistant || UnknownValue -> ", exc)
-        except sr.RequestError as exc:
+        except sr.RequestError as exc: # Ошибка запроса
             print("assistant || RequestError -> ", exc)
 
-    def start_while(self):
+    def start_while(self): # Запуск потока
         print("youshika || Start loop -", time.strftime('%X'))
+        self.soundModule._start_listen()
         recognizer.listen_in_background(microphone, self.callback)
 
         while self.whileStatus:
+            # Если не приложение активно
             if not Configuration._CONFIG()['settings']['ATactive']:
                 self.stop_while()
                 continue
-
+            # Перезапуск
+            if self.restart:
+                self.restart_while()
+                continue
+            # Пауза распознования
             while Configuration._PAUSE():
                 time.sleep(0.5)
+            # Загрузка голосового модуля и Llama
             if Configuration._CONFIG()['settings']['loader']:
                 self.import_llama_and_voice()
                 Configuration.loaderOFF()
             time.sleep(1)
-
+        self.soundModule._stop_listen()
         print("youshika || Stop loop -", time.strftime('%X'))
+        self.whileStatus = None
 
-    def stop_while(self):
+    def restart_while(self):
+        self.whileStatus = False
+        while self.whileStatus in [True, False]:
+            time.sleep(0.2)
+        self.whileStatus = True
+        self.restart = False
+        self.start_while()
+
+    def stop_while(self): # Остановка потока и сохранение данных
         self.whileStatus = False
         errorCount, errors = 0, []
         if Configuration._CONFIG()['settings']['voiceActive']:

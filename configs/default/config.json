@@ -8,6 +8,7 @@
         "не нужно",
         "прекрати",
         "стой",
+        "стоп",
         "хотя ничего"
     ],
     "settings": {
@@ -22,8 +23,11 @@
         "models": [],
         "lang_models": [
             "ru-RU-SvetlanaNeural-Female",
-            "ru-RU-DmitryNeural-Male"
+            "ru-RU-DmitryNeural-Male",
+            "en-US-AnaNeural-Female",
+            "en-US-AriaNeural-Female"
         ],
+        "modelName": "",
         "voiceActive": false,
         "active": 0,
         "ATactive": true,

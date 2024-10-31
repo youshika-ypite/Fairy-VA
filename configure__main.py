@@ -224,11 +224,12 @@ class Configuration:
 
 
     @staticmethod
-    def _TRIGGERS()     -> set:         return set(Configuration.config['TRIGGERS'])
+    def _TRIGGERS()     -> set :    return set(Configuration.config['TRIGGERS'])
     @staticmethod
     def _STOPTRIGGERS() -> list:    return Configuration.config['STOPTRIGGERS']
     
-
+    @staticmethod
+    def OllamaModelName() -> str: return Configuration.config['settings']['modelName']
 
     @staticmethod
     def _SETTINGS() -> dict: return Configuration.config['settings']

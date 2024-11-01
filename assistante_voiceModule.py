@@ -14,14 +14,7 @@ class Voice():
         self.path = Pathlib_y.get_mainLOCALpath()+"/result.wav"
         self.generateReadyAnswer()
 
-    def generate(self, text: str, pattern=False, filename=None):
-        self.f0_key_up = Configuration._CONFIG()['settings']['voice']['f0_key_up']
-        self.f0_method = Configuration._CONFIG()['settings']['voice']['f0_method']
-        self.index_rate = Configuration._CONFIG()['settings']['voice']['index_rate']
-        self.protect0 = Configuration._CONFIG()['settings']['voice']['protect0']
-        self.tts_voice = Configuration._CONFIG()['settings']['voice']['tts']
-        self.speed = Configuration._CONFIG()['settings']['voice']['speed']
-
+    def generate(self, text: str, pattern: bool = False, filename: str =None):
         self.text = text
 
         self.voice.tts(
@@ -40,7 +33,6 @@ class Voice():
         )
 
     def generateReadyAnswer(self):
-        print("Generate voice patterns..")
         texts = Localization.get_ReadyAnsw_lang()
         index = Configuration._CONFIG()['settings']['active']
         modelName = Configuration._CONFIG()['settings']['models'][index]
@@ -53,7 +45,7 @@ class Voice():
         for file in files:
             if modelName in file: ready = True
         if ready: return
-        
+        print("Generate voice patterns..")
         for text in texts:
             self.generate(text, pattern=True, filename=modelName+text+".wav")
         print("Success")
@@ -72,6 +64,6 @@ class Voice():
             file = random.choice(activeFiles)
             winsound.PlaySound(_path+"/"+file, winsound.SND_FILENAME)
         else:
-            print("File not found, generating..")
+            print("Patterns not found")
             self.generateReadyAnswer()
             self.speakReady()

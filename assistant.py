@@ -37,6 +37,7 @@ class Assistant:
                 print("Voice module loaded successfully.")
             except Exception as exc:
                 print("assistant || ", exc)
+                self.soundModule._notify()
 
     def commandHandler(self, text: str) -> bool: # Поиск команд
         botTrigger = self.com_handler.get_botTrigger(text)
@@ -92,12 +93,15 @@ class Assistant:
 
     def callback(self, c_recognizer: sr.Recognizer, audio: sr.AudioData):
         try: # Распознование речи
+            c_recognizer.adjust_for_ambient_noise(audio)
             text = c_recognizer.recognize_google(audio, language="ru_RU").lower()
             # Распознование команд
+            print("Text: ", text)
             self.recognize_command(text)
         except sr.UnknownValueError as exc: # Речь не найдена
-            print("assistant || UnknownValue -> ", exc)
+            print("assistant || UnknownValue -> None speech")
         except sr.RequestError as exc: # Ошибка запроса
+            self.soundModule._notify()
             print("assistant || RequestError -> ", exc)
 
     def start_while(self): # Запуск потока

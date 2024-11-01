@@ -75,6 +75,7 @@ class Applicator:
         for ctg in ['readyApps', 'needDataApps', 'needAcceptApps']:
             try:
                 del Applicator.application['settings'][ctg][name]
+                print("Found")
             except Exception as exc_ke: print(f"can't find {name} in {ctg}\n", exc_ke)
         Applicator.applicationcount -= 1
         Applicator.saveOption = True

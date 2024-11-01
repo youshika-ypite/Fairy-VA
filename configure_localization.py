@@ -9,44 +9,44 @@ class Localization:
     @staticmethod
     def get_AppLang() -> dict:
 
-        lang = Localization.getLANG()+"_LOCAL"
+        lang = Localization.getLANG()
         return Localization.__get_AppLang(lang)
     
     @staticmethod
     def get_ToolLang() -> dict:
 
-        lang = Localization.getLANG()+"_LOCAL"
+        lang = Localization.getLANG()
         return Localization.__get_ToolLang(lang)
     
     @staticmethod
     def get_NotificateLang() -> dict:
 
-        lang = Localization.getLANG()+"_LOCAL"
+        lang = Localization.getLANG()
         return Localization.__get_NotificateLang(lang)
     
     @staticmethod
     def get_SecondsWinLang() -> dict:
 
-        lang = Localization.getLANG()+"_LOCAL"
+        lang = Localization.getLANG()
         return Localization.__get_SecondsWindLang(lang)
     
     @staticmethod
     def get_MenuLang() -> dict:
 
-        lang = Localization.getLANG()+"_LOCAL"
+        lang = Localization.getLANG()
         return Localization.__get_MenuLang(lang)
     
     @staticmethod
     def get_ReadyAnsw_lang() -> list:
 
-        lang = Localization.getLANG()+"_LOCAL"
+        lang = Localization.getLANG()
         return Localization.__get_ReadyAnswLang(lang)
 
 
 
     @staticmethod
     def getLANG() -> str:
-        return Localization.configuration['settings']['LANG']
+        return Localization.configuration['settings']['LANG']+"_LOCAL"
     
     @staticmethod
     def changeLang(lang: str):

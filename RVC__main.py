@@ -36,7 +36,6 @@ def search():
     Configuration.update_models(models)
 
     return models
-models = search()
 
 def model_data(model_name):
     pth_files = [
@@ -48,7 +47,7 @@ def model_data(model_name):
         raise ValueError(f"No pth file found in {model_root}/{model_name}")
     pth_path = pth_files[0]
     print(f"tts-out || Loading {pth_path}")
-    cpt = torch.load(pth_path, map_location="cpu", weights_only=True)
+    cpt = torch.load(pth_path, map_location=config.device)
     tgt_sr = cpt["config"][-1]
     cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
     if_f0 = cpt.get("f0", 1)
@@ -110,6 +109,7 @@ class generateTTS():
         print("tts-out || Loading rmvpe model...")
         self.rmvpe_model = RMVPE("rvc_rmvpe.pt", config.is_half, config.device)
         print("tts-out || rmvpe model loaded.")
+        self.load()
 
     def load(self):
 

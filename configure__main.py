@@ -1,4 +1,4 @@
-from os import environ
+import os
 from json import load, dump
 from datetime import datetime as dt
 
@@ -6,7 +6,7 @@ from configure_appFounder import search
 
 class Pathlib_y:
 
-    userprofilePATH   = str(environ["USERPROFILE"]).replace("\\", "/")
+    userprofilePATH   = str(os.environ["USERPROFILE"]).replace("\\", "/")
     mainLOCALpath     = userprofilePATH + "/AppData/Local/youshika-es"
     mainTEMPpath      = mainLOCALpath + "/cache"
     voicePatternspath = mainLOCALpath + "/voicePatterns"
@@ -161,7 +161,10 @@ class Applicator:
             ensure_ascii=False,
             indent=4
         )
-
+    @staticmethod
+    def __load() -> None:
+        Applicator.application = load(open("configs/application.json", "r", encoding="utf-8"))
+        Applicator.applicationcount = len(Applicator.application)-1
 
 class Commandlibrary_y:
 
@@ -222,6 +225,14 @@ class Configuration:
     @staticmethod
     def _CONFIG() -> dict: return Configuration.config
 
+
+    @staticmethod
+    def search():
+        model_root = "weights"
+        models = [d for d in os.listdir(model_root) if os.path.isdir(os.path.join(model_root, d))]
+        if len(models) == 0: raise ValueError("tts-out || No model found in `weights` folder")
+        models.sort()
+        Configuration.update_models(models)
 
 
     @staticmethod
@@ -297,3 +308,8 @@ class Configuration:
             ensure_ascii=False,
             indent=4
         )
+    @staticmethod
+    def load():
+        Configuration.config = load(
+            open("configs/config.json", 'r', encoding='utf-8')
+            )

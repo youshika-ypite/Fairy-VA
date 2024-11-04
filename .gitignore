@@ -1,8 +1,7 @@
 venv/
 __pycache__/
-*.svg
+temp/
 rvc_hubert_base.pt
 rvc_rmvpe.pt
-designer.lnk
 ideas.md
-resource.qrc
+new.ui

@@ -4,7 +4,8 @@ if system().lower() != 'windows':
 import os
 from threading import Thread
 from configure__main import Pathlib_y, Applicator
-from applicate__main import Application
+# from applicate__main import Application # Старая версия
+from applicate_new import Application # Новая версия
 from assistant import Assistant
 
 localpath = Pathlib_y.get_mainLOCALpath()
@@ -20,6 +21,9 @@ print("youshika-es |INFO| your temp path is ", _temppath)
 assistante = Assistant()
 applicate = Thread(target=Application, daemon=True)
 
-if __name__ == "__main__":
+def main():
     applicate.start()
     assistante.start_while()
+
+if __name__ == "__main__":
+    main()

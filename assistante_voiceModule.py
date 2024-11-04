@@ -10,7 +10,6 @@ class Voice():
     def __init__(self) -> None:
 
         self.voice = generateTTS()
-        self.voice.load()
         self.path = Pathlib_y.get_mainLOCALpath()+"/result.wav"
         self.generateReadyAnswer()
 

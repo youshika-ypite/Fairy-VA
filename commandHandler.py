@@ -262,13 +262,9 @@ class ComandHandler:
         self.__updater()
 
     def __updater(self):
-        print("------------")
         try:
-            print("youshika-es |INFO| Link update..")
             self.linkDict = self.__update_link()
-            print("youshika-es |INFO| Link update successfully.")
         except Exception as exc: print("youshika-es |ERROR| CommandHandler.py __updater() | ", exc)
-        print("------------")
         self.programs = Commandlibrary_y.get_programs()
 
     def __update_link(self) -> dict:
@@ -303,6 +299,7 @@ class ComandHandler:
 
         if command is None: return 0
         output = self.botCommands[command]()
+        if output is None: return 0
         if output[0] in ['d', 't']:
             self.response = output[1]
             return 1

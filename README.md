@@ -13,7 +13,7 @@
 
 Распознает только русский язык хоть и присутствует локализация приложения
 
-На фоне с играми, вероятно генерировать текст и голос не сможет, однако можно отключить эту функцию и просто оставить ассистента для остальных задач, разговаривать не будет но работать должен.
+На фоне с играми, вероятно генерировать текст и голос не сможет (llama3.1 8b кушает 5GB видеопамяти), однако можно отключить эту функцию и просто оставить ассистента для остальных задач.
 
 В планах:
 * Улучшить дизайн
@@ -36,8 +36,12 @@
 
 Открываем cmd в нужном месте и переходим в консоль по вашей директории.
 ```bash
-git clone https://github.com/youshika-ypite/Miko-voice.git
+git clone https://github.com/youshika-ypite/Fairy-VA.git
+```
+```bash
 curl -L -O https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt
+```
+```bash
 curl -L -O https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt
 ```
 ```bash

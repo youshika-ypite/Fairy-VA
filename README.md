@@ -16,11 +16,9 @@
 На фоне с играми, вероятно генерировать текст и голос не сможет, однако можно отключить эту функцию и просто оставить ассистента для остальных задач, разговаривать не будет но работать должен.
 
 В планах:
-* Поменять дизайн
+* Улучшить дизайн
 * Добавить локализацию на английский для ассистента
 * Улучшить алгоритмы (мне нужно учится..)
-
-Буду экспериментировать с методами распознавания, чтобы не тыркать микрофон каждые 2 секунды и систему воском не нагружать
 
 Я считаю что задача минимум сделана, начал этот проект в конце августа 2024, сейчас 23 октября. Буду улучшать и потихоньку доделывать цели из плана, возможно добавлять новое.
 
@@ -28,29 +26,31 @@
 
 Тестировалось на Python 3.10 и pip 21.3.1 на Windows 11, работоспособнасть на этих версиях гарантирована.
 
-Возможно, придется установить Microsoft C++ Build Tools, но я не уверен.
+### Видеокарта от NVIDIA 
 
-Microsoft C++ Build Tools: [Download installer](https://visualstudio.microsoft.com/ja/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16).
+Если ваша видеокарта выпущена компанией NVIDIA, то вам нужно установить:
+* Microsoft C++ Build Tools: [Download installer](https://visualstudio.microsoft.com/ru/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16).
+* CUDA [Download installer](https://developer.nvidia.com/cuda-12-4-0-download-archive?target_os=Windows&target_arch=x86_64)
 
+### Установка в директории проекта
+
+Открываем cmd в нужном месте и переходим в консоль по вашей директории.
 ```bash
 git clone https://github.com/youshika-ypite/Miko-voice.git
-
-# В директории проекта
 curl -L -O https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/hubert_base.pt
 curl -L -O https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/rmvpe.pt
-
-# Создание виртуального окружения
-python -m venv venv
+```
+```bash
+py -3.10 -m venv venv
 venv\Scripts\activate
-
-# Если видеокарта NVIDIA, устанавливаем
-#   CUDA https://developer.nvidia.com/cuda-12-4-0-download-archive?target_os=Windows&target_arch=x86_64
+```
+Если видеокарта NVIDIA, устанавливаем
+```bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-
-# Модули
+```
+```bash
 pip install -r requirements.txt
 ```
-
 ## Установка Llama
 
 Можно взять не только ламу, главное чтобы от [Ollama](https://ollama.com/)
@@ -61,7 +61,6 @@ pip install -r requirements.txt
 ## Расположение моделей
 
 Расположите ваши модели в соответствии с этой схемой:
-```bash
 weights
 ├── model1
 │   ├── my_model1.pth
@@ -69,22 +68,21 @@ weights
 └── model2
     ├── my_model2.pth
     └── my_index_file_for_model2.index
-```
-Каждый каталог модели должен содержать ровно один файл `.pth` и не более одного файла `.index`. Имя директории
+Каждый каталог модели должен содержать ровно один файл .pth и не более одного файла .index. Имя директории
 используется как имя модели.
 
-Возникло впечатление, что в путях с не ASCII символами (например, `weights/モデル1/index.index`) происходят
+Возникло впечатление, что в путях с не ASCII символами (например, weights/モデル1/index.index) происходят
 ошибки faiss. Поэтому, пожалуйста, избегайте их.
 
 # Запуск 
 
 ## Настройка конифгурации
 
-* Переместите или скопируйте все .json файлы из `configs/default` в `configs/`
+* Переместите или скопируйте все .json файлы из configs/default в configs/
 
-**Важно!** чтобы все работало обязательно сделайте следующее:
-1. В `config.json` укажите имя своей модели, например `"llama3.1"`
-2. Если вы хотите добавить свой именной триггер то в том же файле рядом с `"фея"` через запятую укажите свой триггер. Желательно с маленькой буквы
+Важно! чтобы все работало обязательно сделайте следующее:
+1. В config.json укажите имя своей модели, например "llama3.1"
+2. Если вы хотите добавить свой именной триггер то в том же файле рядом с "фея" через запятую укажите свой триггер. Желательно с маленькой буквы
 
 Запустите скрипт main.py из виртуального окружения.
 Наслаждайтесь.

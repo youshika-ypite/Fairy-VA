@@ -1,7 +1,7 @@
 venv/
 __pycache__/
 temp/
-rvc_hubert_base.pt
-rvc_rmvpe.pt
+hubert_base.pt
+rmvpe.pt
 ideas.md
 new.ui

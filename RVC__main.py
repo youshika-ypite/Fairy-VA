@@ -91,7 +91,7 @@ def model_data(model_name):
 def load_hubert():
     global hubert_model
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-        ["rvc_hubert_base.pt"],
+        ["hubert_base.pt"],
         suffix="",
     )
     hubert_model = models[0]
@@ -107,7 +107,7 @@ class generateTTS():
         self.hubert_model = load_hubert()
         print("tts-out || Hubert model loaded.")
         print("tts-out || Loading rmvpe model...")
-        self.rmvpe_model = RMVPE("rvc_rmvpe.pt", config.is_half, config.device)
+        self.rmvpe_model = RMVPE("rmvpe.pt", config.is_half, config.device)
         print("tts-out || rmvpe model loaded.")
         self.load()
 

@@ -26,8 +26,7 @@ class Assistant:
         if Configuration._CONFIG()['settings']['voiceActive']:
             try:
                 print("Voice module load..")
-                if not Configuration._PAUSE():
-                    Configuration.pause()
+                Configuration.pause()
                 if not Configuration._import():
                     from assistante_voiceModule import Voice
                     from assistante_llama3_1 import Llama
@@ -36,8 +35,7 @@ class Assistant:
                     Configuration.loadimport()
                 else:
                     self.voiceModule.voice.load()
-                if not Configuration._PAUSE():
-                    Configuration.pause()
+                Configuration.pause()
                 print("Voice module loaded successfully.")
             except Exception as exc:
                 print("assistant || ", exc)

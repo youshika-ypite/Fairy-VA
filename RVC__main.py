@@ -206,7 +206,9 @@ class generateTTS():
                 filename = Pathlib_y.get_voicePatternspath()+"/"+filename
             else:
                 filename = Pathlib_y.get_mainLOCALpath()+"/result.wav"
-                os.remove(filename)
+                try:
+                    os.remove(filename)
+                except FileNotFoundError: pass
             
             processing_utils.audio_to_file(self.tgt_sr, audio_opt, filename, 'wav')
 

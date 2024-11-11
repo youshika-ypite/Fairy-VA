@@ -122,68 +122,42 @@ class launcher:
 
     def control_BROWSER(self, elseType=None):
         browsers_name = Commandlibrary_y.get_browsers()
-        self.find = 0
-        probabilities, tabClass = {}, None
+        max_diff = 0
+        tabClass = None
         for taskname in self.windows.keys():
-            for browser in browsers_name:
-                browser = unidecode.unidecode(browser)
-                if browser in taskname:
-                    self.windows[taskname].close()
-                    return 1
-                browser = [browser, browser+"2"]
-                if not self.find:
-                    if len(list(taskname.split(" "))) == 1: taskname = taskname + f" {taskname}2"
-                    active = taskname.split(" ", 1)
+            request_list = [_ for _ in taskname.lower()]
+            seq_kf = {}
 
-                    try: active = active.remove(" ")
-                    except: pass
+            for key in browsers_name:
+                if key in taskname:
+                    tabClass = taskname 
+                    break
+                max_diff = similarity(request_list, [_ for _ in key.lower()])
+                seq_kf[max_diff] = key
 
-                    if type(browser) is list:
-                        browser = browser[0]
+            if seq_kf is not {}:
+                max_diff = max(seq_kf.keys())
 
-                    vectorizer = CountVectorizer()
-                    clf = LogisticRegression()
-                    vectors = vectorizer.fit_transform(list(active))
-                    clf.fit(vectors, list(active))
+        if max_diff < 0.7 and tabClass == None: return 0
+        if tabClass == None: tabClass = seq_kf[max_diff]
 
-                    user_command_vector = vectorizer.transform([browser])
-                    predicted_probabilities = clf.predict_proba(user_command_vector)
-                                            
-                    max_probability = max(predicted_probabilities[0])
-                    for i in range(10):
-                        if max_probability in probabilities.keys(): max_probability += 0.00000000001
-                        else: break
-                    probabilities[max_probability] = taskname
-        
-        if max(probabilities.keys()) < 0.7 and tabClass == None: return 0
-        window = self.windows[probabilities[max(probabilities.keys())]]
-        {
-            1: window.close,
-            4: window.maximize,
-            5: window.minimize
-        }.get(elseType, lambda: None)()
-
+        window = self.windows[tabClass]
+        {1: window.close, 4: window.maximize, 5: window.minimize}.get(elseType, lambda: None)()
         return 1
 
     def control_SETTINGS(self, elseType=None): pass
 
     def control_CMD(self, elseType=None):
         try:
-            {
-                1:self.windows[[key for key in self.windows.keys() if 'komandnaia stroka' in key or 'cmd' in key][0]].close,
-                4:self.windows[[key for key in self.windows.keys() if 'komandnaia stroka' in key or 'cmd' in key][0]].maximize,
-                5:self.windows[[key for key in self.windows.keys() if 'komandnaia stroka' in key or 'cmd' in key][0]].minimize
-            }.get(elseType, lambda: None)()
+            obj = self.windows[[key for key in self.windows.keys() if 'komandnaia stroka' in key or 'cmd' in key][0]]
+            {1:obj.close, 4:obj.maximize, 5:obj.minimize}.get(elseType, lambda: None)()
             return 1
         except: return 0
 
     def control_POWERSHELL(self, elseType=None):
         try:
-            {
-                1:self.windows[[key for key in self.windows.keys() if 'windows powershell' in key][0]].close,
-                4:self.windows[[key for key in self.windows.keys() if 'windows powershell' in key][0]].maximize,
-                5:self.windows[[key for key in self.windows.keys() if 'windows powershell' in key][0]].minimize
-            }.get(elseType, lambda: None)()
+            obj = self.windows[[key for key in self.windows.keys() if 'windows powershell' in key][0]]
+            {1:obj.close, 4:obj.maximize, 5:obj.minimize}.get(elseType, lambda: None)()
             return 1
         except: return 0
 
@@ -387,6 +361,8 @@ class ComandHandler:
         while self.request[-1] == " ": 
             stop = len(self.request)-1
             self.request = self.request[:stop]
+
+        self.index = index
         
         return self.funcs[index]()
 
@@ -452,7 +428,7 @@ class ComandHandler:
             if word in self.programs.keys():
                 try: function = self.programs[self.request.replace(" ", "")]
                 except: function = self.programs[word]
-                self.launcher.funcNameDict[function](self.commandIndex)
+                self.launcher.funcNameDict[function](self.index)
                 return 1
 
         readyApps = Applicator.getReadyApps()
@@ -508,46 +484,33 @@ class ComandHandler:
     def __checkSpecials(self) -> bool:
         for trigger in Commandlibrary_y.get_SPECIALS():
             if trigger in self.request:
-                self.launcher._SPECIAL(self.commandIndex)
+                self.launcher._SPECIAL(self.index)
                 return 1
         return 0
 
     def __getWindow(self) -> pygetwindow.Win32Window | None:
-        prob = {}
         windowClass = None
 
         words = unidecode.unidecode(self.request)
-        for taskname in self.windows.keys():
-            if words in taskname: windowClass = self.windows[taskname]
-            if windowClass is None:
-                if len(list(taskname.split())) == 1: taskname = taskname + f" {taskname}2"
-                active = taskname.split(" ", 1)
 
-                try: active = active.remove(" ")
-                except: pass
+        request_list = [_ for _ in words.lower()]
+        seq_kf = {}
 
-                vectorizer = CountVectorizer()
-                clf = LogisticRegression()
+        for key in self.windows.keys():
+            if key in words:
+                windowClass = key
+            max_diff = similarity(request_list, [_ for _ in key.lower()])
+            seq_kf[max_diff] = key
 
-                vectors = vectorizer.fit_transform(list(active))
-                clf.fit(vectors, list(active))
+        if seq_kf is not {}:
+            max_diff = max(seq_kf.keys())
 
-                user_cv = vectorizer.transform([words])
-                predicted_prob = clf.predict_proba(user_cv)
+        if max_diff < 0.55 and windowClass == None: return None
+        if windowClass == None: windowClass = seq_kf[max_diff]
 
-                max_prob = max(predicted_prob[0])
-                for i in range(10):
-                    if max_prob in prob.keys(): max_prob += 0.00000000001
-                    else: break
-                prob[max_prob] = taskname
+        window = self.windows[windowClass]
 
-        if max(prob.keys()) < self.appTreshold and windowClass == None: return None
-        if windowClass == None:
-            pMPK = prob[max[prob.keys()]]
-            if pMPK.split(" ")[0] == pMPK.split(" ")[1]: pMPK = prob[max(prob.keys())].split()[0]
-            windowClass = self.windows[pMPK]
-
-        return windowClass
+        return window
     
     def __diff_app_search_WUD(self, readyApps: dict) -> dict | None:
         """Поиск без использования `unidecode`"""

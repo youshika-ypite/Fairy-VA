@@ -4,4 +4,4 @@ temp/
 hubert_base.pt
 rmvpe.pt
 ideas.md
-new.ui
+*.ui

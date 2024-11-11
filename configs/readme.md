@@ -1,1 +1,0 @@
-Please, copy all .json files from default dir to configs dir!

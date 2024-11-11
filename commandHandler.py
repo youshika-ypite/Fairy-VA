@@ -13,6 +13,32 @@ from sklearn.linear_model import LogisticRegression
 from configure__main import Commandlibrary_y, Pathlib_y, App
 from configure__main import Applicator
 
+def similarity(list1, list2, round_count = 3) -> float | int:
+    """Сравнение матрицами
+    >>> Если совпадений нет возвращает 0 иначе (0.0 ; 1.0)
+    """
+    matrix = [[0 for _ in range(len(list2) + 1)] for _ in range(len(list1) + 1)]
+
+    for i in range(len(list1) + 1):
+        matrix[i][0] = i
+    for j in range(len(list2) + 1):
+        matrix[0][j] = j
+
+    for i in range(1, len(list1) + 1):
+        for j in range(1, len(list2) + 1):
+            if list1[i - 1] == list2[j - 1]:
+                matrix[i][j] = matrix[i - 1][j - 1]
+            else:
+                matrix[i][j] = min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1)
+
+    float_result = 1.0 - (matrix[len(list1)][len(list2)] / float(max(len(list1), len(list2))))
+
+    if float_result < 0: result = 0
+    else: result = round(float_result, round_count)
+
+    return result
+
+
 class launcher:
 
     def __init__(self) -> None:
@@ -41,7 +67,11 @@ class launcher:
 
     def openLink(self, link): webbrowser.open_new_tab(link)
 
-    def openOneProgram(self, path): os.startfile(rf"{path}")
+    def openOneProgram(self, path) -> None | bool:
+        if os.path.isfile(path):
+            os.startfile(path)
+            return None
+        else: return 1
 
     def closeOneProgram(self, program): program.close()
     def minimizeOneProgram(self, program): program.minimize()
@@ -252,6 +282,39 @@ class ComandHandler:
             self._minimizeHandler
         ]
 
+        self.data_set = {
+            "open_set": {
+                "type": "OPEN",
+                "index": 0,
+                "full": ['открой', 'запусти', "инициализируй", "включи"],
+                "startwith": ['откр', 'запус', "инициализ", "включ"]
+            },
+            "close_set": {
+                "type": "CLOSE",
+                "index": 1,
+                "full": ["закрой", "выключи", "отключи", "заверши"],
+                "startwith": ["закр", "выключ", "отключ", "завер"]
+            },
+            "max_set": {
+                "type": "MAX",
+                "index": 2,
+                "full": ["выведи", "разверни", "покажи", "раскрой"],
+                "startwith": ["вывед", "разверн", "покаж", "раскр"]
+            },
+            "min_set": {
+                "type": "MIN",
+                "index": 3,
+                "full": ["уведи", "сверни", "скрой", "убери"],
+                "startwith": ["увед", "сверн", "скр", "убер"]
+            },
+            "SPECIALS_set": {
+                "type": "SPECIALS",
+                "index": 4,
+                "full": ["все окна", "всё", "все", "окна"],
+                "startwith": [None]
+            }
+        }
+
         self.response = None
     
         self.treshold = 0.275
@@ -262,18 +325,79 @@ class ComandHandler:
 
     def __updater(self):
         try:
-            self.linkDict = self.__update_link()
+            with open(self.linkDictPath, "r", encoding="utf-8") as file:
+                self.linkDict = json.load(file)
+            self.programs = Commandlibrary_y.get_programs()
         except Exception as exc: print("youshika-es |ERROR| CommandHandler.py __updater() | ", exc)
-        self.programs = Commandlibrary_y.get_programs()
 
-    def __update_link(self) -> dict:
-        with open(self.linkDictPath, "r", encoding="utf-8") as file:
-            linkDict = json.load(file)
-        return linkDict
+    def diff_command_search(self, request: str) -> str | bool | str:
+        """
+        >>> Возвращает "Command not found" если команда не найдена
+        >>> Возвращает "App path error - doesn't exists. Path: {_path}" если путь к приложению не существует
+        >>> Возвращает bool=1 если команда выполнена
+        >>> Возвращает bool=0 если команда не выполнена
+        """
+        self.request = request
+        request_list = [_ for _ in self.request.lower()]
+        target = None
+        max_kf = []
+
+        for key in self.data_set.keys():
+            sequence = []
+            for item in self.data_set[key]['full']:
+                item_list = [_ for _ in item]
+                sequence.append(similarity(request_list, item_list))
+
+            max_kf.append(max(sequence))
+
+        key_i, sw_i  = 0, 0
+        keys = [_ for _ in self.data_set.keys()]
+        while target is None:
+            if key_i == 5: break
+            key = keys[key_i]
+            if self.data_set[key]['startwith'][0] is None: break
+            if self.data_set[key]['startwith'][sw_i] in self.request:
+                target = [key, self.data_set[key]['startwith'][sw_i]]
+            if sw_i == 3:
+                key_i += 1
+                sw_i = 0
+            else:
+                sw_i += 1
+
+        if target is not None:
+            min_index = self.request.index(target[1])
+            seq = self.request[min_index:]
+            for char in seq:
+                if char == " " or char == seq[-1]:
+                    max_index = self.request.index(char, min_index)
+                    self.request = self.request.replace(self.request[min_index:max_index], "")
+                    break
+
+            index = self.data_set[target[0]]['index']
+        else:
+            _max = max(max_kf)
+            if _max < 0.175: return "Command not found"
+            max_index = max_kf.index(_max)
+            index = [_ for _ in self.data_set.values()][max_index]['index']
+
+        self.windows = self.launcher.getAllOpenPrograms()
+        
+        while self.request[0] == " ":
+            self.request = self.request[1:]
+        while self.request[-1] == " ": 
+            stop = len(self.request)-1
+            self.request = self.request[:stop]
+        
+        return self.funcs[index]()
 
     def get_botTrigger(self, request: str) -> bool:
+        """
+        >>> Возвращает 0 если команда не найдена
+        >>> Возвращает 1 если команда найдена (Обход Llama)
+        """
         self.request = request
-        if self.request[0] == " ": self.request.removeprefix(" ")
+        if self.request[0] == " ":
+            self.request = self.request.removeprefix(" ")
 
         command = None
 
@@ -297,66 +421,26 @@ class ComandHandler:
                     command = data_set[f'{trigger}'].split()[0]
 
         if command is None: return 0
+        
         output = self.botCommands[command]()
         if output is None: return 0
-        if output[0] in ['d', 't']:
-            self.response = output[1]
-            return 1
 
-        self.response = None
-        ######################
-        #Добавить локализацию#
-        ######################
-        if output[0] == "w":
-            self.response = f"Сейчас {output[1]}, " \
-            f"средняя температура - {output[2]} градусов."
-        elif output[0] == "e":
-            self.response = f"Произошла ошибка"
-        elif output[0] == "we":
-            self.response = \
-            "Из-за непредвиденной ошибки я не могу получить активные данные, однако есть старые: "\
-            f"Сейчас - {output[1][1]}, средняя температура - {output[1][2]} градусов."
-        return 2
-
-    def get_Request(self, request: str) -> bool:
-        self.request = request
-
-        commands = [
-            Commandlibrary_y.get_createCommands(),
-            Commandlibrary_y.get_destroyCommands(),
-            Commandlibrary_y.get_maximizeCommands(),
-            Commandlibrary_y.get_minimizeCommands()
-        ]
-
-        self.commandIndex = 0
-        self.v_prob = []
-
-        for command_list in commands:
-            vectorizer = CountVectorizer()
-            clf = LogisticRegression()
-
-            vectors = vectorizer.fit_transform(list(command_list))
-            clf.fit(vectors, list(command_list))
-
-            user_cv = vectorizer.transform([self.request])
-            predicted_prob = clf.predict_proba(user_cv)
-
-            max_prob = max(predicted_prob[0])
-
-            self.v_prob.append(max_prob)
-        
-        if max(self.v_prob) < self.commandTreshold: return 0
-        
-        self.commandIndex = self.v_prob.index(max(self.v_prob))
-        if self.commandIndex is None: return 0
-        
-        for command in commands[self.commandIndex]:
-            if command in self.request:
-                try: self.request = self.request.replace(command+" ", "")
-                except: self.request = self.request.replace(" "+command, "")
-
-        self.windows = self.launcher.getAllOpenPrograms()
-        return self.funcs[self.commandIndex]()
+        if output[0] in ['d', 't']: self.response = output[1]
+        else:
+            self.response = None
+            ######################
+            #Добавить локализацию#
+            ######################
+            if output[0] == "w":
+                self.response = f"Сейчас {output[1]}, " \
+                f"средняя температура - {output[2]} градусов."
+            elif output[0] == "e":
+                self.response = f"Произошла ошибка"
+            elif output[0] == "we":
+                self.response = \
+                "Из-за непредвиденной ошибки я не могу получить активные данные, однако есть старые: "\
+                f"Сейчас - {output[1][1]}, средняя температура - {output[1][2]} градусов."
+        return 1
 
     def _openHandler(self) -> bool:
         function = None
@@ -370,54 +454,33 @@ class ComandHandler:
                 except: function = self.programs[word]
                 self.launcher.funcNameDict[function](self.commandIndex)
                 return 1
-            
+
         readyApps = Applicator.getReadyApps()
-        requestUC = unidecode.unidecode(self.request)
         _path = None
-        prob = {}
-        for app in readyApps.keys():
-            if self.request.lower() in app.lower():
-                _path = readyApps[app]
-                self.launcher.openOneProgram(_path)
-                return 1
-            
-            if requestUC.lower() in app.lower():
-                _path = readyApps[app]
-                self.launcher.openOneProgram(_path)
-                return 1
+        active_seq = []
 
-            if list(app)[0].lower() in Commandlibrary_y.get_RUALPH(): request = self.request
-            else: request = requestUC
+        ITI_search = self.__InToIn_search(readyApps)
+        if ITI_search is not None: _path = ITI_search
+        if _path is None:
+            first_seq = self.__diff_app_search_WUD(readyApps)
+            secnd_seq = self.__diff_app_search_UD(readyApps)
 
-            app = app.replace("-", "")
+            if first_seq is not None: active_seq.append(first_seq)
+            if secnd_seq is not None: active_seq.append(secnd_seq)
 
-            if len(list(app.split())) == 1: app = app + f" |{app}2"
-            active = app.split(" ")[:2]
-            for item in active:
-                if len(item) <= 2:
-                    active.remove(item)
-                    active.append(active[0]+ f" |{active[0]}2")
-                    break
+            if not active_seq: return None
 
-            if type(request) is list: request = request[0]
+            if len(active_seq) == 1:
+                _path = active_seq[0][max(active_seq[0].keys())]
+            else:
+                if max(active_seq[0].keys()) > max(active_seq[0].keys()):
+                    _path = active_seq[0][max(active_seq[0].keys())]
+                else:
+                    _path = active_seq[1][max(active_seq[1].keys())]
 
-            vectorizer = CountVectorizer()
-            clf = LogisticRegression()
-        
-            vectors = vectorizer.fit_transform(list(active))
-            clf.fit(vectors, list(active))
-
-            user_cv = vectorizer.transform(list(request))
-            predicted_prob = clf.predict_proba(user_cv)
-
-            max_probability = max(predicted_prob[0])
-            for i in range(10):
-                if max_probability in prob.keys(): max_probability += 0.00000000001
-                else: break
-            prob[max_probability] = app
-
-        if max(prob.keys()) >= self.appTreshold:
-            self.launcher.openOneProgram(readyApps[prob[max(prob.keys())]])
+        if _path is not None:
+            result = self.launcher.openOneProgram(_path)
+            if result is not None: return f"App path error - doesn't exists. Path: {_path}"
             return 1
         return 0
     
@@ -426,6 +489,7 @@ class ComandHandler:
         windowClass = self.__getWindow()
         if windowClass is None: return 0
         self.launcher.closeOneProgram(windowClass)
+        return 1
 
     def _minimizeHandler(self) -> bool:
         if self.__checkSpecials(): return 1
@@ -484,3 +548,53 @@ class ComandHandler:
             windowClass = self.windows[pMPK]
 
         return windowClass
+    
+    def __diff_app_search_WUD(self, readyApps: dict) -> dict | None:
+        """Поиск без использования `unidecode`"""
+        request_list = [_ for _ in self.request.lower()]
+
+        seq_kf = {}
+
+        for key in readyApps.keys():
+            max_diff = similarity(request_list, [_ for _ in key.lower()])
+            seq_kf[max_diff] = key
+
+        max_diff = max(seq_kf.keys())
+        if max_diff < self.appTreshold: return None
+
+        return seq_kf
+    
+    def __diff_app_search_UD(self, readyApps: dict) -> dict | None:
+        """Поиск с использованием `unidecode`"""
+        request = unidecode.unidecode(self.request)
+        request_list = [_ for _ in request.lower()]
+
+        seq_kf = {}
+
+        for key in readyApps.keys():
+            max_diff = similarity(request_list, [_ for _ in key.lower()])
+            seq_kf[max_diff] = key
+
+        max_diff = max(seq_kf.keys())
+        if max_diff < self.appTreshold: return None
+
+        return seq_kf
+    
+    def __InToIn_search(self, readyApps: dict) -> str | None:
+        """Дословный поиск (включает unidecode проверку)
+        >>> Возвращает путь к приложению или `None`"""
+        base_req = self.request.lower()
+        UDCD_req = unidecode.unidecode(self.request).lower()
+        print(base_req, UDCD_req)
+
+        for app in readyApps.keys():
+            if base_req in app.lower() or UDCD_req in app.lower():
+                return readyApps[app]
+            if len(base_req.split()) > 1:
+                for word in base_req.split():
+                    if word in app.lower(): return readyApps[app]
+            if len(UDCD_req.split()) > 1:
+                for word in UDCD_req.split():
+                    if word in app.lower(): return readyApps[app]
+
+        return None

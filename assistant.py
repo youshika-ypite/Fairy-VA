@@ -10,9 +10,12 @@ recognizer = sr.Recognizer()
 microphone = sr.Microphone()
 
 class Sound:
-    def _start_listen(self): winsound.PlaySound("C:/Windows/Media/Speech On.wav",    winsound.SND_ASYNC)
-    def _stop_listen(self):  winsound.PlaySound("C:/Windows/Media/Speech Sleep.wav", winsound.SND_ASYNC)
-    def _notify(self):       winsound.PlaySound("C:/Windows/Media/Speech Off.wav",   winsound.SND_ASYNC)
+    def _start_listen(self):
+        winsound.PlaySound("C:/Windows/Media/Speech On.wav", winsound.SND_ASYNC)
+    def _stop_listen(self): 
+        winsound.PlaySound("C:/Windows/Media/Speech Sleep.wav", winsound.SND_ASYNC)
+    def _notify(self):
+        winsound.PlaySound("C:/Windows/Media/Speech Off.wav", winsound.SND_ASYNC)
 
 class Assistant:
 
@@ -53,14 +56,21 @@ class Assistant:
         
         return response
 
-    def commandHandler(self, text: str) -> bool: # Поиск команд
+    def commandHandler(self, text: str) -> bool | None: # Поиск команд
+        """
+        >>> Возвращает True если команда не требует ответа
+        >>> Возвращает False если команда заимствует ответ
+        >>> Возвращает None если команда не найдена\
+ (Передача в ollama если включен голосовой модуль)
+        """
         botTrigger = self.com_handler.get_botTrigger(text)
         if not botTrigger:
-            request = self.com_handler.get_Request(text)
-            if not request:
-                print("assistant || None commands")
+            request = self.com_handler.diff_command_search(text)
+            if type(request) is str:
+                print(request)
                 return None
-            else: return True
+            elif request: return True
+            return None
         else: return False
 
     def recognize_command(self, text: str):

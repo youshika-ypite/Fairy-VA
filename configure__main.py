@@ -65,38 +65,39 @@ class Applicator:
         }
         Applicator.application['settings']['readyApps'][name] = path
         Applicator.applicationcount += 1
-        Applicator.saveOption = True
+        Applicator.__save()
         Applicator.__updateCount()
 
     @staticmethod
     def deleteApp(name: str):
         try: del Applicator.application[name]
-        except KeyError as exc_ke: print("Not found", exc_ke)
+        except KeyError as exc_ke: print("youshika |INFO| Not found for delete", exc_ke)
         for ctg in ['readyApps', 'needDataApps', 'needAcceptApps']:
             try:
                 del Applicator.application['settings'][ctg][name]
-                print("Found")
-            except Exception as exc_ke: print(f"can't find {name} in {ctg}\n", exc_ke)
+                print(f"youshika |INFO| App found for delete {ctg}")
+            except Exception as exc_ke:
+                print(f"youshika |INFO| Can't find {name} in {ctg}")
         Applicator.applicationcount -= 1
         Applicator.saveOption = True
         Applicator.__updateCount()
 
     @staticmethod
-    def deleteReadyApps(appName: str, appPath: str = None): Applicator.deleteApp(appName)
+    def deleteReadyApps(appName: str): Applicator.deleteApp(appName)
     @staticmethod
     def deleteNeedDataApps(appName: str, appPath: str, deleteAction: bool = False):
         try: 
             del Applicator.application['settings']['needDataApps'][appName]
             if not deleteAction: Applicator.application['settings']['readyApps'][appName] = appPath
             Applicator.__deleteUpdater(appName, appPath, 0 if not deleteAction else 1)
-        except Exception as exc: print(f"App not found |configure.py | {appName}\n", exc)
+        except Exception as exc: print(f"youshika |ERROR| App not found |configure.py | {appName}\n", exc)
     @staticmethod
     def deleteNeedAcceptApps(appName: str, appPath: str, deleteAction: bool = False):
         try: 
             del Applicator.application['settings']['needAcceptApps'][appName]
             if not deleteAction: Applicator.application['settings']['readyApps'][appName] = appPath
             Applicator.__deleteUpdater(appName, appPath, 0 if not deleteAction else 1)
-        except Exception as exc: print(f"App not found |configure.py | {appName}\n", exc)
+        except Exception as exc: print(f"youshika |ERROR| App not found |configure.py | {appName}\n", exc)
     @staticmethod
     def _checkSave():
         if Applicator.saveOption: Applicator.__save()

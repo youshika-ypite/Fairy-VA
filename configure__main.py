@@ -378,7 +378,8 @@ class LlamaConfig:
     def clearContext(prompt = False) -> bool:
         if prompt:
             old_context = LlamaConfig.config["context"][1:]
-            new_context = [LlamaConfig.config["standart_prompt"]] + old_context
+            prompt = {"role": "system", "content": LlamaConfig.config["standart_prompt"]}
+            new_context = [prompt] + old_context
             LlamaConfig.config["context"] = new_context
             LlamaConfig.save()
         else:

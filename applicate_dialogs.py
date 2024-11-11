@@ -1,8 +1,8 @@
 import os
 
-from configure_localization import Localization
-from configure__main import Applicator
+from configure__main import Applicator, Localization
 
+from ui_notify import *
 from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
 
 from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout
@@ -12,70 +12,55 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
 from PySide6.QtGui import QMouseEvent, Qt, QIcon
 
 colorCircles = {"red": "🟥", "yellow": "🟨", "green": "🟩"}
-toolTips = Localization.get_ToolLang()
 
-class NotifyDialog(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle("Miko!! Notificate/Уведомление")
+class Notify(QDialog):
+    def __init__(self) -> None:
+        QDialog.__init__(self)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle("Fairy VA - Notificate/Уведомление")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
-        self.widget = QWidget()
-        self.mainlayout = QHBoxLayout(self.widget)
+        self.ui.label.setText("None")
 
-        self.label = QLabel("Text")
-
-        self.mainlayout.addWidget(self.label)
-
-        self.setMinimumWidth(360)
-        self.setMaximumWidth(360)
-        self.setMinimumHeight(20)
-
-        self.notificateTexts = Localization.get_NotificateLang()
-        
-
-    def setText(self, text: str = None, key: str = None):
-        if text is None: text = self.notificateTexts[key]
-        trigger = text
-        self.label.setText(trigger)
-
-    def fastNotificate(self, text: str = None, key: str = None):
-        """
-        Keys [voiceWarn, pathError_f, pathError_w, pathError_e, pathError_n, nameError_e]
-        """
-        self.setText(text, key)
-        self.show()
+    def notify(self): self.show()
+    def changeText(self, text): self.ui.label.setText(text)
 
 class AppCreator(QMainWindow):
-    def __init__(self, updater, notificator: NotifyDialog) -> None:
+    def __init__(self, updater) -> None:
         QMainWindow.__init__(self)
         self.ui = ac_Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.setWindowTitle(f"Miko!!")
+        self.setWindowTitle(f"Fairy!!")
         self.setWindowIcon(QIcon("ui/icon.png"))
         self.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
 
         self.updater = updater
-        self.notificator = notificator
+        self.notificator = Notify()
         self.ui.saveButton.clicked.connect(self.save_app)
 
     def save_app(self):
+        notify_lang = Localization.get_NotificateLang()
+
         _name = self.ui.inputName.toPlainText()
         _path = self.ui.inputPath.toPlainText()
 
         if _name in ["", " ", None]:
-            self.notificator.fastNotificate(key="nameError_e")
+            self.notificator.changeText(notify_lang["nameError_e"])
+            self.notificator.show()
             return
         if _path in ["", " ", None]:
-            self.notificator.fastNotificate(key="pathError_e")
+            self.notificator.changeText(notify_lang["pathError_e"])
+            self.notificator.show()
             return
         if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])):
-            self.notificator.fastNotificate(key="pathError_w")
+            self.notificator.changeText(notify_lang["pathError_w"])
+            self.notificator.show()
             return
         if not os.path.isfile(_path):
-            self.notificator.fastNotificate(key="pathError_n")
+            self.notificator.changeText(notify_lang["pathError_f"])
+            self.notificator.show()
             return
         
         Applicator.appendApp(_name, _path)
@@ -85,22 +70,22 @@ class PathChanger(QMainWindow):
     def __init__(
             self,
             datapack: dict, updater,
-            notificator: NotifyDialog,
             windows: list[QLayout, QWidget] = None
             ) -> None:
         super().__init__()
         
         self.windows = windows
         self.updater = updater
-        self.notificator = notificator
+        self.notificator = Notify()
 
         self.secondWin = Localization.get_SecondsWinLang()
+        self.notify_lang = Localization.get_NotificateLang()
 
         self.activePath = datapack['possible_path']
         if self.activePath is None: self.activePath = "None"
         self.name = datapack['name']
 
-        self.setWindowTitle("Miko!!"+self.name)
+        self.setWindowTitle("Fairy!!"+self.name)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowIcon(QIcon("ui/icon.png"))
         self.setStyleSheet(
@@ -194,7 +179,8 @@ class PathChanger(QMainWindow):
         if _path[0] == '"': _path = _path.replace('"', '')
         if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])
                                                  ) or not os.path.isfile(_path):
-            self.notificator.fastNotificate(key="pathError_w")
+            self.notificator.changeText(self.notify_lang["pathError_w"])
+            self.notificator.show()
         return _path
     
     def remove_(self) -> None:
@@ -219,7 +205,10 @@ class PathChanger(QMainWindow):
     def _cancel(self) -> None: self.close()
     def boxTrigger(self): self.input_inputPath.setText(self.getBoxText_())
 
-def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyDialog):
+def generateApp(data: dict, updater, pch, confirmBtn: bool):
+
+    notificator = Notify()
+    notify_lang = Localization.get_NotificateLang()
 
     def remover(layout: QLayout, widget: QWidget):
         layout.removeWidget(widget)
@@ -232,7 +221,8 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
 
     def openDir(_path: str | None):
         if _path is None:
-            notificator.fastNotificate(key='pathError_f')
+            notificator.changeText(notify_lang["pathError_e"])
+            notificator.show()
             return
         symbol_ID = 0
         for ind in range(-1, len(_path)*-1, -1):
@@ -242,8 +232,12 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
         if symbol_ID != 0:
             openPATH = _path[:symbol_ID]
             if os.path.exists(openPATH): os.startfile(openPATH)
-            else: notificator.fastNotificate(key="pathError_f")
-        else: notificator.fastNotificate(key="pathError_w")
+            else:
+                notificator.changeText(notify_lang["pathError_f"])
+                notificator.show()
+        else:
+            notificator.changeText(notify_lang["pathError_w"])
+            notificator.show()
 
     def _delete(layout: QLayout, widget: QWidget, name: str):
         remover(layout, widget)
@@ -251,9 +245,10 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool, notificator: NotifyD
         updater()
 
     def _change(layout: QLayout, widget: QWidget):
-        pch(PathChanger(data, updater, notificator, [layout, widget]))
+        pch(PathChanger(data, updater, [layout, widget]))
 
-    localization = Localization().get_SecondsWinLang()
+    localization = Localization.get_SecondsWinLang()
+    toolTips = Localization.get_ToolLang()
 
     widget = QWidget()
 
@@ -345,14 +340,14 @@ class AppConfigurator(QMainWindow):
             "QPushButton:hover {background-color: gray; color: black;}\n"\
             "#CA_Button:hover {background-color: lightgreen;}"
             )
-        self.setWindowTitle(f"Miko!! | App Configurator / Конфигуратор приложений")
+        self.setWindowTitle(f"Fairy!! | App Configurator / Конфигуратор приложений")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
-        self.notificator = NotifyDialog()
+        self.notificator = Notify()
         self.updater = updater
 
-        self.localizationSeconds = Localization().get_SecondsWinLang()
-        self.localizationToolTip = Localization().get_ToolLang()
+        self.localizationSeconds = Localization.get_SecondsWinLang()
+        self.localizationToolTip = Localization.get_ToolLang()
 
         self.pchange = None
         self.appCreator = None
@@ -391,7 +386,7 @@ class AppConfigurator(QMainWindow):
         for data in apps:
             if "name" in data:
                 self.apps.append(generateApp(
-                    data, self.updater, self.pchangershow, confirmBtn, self.notificator)
+                    data, self.updater, self.pchangershow, confirmBtn)
                     )
                 if data['relative_path'] is None and data['possible_path'] is not None:
                     self.appsPath[data['name']] = data['possible_path']  
@@ -440,7 +435,7 @@ class AppConfigurator(QMainWindow):
         self.pchange.show()
 
     def newApp(self, updater):
-        self.appCreator = AppCreator(updater, self.notificator)
+        self.appCreator = AppCreator(updater)
         self.appCreator.show()
 
     def confirm(self):

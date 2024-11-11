@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import requests
 import unidecode
@@ -11,7 +10,7 @@ from datetime import datetime as dt
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 
-from configure__main import Commandlibrary_y, Pathlib_y, Configuration
+from configure__main import Commandlibrary_y, Pathlib_y, App
 from configure__main import Applicator
 
 class launcher:
@@ -168,7 +167,7 @@ class BotTriggers:
     def _SYSOUT(self) -> None: self._OFF(True)
     def _OFF(self, system_target: bool = False) -> None:
         Applicator._checkSave()
-        Configuration.stop()
+        App.stopApp()
         if system_target: os.system('shutdown -s')
 
     def _WEATHER(self) -> list:
@@ -387,7 +386,7 @@ class ComandHandler:
                 self.launcher.openOneProgram(_path)
                 return 1
 
-            if list(app)[0].lower() in Commandlibrary_y.RUALPH: request = self.request
+            if list(app)[0].lower() in Commandlibrary_y.get_RUALPH(): request = self.request
             else: request = requestUC
 
             app = app.replace("-", "")

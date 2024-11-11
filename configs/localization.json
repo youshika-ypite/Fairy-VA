@@ -2,7 +2,7 @@
     "settings": {
         "LANG": "RU_TG"
     },
-    "RU_TG_LOCAL": {
+    "RU_TG": {
         "App": {
             "labelType": "Выберите тип ассистента и язык: ",
             "labelVoice": "Выберите тип голоса модели: ",
@@ -45,7 +45,13 @@
             "PauseStatusLabel": "Состояние паузы: :P:",
             "ReloadApps": "Сбросить приложения",
             "ReloadModels": "Найти модели",
-            "ReloadConfig": "Перезагрузить настройки"
+            "ReloadConfig": "Перезагрузить настройки",
+            "ContextIndexLabel": "Размер памяти модели (запросов): ",
+            "clearContextButton": "Удалить память",
+            "promptEditButton": "Изменить промпт",
+            "ollamaNameChangeButton": "Модель LLM",
+            "GitHubbtn": "GitHub",
+            "Supportbtn": "Поддержать"
         },
         "ToolTips": {
             "green": "Все в порядке, ничего не требуется!",
@@ -55,6 +61,7 @@
         },
         "NotificateTexts": {
             "voiceWarn": "Перезапустите приложение для применения изменений",
+            "contextClear": "Контекст был успешно очищен",
             "pathError_f": "Путь не найден",
             "pathError_w": "Путь не правильный",
             "pathError_e": "Путь не может быть пустым",
@@ -90,9 +97,21 @@
             "Выполнено!",
             "Одну секунду!",
             "Всё!"
-        ]
+        ],
+        "Changer":{
+            "notify": "Пожалуйста  перезагрузите приложение чтобы изменения вступили в силу",
+            "error_e": "Не может быть пустым",
+            "OllamaNameChange": {
+                "text": "Введите имя вашей модели, например: llama3.1",
+                "placeHolderText": "Имя сюда"
+            },
+            "OllamaPromptChange": {
+                "text": "Введите ваш промпт, по возможности не используйте символы вроде ',/,| ",
+                "placeHolderText": "Промпт сюда"
+            }
+        }
     },
-    "EN_TG_LOCAL": {
+    "EN_TG": {
         "App": {
             "labelType": "Choose assistant type and lang: ",
             "labelVoice": "Choose voice model: ",
@@ -135,7 +154,13 @@
             "PauseStatusLabel": "Pause status: :P:",
             "ReloadApps": "Reload apps",
             "ReloadModels": "Find models",
-            "ReloadConfig": "Reload config"
+            "ReloadConfig": "Reload config",
+            "ContextIndexLabel": "Size LLM memory (requests): ",
+            "clearContextButton": "Clear memory",
+            "promptEditButton": "Change prompt",
+            "ollamaNameChangeButton": "LLM model",
+            "GitHubbtn": "GitHub",
+            "Supportbtn": "Support"
         },
         "ToolTips": {
             "green": "Nothing is needed, everything is fine!",
@@ -146,6 +171,7 @@
         "NotificateTexts": {
             "voiceWarn": "Restart the app to apply changes",
             "pathError_f": "Path not found",
+            "contextClear": "The context has been successfully cleared",
             "pathError_w": "Path is incorrect",
             "pathError_e": "Path cannot be empty",
             "pathError_n": "The path does not exist",
@@ -180,6 +206,18 @@
             "Complete!",
             "One second!",
             "Done!"
-        ]
+        ],
+        "Changer":{
+            "notify": "Please restart the application for the changes to take effect",
+            "error_e": "Cannot be empty",
+            "OllamaNameChange": {
+                "text": "Enter the name of your model, for example: llama3.1",
+                "placeHolderText": "Name here"
+            },
+            "OllamaPromptChange": {
+                "text": "Enter your prompt, if possible, do not use characters like: ',/,| ",
+                "placeHolderText": "Prompt here"
+            }
+        }
     }
 }

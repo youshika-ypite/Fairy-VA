@@ -1,6 +1,6 @@
 import os
+import webbrowser
 from json import load, dump
-from datetime import datetime as dt
 
 from configure_appFounder import search
 
@@ -166,150 +166,318 @@ class Applicator:
         Applicator.application = load(open("configs/application.json", "r", encoding="utf-8"))
         Applicator.applicationcount = len(Applicator.application)-1
 
+
+
 class Commandlibrary_y:
 
     library = load(open("configs/library.json", "r", encoding="utf-8"))
-    
-    data_set          = library["data_set"]
-    CDCTRIGGERS       = library['CDCTRIGGERS']
-    programs          = library['programs']
-    SPECIALS          = library['SPECIALS']
-    browsers          = library['browsers']
-    baseLinkDict      = library['weblink']
-    createCommands    = library['createCommands']
-    destroyCommands   = library['destroyCommands']
-    maximizeCommands  = library['maximizeCommands']
-    minimizeCommands  = library['minimizeCommands']
-    openweathermap    = library['openweathermap']
-    RUALPH            = library['RUALPH']
-    MONTHS            = library['MONTHS']
 
     @staticmethod
-    def get_library()           -> dict: return Commandlibrary_y.library
+    def get_library() -> dict: return Commandlibrary_y.library
     @staticmethod
-    def get_data_set()          -> dict: return Commandlibrary_y.data_set
+    def get_data_set() -> dict: return Commandlibrary_y.library["data_set"]
     @staticmethod
-    def get_CDCTRIGGERS()       -> list: return Commandlibrary_y.CDCTRIGGERS
+    def get_CDCTRIGGERS() -> list: return Commandlibrary_y.library['CDCTRIGGERS']
     @staticmethod
-    def get_programs()          -> dict: return Commandlibrary_y.programs
+    def get_programs() -> dict: return Commandlibrary_y.library['programs']
     @staticmethod
-    def get_SPECIALS()          -> list: return Commandlibrary_y.SPECIALS
+    def get_SPECIALS() -> list: return Commandlibrary_y.library['SPECIALS']
     @staticmethod
-    def get_browsers()          -> list: return Commandlibrary_y.browsers
+    def get_browsers() -> list: return Commandlibrary_y.library['browsers']
     @staticmethod
-    def get_baseLinkDict()      -> dict: return Commandlibrary_y.baseLinkDict
+    def get_baseLinkDict() -> dict: return Commandlibrary_y.library['weblink']
     @staticmethod
-    def get_createCommands()    -> list: return Commandlibrary_y.createCommands
+    def get_createCommands() -> list: return Commandlibrary_y.library['createCommands']
     @staticmethod
-    def get_destroyCommands()   -> list: return Commandlibrary_y.destroyCommands
+    def get_destroyCommands() -> list: return Commandlibrary_y.library['destroyCommands']
     @staticmethod
-    def get_maximizeCommands()  -> list: return Commandlibrary_y.maximizeCommands
+    def get_maximizeCommands() -> list: return Commandlibrary_y.library['maximizeCommands']
     @staticmethod
-    def get_minimizeCommands()  -> list: return Commandlibrary_y.minimizeCommands
+    def get_minimizeCommands() -> list: return Commandlibrary_y.library['minimizeCommands']
     @staticmethod
-    def get_openweathermap()    -> dict: return Commandlibrary_y.openweathermap
+    def get_openweathermap() -> dict: return Commandlibrary_y.library['openweathermap']
     @staticmethod
-    def get_RUALPH()            -> list: return Commandlibrary_y.RUALPH
+    def get_RUALPH() -> list: return Commandlibrary_y.library['RUALPH']
     @staticmethod
-    def get_MONTHS()            -> dict: return Commandlibrary_y.MONTHS
+    def get_MONTHS() -> dict: return Commandlibrary_y.library['MONTHS']
+        
 
-class Configuration:
+class App:
 
-    try:config = load(open("configs/config.json", 'r', encoding='utf-8'))
-    except Exception as exc: print(exc)
-
-    today = dt.now().strftime("%d-%m-%Y")
-
-    loggingFilePath = Pathlib_y.get_mainTEMPpath() + f"/youshika_log{today}.log"
-
-    @staticmethod
-    def _CONFIG() -> dict: return Configuration.config
-
+    config = load(open("configs/settings.json", "r", encoding="utf-8"))
+    links = ["https://github.com/youshika-ypite", "https://boosty.to/ypite"]
 
     @staticmethod
     def search():
+        """Поиск и **замена** моделей в папке `weights`"""
         model_root = "weights"
         models = [d for d in os.listdir(model_root) if os.path.isdir(os.path.join(model_root, d))]
         if len(models) == 0: raise ValueError("tts-out || No model found in `weights` folder")
         models.sort()
-        Configuration.update_models(models)
+        App.updateModels(models)
+
+    @staticmethod
+    def save(): # Сохранение данных (сброс значений)
+        App.config["appStatus"] = True
+        App.config["pauseStatus"] = False
+        App.config["voiceLoad"] = False
+        dump(
+            App.config,
+            open("configs/settings.json", "w", encoding="utf-8"),
+            ensure_ascii=False,
+            indent=4)
+
+    @staticmethod
+    def load(): # Загрузка данных
+        App.config = load(open("configs/settings.json", 'r', encoding='utf-8'))
+
+
+    @staticmethod # Возвращает триггеры (Имена) ассистента
+    def TRIGGERS() -> list: return set(App.config["TRIGGERS"])
+
+    @staticmethod # Возвращает статус всего приложения
+    def ACTIVE() -> bool: return App.config["appStatus"]
+    @staticmethod # Возвращает статус паузы распознования
+    def PAUSE() -> bool: return App.config["pauseStatus"]
+    @staticmethod # Возвращает статус режима "Генерации"
+    def voiceModule() -> bool: return App.config["voiceModule"]
+    @staticmethod # Возвращает статус "Загрузки моделей"
+    def voiceLoad() -> bool: return App.config["voiceLoad"]
+
+    @staticmethod # Возвращает настройки для генерации
+    def voice() -> dict: return App.config["voice"]
+
+    @staticmethod # Возвращает настройки для tts
+    def model() -> dict: return App.voice()["model"]
+    @staticmethod # Возвращает список найденных RVC моделей
+    def modelsList() -> list: return App.voice()["modelsList"]
+    @staticmethod # Возвращает индекс активной модели из списка
+    def modelIndex() -> int : return App.voice()["modelIndex"]
+    @staticmethod # Возвращает список основных моделей голосов
+    def based_Mods() -> list: return App.voice()["based_Mods"]
+
+    @staticmethod # Возвращает словарь временных статусов
+    def temp() -> dict: return App.config["temp"]
+
+    @staticmethod # Возвращает статус этапа загрузки по ум. - false
+    def LOAD() -> bool: return App.temp()["toLOAD"]
+    @staticmethod
+    def reLOAD() -> bool:
+        """Переключает статус этапа загрузки на противоположный,
+        возвращает итоговый статус"""
+        App.config["temp"]["toLOAD"] = not App.LOAD()
+        return App.LOAD()
+    @staticmethod
+    def setVoiceLoad():
+        App.config["voiceLoad"] = True
+
+    @staticmethod
+    def reverseVoiceModule():
+        """Переключает статус активного режима 'генерации'"""
+        App.config["voiceModule"] = not App.voiceModule()
+
+    @staticmethod
+    def updateVoiceModule(model_name: str):
+        """На вход получает имя модели.
+        Находит ее индекс в списке моделей и заменяет его"""
+        App.config["voice"]["modelIndex"] = App.modelsList().index(model_name)
+
+    @staticmethod
+    def updateBasedModels(model_index: int):
+        """На вход получает индекс модели
+        Заменяет активную базовую модель по индексу в списке"""
+        App.config["voice"]["model"]["tts"] = App.based_Mods()[model_index]
+
+    @staticmethod # Изменяет значение паузы на противоположное
+    def setPause() -> None: App.config["pauseStatus"] = not App.PAUSE()
+
+    @staticmethod # Останавливает программу
+    def stopApp() -> None: App.config["appStatus"] = not App.ACTIVE()
+
+    @staticmethod # Изменение параметра скорости - speed (tts)
+    def change_speed(value): App.config["voice"]["model"]["speed"] = value
+    @staticmethod # Изменение параметра защиты - protect0 (tts)
+    def change_protect0(value): App.config["voice"]["model"]["protect0"] = value
+    @staticmethod # Изменение параметра темпа - f0_key_up (tts)
+    def change_f0_key_up(value): App.config["voice"]["model"]["f0_key_up"] = value
+
+    @staticmethod # Обновление списка моделей
+    def updateModels(models: list) -> None:
+        App.config["voice"]["modelsList"] = models
 
 
     @staticmethod
-    def _TRIGGERS()     -> set :    return set(Configuration.config['TRIGGERS'])
+    def open(linkID: int):
+        """
+        * 0 - GitHub
+        * 1 - Support
+        """
+        webbrowser.open(App.links[linkID])
+
+class LlamaConfig:
+
+    config = load(open("configs/llama.json", "r", encoding="utf-8"))
+
     @staticmethod
-    def _STOPTRIGGERS() -> list:    return Configuration.config['STOPTRIGGERS']
+    def save(): # Сохранение данных
+        dump(LlamaConfig.config,
+             open("configs/llama.json", "w", encoding="utf-8"),
+             ensure_ascii=False,
+             indent=4)
+
+    @staticmethod
+    def currentConfig() -> dict:
+        return LlamaConfig.config
+    @staticmethod
+    def currentModel() -> str:
+        return LlamaConfig.config['modelName']
+    @staticmethod
+    def currentOptions() -> dict:
+        return LlamaConfig.config['options']
+    @staticmethod
+    def currentPrompt() -> str:
+        return LlamaConfig.config['standart_prompt']
+    @staticmethod
+    def currentContextIndex() -> int:
+        return LlamaConfig.config['context_memory']*-1
+    @staticmethod
+    def currentContext() -> list:
+        return LlamaConfig.config['context']
     
     @staticmethod
-    def OllamaModelName() -> str: return Configuration.config['settings']['modelName']
+    def updateCurrentContext(msg):
+        context = LlamaConfig.currentContext()
+        context.append(msg)
+        LlamaConfig.setContext(context)
+        
+    @staticmethod
+    def setCurrentContextIndex(index: int):
+        LlamaConfig.config['context_memory'] = index
+        LlamaConfig.save()
 
     @staticmethod
-    def _SETTINGS() -> dict: return Configuration.config['settings']
-    @staticmethod
-    def _ACTIVE()   -> int : return Configuration.config['settings']['active']
-    @staticmethod
-    def _PAUSE()    -> bool: return Configuration.config['settings']['pause']
+    def setCurrentTemperatureCount(count: float):
+        LlamaConfig.config['options']['temperature'] = count
+        LlamaConfig.save()
 
     @staticmethod
-    def _import()   -> bool: return Configuration.config['settings']['import']
-
-
-
-    @staticmethod
-    def update_models(models):
-        Configuration.config['settings']['models'] = models
-    @staticmethod
-    def update_tts(i: int = 0):
-        Configuration.config['settings']['voice']['tts'] = Configuration.config['settings']['lang_models'][i]
-    @staticmethod
-    def update_voice(model):
-        Configuration.config['settings']['active'] = Configuration.config['settings']['models'].index(model)
-    @staticmethod
-    def reverse_active():
-        Configuration.config['settings']['voiceActive'] = not Configuration.config['settings']['voiceActive']
-    @staticmethod
-    def change_speed(value):
-        Configuration.config['settings']['voice']['speed'] = value
-    @staticmethod
-    def change_protect0(value):
-        Configuration.config['settings']['voice']['protect0'] = value
-    @staticmethod
-    def change_f0_key_up(value):
-        Configuration.config['settings']['voice']['f0_key_up'] = value
-
-
+    def setCurrentPrompt(text: str, apply: bool = False):
+        LlamaConfig.config['standart_prompt'] = text
+        if apply: LlamaConfig.save()
 
     @staticmethod
-    def pause():    Configuration.config['settings']['pause'] = not Configuration.config['settings']['pause']
-    @staticmethod
-    def stop():     Configuration.config['settings']['ATactive'] = False
-
+    def setModelName(name: str):
+        LlamaConfig.config['modelName'] = name
 
     @staticmethod
-    def loaderON():  Configuration.config['settings']['loader'] = True
-    @staticmethod
-    def loaderOFF(): Configuration.config['settings']['loader'] = False
-
-
-    @staticmethod
-    def loadimport():
-        Configuration.config['settings']['import'] = True
-
+    def setContext(context: list[dict]):
+        LlamaConfig.config['context'] = context
+        
 
     @staticmethod
-    def save():
-        Configuration.config['settings']['import']   = False
-        Configuration.config['settings']['ATactive'] = True
-        Configuration.config['settings']['pause']    = False
-        Configuration.config['settings']['loader']   = False
+    def clearContext(prompt = False) -> bool:
+        if prompt:
+            old_context = LlamaConfig.config["context"][1:]
+            new_context = [LlamaConfig.config["standart_prompt"]] + old_context
+            LlamaConfig.config["context"] = new_context
+            LlamaConfig.save()
+        else:
+            LlamaConfig.config["context"] = [LlamaConfig.config["context"][0]]
+
+
+class Localization:
+
+    configuration = load(open("configs/localization.json", "r", encoding="utf-8"))
+
+    @staticmethod
+    def get_AppLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__get_AppLang(lang)
+    
+    @staticmethod
+    def get_ToolLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__get_ToolLang(lang)
+    
+    @staticmethod
+    def get_NotificateLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__get_NotificateLang(lang)
+    
+    @staticmethod
+    def get_SecondsWinLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__get_SecondsWindLang(lang)
+    
+    @staticmethod
+    def get_MenuLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__get_MenuLang(lang)
+    
+    @staticmethod
+    def get_ReadyAnsw_lang() -> list:
+
+        lang = Localization.getLANG()
+        return Localization.__get_ReadyAnswLang(lang)
+    
+    @staticmethod
+    def get_ChangerLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__getChangerLang(lang)
+
+    @staticmethod
+    def getLANG() -> str:
+        return Localization.configuration['settings']['LANG']
+    
+    @staticmethod
+    def changeLang(lang: str):
+
+        lang += "_TG"
+        if lang in ["RU_TG", "EN_TG"]:
+            Localization.configuration['settings']['LANG'] = lang
+            Localization.__save()
+
+    @staticmethod
+    def __get_AppLang(lang) -> dict:
+        return Localization.configuration[lang]['App']
+    
+    @staticmethod
+    def __get_ToolLang(lang) -> dict:
+        return Localization.configuration[lang]['ToolTips']
+    
+    @staticmethod
+    def __get_NotificateLang(lang) -> dict:
+        return Localization.configuration[lang]['NotificateTexts']
+    
+    @staticmethod
+    def __get_SecondsWindLang(lang) -> dict:
+        return Localization.configuration[lang]['SecondsWin']
+    
+    @staticmethod
+    def __get_MenuLang(lang) -> dict:
+        return Localization.configuration[lang]['Menu']
+    
+    @staticmethod
+    def __get_ReadyAnswLang(lang) -> list:
+        return Localization.configuration[lang]['ReadyAnswers']
+    
+    @staticmethod
+    def __getChangerLang(lang) -> dict:
+        return Localization.configuration[lang]['Changer']
+
+    
+
+    @staticmethod
+    def __save():
         dump(
-            Configuration.config,
-            open("configs/config.json", "w", encoding="utf-8"),
+            Localization.configuration,
+            open("configs/localization.json", "w", encoding="utf-8"),
             ensure_ascii=False,
             indent=4
-        )
-    @staticmethod
-    def load():
-        Configuration.config = load(
-            open("configs/config.json", 'r', encoding='utf-8')
             )

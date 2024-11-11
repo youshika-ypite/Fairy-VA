@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'newUUFqHZ.ui'
+## Form generated from reading UI file 'newyLTSYB.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
@@ -15,17 +15,24 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QLabel, QMainWindow, QPushButton, QSizePolicy,
-    QSlider, QSpacerItem, QStackedWidget, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QAbstractSpinBox, QApplication, QComboBox, QFrame,
+    QHBoxLayout, QLabel, QMainWindow, QPushButton,
+    QSizePolicy, QSlider, QSpacerItem, QSpinBox,
+    QStackedWidget, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(960, 473)
+        MainWindow.resize(960, 476)
         MainWindow.setMinimumSize(QSize(960, 0))
+        font = QFont()
+        font.setFamilies([u"MiSans"])
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setStyleStrategy(QFont.PreferAntialias)
+        MainWindow.setFont(font)
         MainWindow.setStyleSheet(u"* {\n"
 "	color: #fff;\n"
 "	background-color : transparent;\n"
@@ -41,6 +48,9 @@ class Ui_MainWindow(object):
 "#LeftMenuFrame {\n"
 "	background-color: #2A377A;\n"
 "	padding: 20px 0px;\n"
+"	border-width: 1px;\n"
+"	border-style: solid;\n"
+"	border-color: rgb(235, 235, 235);\n"
 "	border-bottom-right-radius: 10px;\n"
 "}\n"
 "#LeftMenuFrame QPushButton {\n"
@@ -53,12 +63,21 @@ class Ui_MainWindow(object):
 "#ControlFrame QPushButton {\n"
 "	text-align: right;\n"
 "}\n"
+"QSpinBox {\n"
+"	margin: 5px 15px;\n"
+"	padding: 5px;\n"
+"	border-color: rgb(235, 235, 235);\n"
+"	border-width: 1px;\n"
+"    border-style: solid;\n"
+"	border-radius: 4px; \n"
+"}\n"
 "QComboBox {\n"
 "	text-align: right;\n"
 "	padding: 5px 10px;\n"
 "	border-width: 1px;\n"
 "    border-style: solid;\n"
-"    border-color: rgb(235, 235, 235);  \n"
+"    border-color: rgb(235, 235, 235"
+                        ");  \n"
 "    border-radius: 4px; \n"
 "	background-color: rgb(235, 235, 235);\n"
 "	selection-background-color: rgb(235, 235, 235); \n"
@@ -67,8 +86,7 @@ class Ui_MainWindow(object):
 "QPushButton {\n"
 "	border-color: rgb(235, 235, 235);  \n"
 "}\n"
-"#ReloadButtonsFrame, #modFrame, #nlFrame, #"
-                        "pauseFrame, #slf, #setFrame {\n"
+"#ReloadButtonsFrame, #modFrame, #nlFrame, #pauseFrame, #slf, #setFrame {\n"
 "	background-color: #0a5fad;\n"
 "	border-radius: 15px;\n"
 "}\n"
@@ -94,6 +112,8 @@ class Ui_MainWindow(object):
 "#protect0Frame, #speedFrame, #temp0Frame, #paramFrame {\n"
 "	background-color: #2d4586;\n"
 "	border-radius: 15px;\n"
+"	padding: 5p"
+                        "x 0px;\n"
 "}\n"
 " #protect0Frame:hover, #speedFrame:hover, #temp0Frame:hover, #paramFrame:hover {\n"
 "	background-color: #2c3e75;\n"
@@ -101,20 +121,28 @@ class Ui_MainWindow(object):
 "#ContButtonFrame, #AboutPageFrame {\n"
 "	background-color: #2A377A;\n"
 "	border-bottom-right-radius: 10px;\n"
+"	border-width: 1px;\n"
+"	border-style: solid solid solid none;\n"
+"	border-color: rgb(235, 235, 235); \n"
 "}\n"
-"#InfoButton:hover, #AboutButton:hove"
-                        "r, #SliderButton:hover, #AppsButton:hover {\n"
+"#InfoButton:hover, #AboutButton:hover, #SliderButton:hover, #AppsButton:hover {\n"
 "	background-color: #68A2CC;\n"
 "	border-width: 1px;\n"
 "    border-style: solid none solid solid;\n"
 "}\n"
-"#ReloadApps, #ReloadModels, #ReloadConfig {\n"
+"#ReloadApps, #ReloadModels, #ReloadConfig, #clearContextButton, #promptEditButton,  #ollamaNameChangeButton, #GitHubbtn, #Telegrambtn, #Supportbtn, #saveIndexButton {\n"
 "	padding: 5px;\n"
 "}\n"
-"#ReloadApps:hover, #ReloadModels:hover, #ReloadConfig:hover {\n"
+"#ReloadApps:hover, #ReloadModels:hover, #ReloadConfig:hover, #clearContextButton:hover, #promptEditButton:hover, #ollamaNameChangeButton:hover, #GitHubbtn:hover, #Telegrambtn:hover, #Supportbtn:hover {\n"
 "	border-width: 1px;\n"
 "    border-style: solid;\n"
-"    border-radius: 10px; \n"
+"    border-rad"
+                        "ius: 10px; \n"
+"}\n"
+"#saveIndexButton:hover {\n"
+"	border-width: 1px;\n"
+"    border-style: none none solid none;\n"
+"    border-radius: 5px;\n"
 "}\n"
 "#closeButton, #hideButton {\n"
 "	padding: 5px;\n"
@@ -128,6 +156,19 @@ class Ui_MainWindow(object):
 "	background-color: #68A2CC;\n"
 "	border-width: 1px;\n"
 "	border-style: solid;\n"
+"}\n"
+"#Checking {\n"
+"	padding: 5px;\n"
+"	background-color:  #2d4586;\n"
+"	border-radius: 10px\n"
+"}\n"
+"#Checking QFrame {\n"
+"	border-style: none none solid none;\n"
+"	border-color: rgb(235, 235, 235);  \n"
+"	border-width: 1px;\n"
+"}\n"
+"#Checking QLabel {\n"
+"	border-style: none;\n"
 "}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -617,7 +658,22 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_20.addWidget(self.paramFrame)
 
-        self.speedFrame = QFrame(self.slf)
+        self.allSlfFrame = QFrame(self.slf)
+        self.allSlfFrame.setObjectName(u"allSlfFrame")
+        self.allSlfFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.allSlfFrame.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_20 = QHBoxLayout(self.allSlfFrame)
+        self.horizontalLayout_20.setSpacing(6)
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.horizontalLayout_20.setContentsMargins(0, 0, 0, 0)
+        self.Sliders = QFrame(self.allSlfFrame)
+        self.Sliders.setObjectName(u"Sliders")
+        self.Sliders.setFrameShape(QFrame.Shape.StyledPanel)
+        self.Sliders.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_11 = QVBoxLayout(self.Sliders)
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.verticalLayout_11.setContentsMargins(0, 0, 0, 0)
+        self.speedFrame = QFrame(self.Sliders)
         self.speedFrame.setObjectName(u"speedFrame")
         self.speedFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.speedFrame.setFrameShadow(QFrame.Shadow.Raised)
@@ -633,9 +689,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_10.addWidget(self.speedLabel)
 
-        self.horizontalSpacer_3 = QSpacerItem(657, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_10.addItem(self.horizontalSpacer_3)
+        self.horizontalLayout_10.addItem(self.horizontalSpacer_11)
 
         self.speedKeyLabelVAL = QLabel(self.speedSliderInfo)
         self.speedKeyLabelVAL.setObjectName(u"speedKeyLabelVAL")
@@ -652,9 +708,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_13.addWidget(self.speedSlider)
 
 
-        self.verticalLayout_20.addWidget(self.speedFrame)
+        self.verticalLayout_11.addWidget(self.speedFrame)
 
-        self.protect0Frame = QFrame(self.slf)
+        self.protect0Frame = QFrame(self.Sliders)
         self.protect0Frame.setObjectName(u"protect0Frame")
         self.protect0Frame.setFrameShape(QFrame.Shape.StyledPanel)
         self.protect0Frame.setFrameShadow(QFrame.Shadow.Raised)
@@ -671,9 +727,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9.addWidget(self.protect0Label)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_12 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_9.addItem(self.horizontalSpacer_2)
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_12)
 
         self.protectKeyLabelVAL = QLabel(self.protect0SliderInfo)
         self.protectKeyLabelVAL.setObjectName(u"protectKeyLabelVAL")
@@ -690,9 +746,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_12.addWidget(self.protect0Slider)
 
 
-        self.verticalLayout_20.addWidget(self.protect0Frame)
+        self.verticalLayout_11.addWidget(self.protect0Frame)
 
-        self.temp0Frame = QFrame(self.slf)
+        self.temp0Frame = QFrame(self.Sliders)
         self.temp0Frame.setObjectName(u"temp0Frame")
         self.temp0Frame.setFrameShape(QFrame.Shape.StyledPanel)
         self.temp0Frame.setFrameShadow(QFrame.Shadow.Raised)
@@ -708,9 +764,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11.addWidget(self.tempLabel)
 
-        self.horizontalSpacer_4 = QSpacerItem(657, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_13 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_11.addItem(self.horizontalSpacer_4)
+        self.horizontalLayout_11.addItem(self.horizontalSpacer_13)
 
         self.tempKeyLabelVAL = QLabel(self.temp0SliderInfo)
         self.tempKeyLabelVAL.setObjectName(u"tempKeyLabelVAL")
@@ -727,7 +783,151 @@ class Ui_MainWindow(object):
         self.verticalLayout_14.addWidget(self.temp0Slider)
 
 
-        self.verticalLayout_20.addWidget(self.temp0Frame)
+        self.verticalLayout_11.addWidget(self.temp0Frame)
+
+
+        self.horizontalLayout_20.addWidget(self.Sliders)
+
+        self.Checking = QFrame(self.allSlfFrame)
+        self.Checking.setObjectName(u"Checking")
+        self.Checking.setFrameShape(QFrame.Shape.StyledPanel)
+        self.Checking.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_18 = QVBoxLayout(self.Checking)
+        self.verticalLayout_18.setSpacing(18)
+        self.verticalLayout_18.setObjectName(u"verticalLayout_18")
+        self.verticalLayout_18.setContentsMargins(6, 6, 6, 6)
+        self.changeContextIndexFrame = QFrame(self.Checking)
+        self.changeContextIndexFrame.setObjectName(u"changeContextIndexFrame")
+        self.changeContextIndexFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.changeContextIndexFrame.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_22 = QHBoxLayout(self.changeContextIndexFrame)
+        self.horizontalLayout_22.setObjectName(u"horizontalLayout_22")
+        self.horizontalLayout_22.setContentsMargins(-1, 0, -1, 3)
+        self.ContextIndexLabel = QLabel(self.changeContextIndexFrame)
+        self.ContextIndexLabel.setObjectName(u"ContextIndexLabel")
+
+        self.horizontalLayout_22.addWidget(self.ContextIndexLabel)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_22.addItem(self.horizontalSpacer_2)
+
+        self.IndexspinBox = QSpinBox(self.changeContextIndexFrame)
+        self.IndexspinBox.setObjectName(u"IndexspinBox")
+        self.IndexspinBox.setMinimumSize(QSize(80, 0))
+        self.IndexspinBox.setWrapping(False)
+        self.IndexspinBox.setFrame(True)
+        self.IndexspinBox.setReadOnly(False)
+        self.IndexspinBox.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.IndexspinBox.setAccelerated(False)
+        self.IndexspinBox.setMinimum(1)
+
+        self.horizontalLayout_22.addWidget(self.IndexspinBox)
+
+        self.saveIndexButton = QPushButton(self.changeContextIndexFrame)
+        self.saveIndexButton.setObjectName(u"saveIndexButton")
+        icon9 = QIcon()
+        icon9.addFile(u"ui/svg/check-square.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.saveIndexButton.setIcon(icon9)
+        self.saveIndexButton.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_22.addWidget(self.saveIndexButton)
+
+
+        self.verticalLayout_18.addWidget(self.changeContextIndexFrame)
+
+        self.resourceFrame = QFrame(self.Checking)
+        self.resourceFrame.setObjectName(u"resourceFrame")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.resourceFrame.sizePolicy().hasHeightForWidth())
+        self.resourceFrame.setSizePolicy(sizePolicy1)
+        self.resourceFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.resourceFrame.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_21 = QVBoxLayout(self.resourceFrame)
+        self.verticalLayout_21.setSpacing(0)
+        self.verticalLayout_21.setObjectName(u"verticalLayout_21")
+        self.verticalLayout_21.setContentsMargins(9, 0, 9, 0)
+        self.resourceMonitor = QLabel(self.resourceFrame)
+        self.resourceMonitor.setObjectName(u"resourceMonitor")
+        self.resourceMonitor.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
+
+        self.verticalLayout_21.addWidget(self.resourceMonitor)
+
+
+        self.verticalLayout_18.addWidget(self.resourceFrame)
+
+        self.clearContextFrame = QFrame(self.Checking)
+        self.clearContextFrame.setObjectName(u"clearContextFrame")
+        self.clearContextFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.clearContextFrame.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_23 = QHBoxLayout(self.clearContextFrame)
+        self.horizontalLayout_23.setSpacing(9)
+        self.horizontalLayout_23.setObjectName(u"horizontalLayout_23")
+        self.clearContextButton = QPushButton(self.clearContextFrame)
+        self.clearContextButton.setObjectName(u"clearContextButton")
+        icon10 = QIcon()
+        icon10.addFile(u"ui/svg/trash.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clearContextButton.setIcon(icon10)
+        self.clearContextButton.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_23.addWidget(self.clearContextButton)
+
+        self.promptEditButton = QPushButton(self.clearContextFrame)
+        self.promptEditButton.setObjectName(u"promptEditButton")
+        self.promptEditButton.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        icon11 = QIcon()
+        icon11.addFile(u"ui/svg/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.promptEditButton.setIcon(icon11)
+        self.promptEditButton.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_23.addWidget(self.promptEditButton)
+
+        self.ollamaNameChangeButton = QPushButton(self.clearContextFrame)
+        self.ollamaNameChangeButton.setObjectName(u"ollamaNameChangeButton")
+        icon12 = QIcon()
+        icon12.addFile(u"ui/svg/ollama-white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.ollamaNameChangeButton.setIcon(icon12)
+        self.ollamaNameChangeButton.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_23.addWidget(self.ollamaNameChangeButton)
+
+
+        self.verticalLayout_18.addWidget(self.clearContextFrame)
+
+        self.linksFrame = QFrame(self.Checking)
+        self.linksFrame.setObjectName(u"linksFrame")
+        self.linksFrame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.linksFrame.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_21 = QHBoxLayout(self.linksFrame)
+        self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
+        self.GitHubbtn = QPushButton(self.linksFrame)
+        self.GitHubbtn.setObjectName(u"GitHubbtn")
+        icon13 = QIcon()
+        icon13.addFile(u"ui/svg/github.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.GitHubbtn.setIcon(icon13)
+        self.GitHubbtn.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_21.addWidget(self.GitHubbtn)
+
+        self.Supportbtn = QPushButton(self.linksFrame)
+        self.Supportbtn.setObjectName(u"Supportbtn")
+        icon14 = QIcon()
+        icon14.addFile(u"ui/svg/thumbs-up.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.Supportbtn.setIcon(icon14)
+        self.Supportbtn.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_21.addWidget(self.Supportbtn)
+
+
+        self.verticalLayout_18.addWidget(self.linksFrame)
+
+
+        self.horizontalLayout_20.addWidget(self.Checking)
+
+
+        self.verticalLayout_20.addWidget(self.allSlfFrame)
 
 
         self.horizontalLayout_18.addWidget(self.slf)
@@ -772,7 +972,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.InfoButton.setDefault(False)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -827,6 +1027,14 @@ class Ui_MainWindow(object):
         self.protectKeyLabelVAL.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.tempLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.tempKeyLabelVAL.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.ContextIndexLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.saveIndexButton.setText("")
+        self.resourceMonitor.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.clearContextButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.promptEditButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.ollamaNameChangeButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.GitHubbtn.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.Supportbtn.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.AboutLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
     # retranslateUi
 

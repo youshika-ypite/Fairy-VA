@@ -19,7 +19,7 @@ from lib.infer_pack.models import (
 from rvc_rmvpe import RMVPE
 from rvc_vc_infer_pipeline import VC
 
-from configure__main import Configuration, Pathlib_y
+from configure__main import App, Pathlib_y
 
 limitation = os.getenv("SYSTEM") == "spaces"
 
@@ -33,7 +33,7 @@ def search():
     models = [d for d in os.listdir(model_root) if os.path.isdir(os.path.join(model_root, d))]
     if len(models) == 0: raise ValueError("tts-out || No model found in `weights` folder")
     models.sort()
-    Configuration.update_models(models)
+    App.updateModels(models)
 
     return models
 
@@ -115,8 +115,8 @@ class generateTTS():
 
         print("tts-out || Loading RVC model...")
         models = search()
-        if Configuration._ACTIVE() == 0: model = 0
-        else: model = Configuration._ACTIVE()
+        if App.modelIndex() == 0: model = 0
+        else: model = App.modelIndex()
         try: self.tgt_sr, self.net_g, self.vc, self.version, self.index_file, self.if_f0 = model_data(models[model])
         except Exception as exc:
             self.tgt_sr, self.net_g, self.vc, self.version, self.index_file, self.if_f0 = model_data(models[0])
@@ -135,7 +135,7 @@ class generateTTS():
         resample_sr=0,
         rms_mix_rate=0.25
     ):
-        model_name = Configuration._CONFIG()['settings']['models'][Configuration._CONFIG()['settings']['active']]
+        model_name = App.modelsList()[App.modelIndex()]
         print( "tts-out ||------------------||")
         print( "tts-out || ", datetime.datetime.now())
         print( "tts-out ||------------------||")
@@ -206,9 +206,8 @@ class generateTTS():
                 filename = Pathlib_y.get_voicePatternspath()+"/"+filename
             else:
                 filename = Pathlib_y.get_mainLOCALpath()+"/result.wav"
-                try:
-                    os.remove(filename)
-                except FileNotFoundError: pass
+
+                if os.path.isfile(filename): os.remove(filename)
             
             processing_utils.audio_to_file(self.tgt_sr, audio_opt, filename, 'wav')
 

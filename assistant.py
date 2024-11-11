@@ -1,13 +1,18 @@
 import time
+import winsound
 import speech_recognition as sr
 
-from configure__main import Configuration
+from configure__main import App
 
-from assistante_soundModule import Sound
 from commandHandler import ComandHandler
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
+
+class Sound:
+    def _start_listen(self): winsound.PlaySound("C:/Windows/Media/Speech On.wav",    winsound.SND_ASYNC)
+    def _stop_listen(self):  winsound.PlaySound("C:/Windows/Media/Speech Sleep.wav", winsound.SND_ASYNC)
+    def _notify(self):       winsound.PlaySound("C:/Windows/Media/Speech Off.wav",   winsound.SND_ASYNC)
 
 class Assistant:
 
@@ -23,23 +28,30 @@ class Assistant:
         self.import_llama_and_voice()
 
     def import_llama_and_voice(self) -> None: # Импорт модулей
-        if Configuration._CONFIG()['settings']['voiceActive']:
+        if App.voiceModule():
             try:
-                print("Voice module load..")
-                Configuration.pause()
-                if not Configuration._import():
+                print("youshika || Voice module load..")
+                App.setPause()
+                if not App.voiceLoad():
                     from assistante_voiceModule import Voice
                     from assistante_llama3_1 import Llama
                     self.voiceModule = Voice()
                     self.llamaModule = Llama()
-                    Configuration.loadimport()
                 else:
                     self.voiceModule.voice.load()
-                Configuration.pause()
-                print("Voice module loaded successfully.")
+                App.setPause()
+                print("youshika || Voice module loaded successfully.")
             except Exception as exc:
-                print("assistant || ", exc)
+                print("youshika ||  ", exc)
                 self.soundModule._notify()
+
+    def response_clear(self, response) -> str:
+        items = ["*"]
+        for i in items:
+            if i in response:
+                response = response.replace(i, "")
+        
+        return response
 
     def commandHandler(self, text: str) -> bool: # Поиск команд
         botTrigger = self.com_handler.get_botTrigger(text)
@@ -54,16 +66,16 @@ class Assistant:
     def recognize_command(self, text: str):
         RVCtimer, LLMtimer = 0, 0
         speaks = True
-        # Если запрос пустой, возвращаемся
-        if text in ["",  " ", None]: return
         # Поиск и замена слова триггера, если нету, возвращаемся
-        target_word = list(Configuration._TRIGGERS().intersection(text.split()))
+        target_word = list(App.TRIGGERS().intersection(text.split()))
         if not target_word: return
         text = text.replace(target_word[0], "")
+        # Если запрос пустой, возвращаемся
+        if text in ["",  " ", None]: return
         # Поиск комманды
         result = self.commandHandler(text)
         # Если включена генерация голоса
-        if Configuration._CONFIG()['settings']['voiceActive']:
+        if App.voiceModule():
             # Если есть команда из botTrigger, берем оттуда ответ
             if result is False: response = self.com_handler.response
             # Если результат команды не требует ответа
@@ -85,35 +97,36 @@ class Assistant:
             if speaks:
                 print(f"RVC || Generate voice.. --> 0.0")
                 start = time.time()
+                response = self.response_clear(response)
                 self.voiceModule.generate(response)
                 RVCtimer = round(time.time() - start, 2)
                 timer = round(LLMtimer+RVCtimer, 2)
                 print(f"RVC || Voice generated. --> {RVCtimer}")
                 print("RVC || Speaking..")
                 self.voiceModule.speak()
-                print("youshika || All time spend -> ", timer)
-        print("youshika || listening..")
+                print("assistant || All time spend -> ", timer)
+        print("assistant || listening..")
 
     def callback(self, c_recognizer: sr.Recognizer, audio: sr.AudioData):
         try: # Распознование речи
             text = c_recognizer.recognize_google(audio, language="ru_RU").lower()
             # Распознование команд
-            print("youshika || Found text:", text)
+            print("assistant || Found text:", text)
             self.recognize_command(text)
         except sr.UnknownValueError as exc: # Речь не найдена
-            print("youshika || UnknownValue -> None speech")
+            print("assistant || UnknownValue -> None speech")
         except sr.RequestError as exc: # Ошибка запроса
             self.soundModule._notify()
-            print("youshika || RequestError -> ", exc)
+            print("assistant || RequestError -> ", exc)
 
     def start_while(self): # Запуск потока
-        print("youshika || Start loop -", time.strftime('%X'))
+        print("assistant || Start loop -", time.strftime('%X'))
         self.soundModule._start_listen()
         recognizer.listen_in_background(microphone, self.callback)
 
         while self.whileStatus:
             # Если не приложение активно
-            if not Configuration._CONFIG()['settings']['ATactive']:
+            if not App.ACTIVE():
                 self.stop_while()
                 continue
             # Перезапуск
@@ -121,15 +134,17 @@ class Assistant:
                 self.restart_while()
                 continue
             # Пауза распознования
-            while Configuration._PAUSE():
-                time.sleep(0.5)
+            while App.PAUSE():
+                if not App.ACTIVE():
+                    self.stop_while()
+                time.sleep(1)
             # Загрузка голосового модуля и Llama
-            if Configuration._CONFIG()['settings']['loader']:
+            if App.LOAD():
                 self.import_llama_and_voice()
-                Configuration.loaderOFF()
+                App.reLOAD()
             time.sleep(1)
         self.soundModule._stop_listen()
-        print("youshika || Stop loop -", time.strftime('%X'))
+        print("assistant || Stop loop -", time.strftime('%X'))
         self.whileStatus = None
 
     def restart_while(self):
@@ -143,23 +158,23 @@ class Assistant:
     def stop_while(self): # Остановка потока и сохранение данных
         self.whileStatus = False
         errorCount, errors = 0, []
-        if Configuration._CONFIG()['settings']['voiceActive']:
-            print("Saving llama chat history..")
+        if App.voiceModule():
+            print("youshika || Saving llama chat history..")
             try:
                 self.llamaModule._SAVE()
-                print("LLama chat history saved success")
+                print("youshika || LLama chat history saved success")
             except Exception as exc:
                 errorCount += 1
                 errors.append(exc)
 
-        print("Save assistant configuration")
+        print("youshika || Save assistant configuration")
 
         try:
-            Configuration.save()
-            print("Assistant configuration saved success")
+            App.save()
+            print("youshika || Assistant configuration saved success")
         except Exception as exc:
             errorCount += 1
             errors.append(exc)
 
-        if errorCount == 0: print("Program was closed without errors")
-        else: print(f"Program was closed with {errorCount} errors\n||", errors)
+        if errorCount == 0: print("youshika || Program was closed without errors")
+        else: print(f"youshika || Program was closed with {errorCount} errors\n||", errors)

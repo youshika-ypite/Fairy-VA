@@ -3,8 +3,7 @@ import random
 import winsound
 
 from RVC__main import generateTTS
-from configure__main import Pathlib_y, Configuration
-from configure_localization import Localization
+from configure__main import Pathlib_y, App, Localization
 
 class Voice():
     def __init__(self) -> None:
@@ -16,16 +15,18 @@ class Voice():
     def generate(self, text: str, pattern: bool = False, filename: str =None):
         self.text = text
 
+        config = App.model()
+
         self.voice.tts(
             text,
             
-            Configuration._CONFIG()['settings']['voice']['speed'],
-            Configuration._CONFIG()['settings']['voice']['tts'],
+            config['speed'],
+            config['tts'],
 
-            Configuration._CONFIG()['settings']['voice']['f0_key_up'],
-            Configuration._CONFIG()['settings']['voice']['f0_method'],
-            Configuration._CONFIG()['settings']['voice']['index_rate'],
-            Configuration._CONFIG()['settings']['voice']['protect0'],
+            config['f0_key_up'],
+            config['f0_method'],
+            config['index_rate'],
+            config['protect0'],
 
             pattern=pattern,
             filename=filename
@@ -33,8 +34,8 @@ class Voice():
 
     def generateReadyAnswer(self):
         texts = Localization.get_ReadyAnsw_lang()
-        index = Configuration._CONFIG()['settings']['active']
-        modelName = Configuration._CONFIG()['settings']['models'][index]
+        index = App.modelIndex()
+        modelName = App.modelsList()[index]
 
         _path = Pathlib_y.get_voicePatternspath()
         files = os.listdir(_path)
@@ -52,8 +53,8 @@ class Voice():
     def speak(self): winsound.PlaySound(self.path, winsound.SND_FILENAME)
 
     def speakReady(self):
-        index = Configuration._CONFIG()['settings']['active']
-        modelName = Configuration._CONFIG()['settings']['models'][index]
+        index = App.modelIndex()
+        modelName = App.modelsList()[index]
 
         _path = Pathlib_y.get_voicePatternspath()
         files = os.listdir(_path)

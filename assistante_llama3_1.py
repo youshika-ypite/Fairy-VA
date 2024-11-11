@@ -3,41 +3,46 @@ import ollama
 from json import dump
 from datetime import datetime as dt
 
-from configure__main import Pathlib_y, Configuration
+from configure__main import Pathlib_y, LlamaConfig
 
 class Llama:
     def __init__(self) -> None:
         self.history_path = Pathlib_y.get_mainTEMPpath()+"/llama-chat-history.json"
         # Стандартный промпт для ассистента
-        self.prompt = open("prompt.txt", 'r', encoding="utf-8").readlines()[0]
+        self.prompt = LlamaConfig.currentPrompt()
         self.generate = ollama.chat
         self.role = 'system'
 
         self.status = True
-
-        self.modelName = Configuration.OllamaModelName()
+        self.modelName = LlamaConfig.currentModel()
         if self.modelName == "":
             print("Ollama model was not found")
-            self.status = False
+            return None
         else: print("Ollama model: ", self.modelName)
-
         self.chat_history = {}
-        self.context_memory = []
         # Задание стандартного промпта
-        self.getResponse()
+        if LlamaConfig.currentContext()[0] == {}:
+            LlamaConfig.setContext([])
+            self.getResponse()
 
     def _get_default_prompt_and_role(self) -> any:
         return self.prompt, self.role
     
     def _generate_response(self, prompt, role) -> str:
-        self.context_memory.append({'role': role, 'content': prompt})
+        if role == "system": _prmpt = []
+        else: _prmpt = [LlamaConfig.currentContext()[0]]
+
+        _msgs = _prmpt + LlamaConfig.currentContext()[LlamaConfig.currentContextIndex():]
+        _msgs = _msgs + [{'role': role, 'content': prompt}]
+        _copt = LlamaConfig.currentOptions()
+
         response = self.generate(
-            model=self.modelName,
-            messages=[self.context_memory[0]]+self.context_memory[-8:],
-            options={'temperature': 0.0}
+            model = self.modelName,
+            messages = _msgs,
+            options = _copt
             )
-    
-        self.context_memory[-1]['role'] = 'system'
+
+        LlamaConfig.updateCurrentContext({'role': 'system', 'content': prompt})
 
         return response['message']['content']
     
@@ -45,9 +50,6 @@ class Llama:
         self.chat_history[prompt] = response
 
     def getResponse(self, prompt = None) -> str | None:
-        if not self.status:
-            print("Ollama model was not found, please restart")
-            return None
         role = 'user'
         if prompt is None: # Если промпт не задан, то стандартное значение
             prompt, role = self._get_default_prompt_and_role()
@@ -61,5 +63,9 @@ class Llama:
         return response
     
     def _SAVE(self) -> None: # Сохранение истории о сообщениях
-        with open(self.history_path, "w", encoding="utf-8") as file:
-            dump(self.chat_history, file, ensure_ascii=False)
+        dump(
+            self.chat_history,
+            open(self.history_path, "w", encoding="utf-8"),
+            ensure_ascii=False
+            )
+        LlamaConfig.save()

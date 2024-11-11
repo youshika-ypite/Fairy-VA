@@ -1,0 +1,30 @@
+{
+    "TRIGGERS": ["фея"],
+
+    "appStatus": true,
+    "pauseStatus": false,
+    "voiceModule": false,
+    "voiceLoad": false,
+
+    "voice": {
+        "model": {
+            "f0_key_up": 8,
+            "f0_method": "rmvpe",
+            "index_rate": 1,
+            "protect0": 0.4,
+            "speed": 6,
+            "tts": "ru-RU-SvetlanaNeural-Female"
+        },
+        "modelsList": [],
+        "modelIndex": 0,
+        "based_Mods": [
+            "ru-RU-SvetlanaNeural-Female",
+            "ru-RU-DmitryNeural-Male",
+            "en-US-AnaNeural-Female",
+            "en-US-AriaNeural-Female"
+        ]
+    },
+    "temp": {
+        "toLOAD": false
+    }
+}

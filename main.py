@@ -4,8 +4,7 @@ if system().lower() != 'windows':
 import os
 from threading import Thread
 from configure__main import Pathlib_y, Applicator
-# from applicate__main import Application # Старая версия
-from applicate_new import Application # Новая версия
+from applicate_new import Application
 from assistant import Assistant
 
 localpath = Pathlib_y.get_mainLOCALpath()

@@ -1,0 +1,134 @@
+* {
+	color: #fff;
+	background-color : transparent;
+	background: transparent;
+	font: 10pt "MiSans";
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+#centralwidget {
+	background-color: #4D4956;
+}
+#LeftMenuFrame {
+	background-color: #2A377A;
+	padding: 20px 0px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: rgb(235, 235, 235);
+	border-bottom-right-radius: 10px;
+}
+#LeftMenuFrame QPushButton {
+	font-size: 11pt;
+	text-align: left;
+	padding: 5px 10px;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+#ControlFrame QPushButton {
+	text-align: right;
+}
+QSpinBox {
+	margin: 5px 15px;
+	padding: 5px;
+	border-color: rgb(235, 235, 235);
+	border-width: 1px;
+    border-style: solid;
+	border-radius: 4px; 
+}
+QComboBox {
+	text-align: right;
+	padding: 5px 10px;
+	border-width: 1px;
+    border-style: solid;
+    border-color: rgb(235, 235, 235);  
+    border-radius: 4px; 
+	background-color: rgb(235, 235, 235);
+	selection-background-color: rgb(235, 235, 235); 
+	color: #30354c;
+}
+QPushButton {
+	border-color: rgb(235, 235, 235);  
+}
+#ReloadButtonsFrame, #modFrame, #nlFrame, #pauseFrame, #slf, #setFrame {
+	background-color: #0a5fad;
+	border-radius: 15px;
+}
+#ControlFrame, #ModelFrame, #InfosubFrame, #Buttons {
+	background-color: #2d4586;
+	border-radius: 15px;
+}
+#ControlFrame:hover, #ModelFrame:hover, #InfosubFrame:hover {
+	background-color: #2c3e75;
+}
+#ControlFrame QPushButton {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	border-radius: 10px;
+}
+#InfoFrame QLabel {
+	border-width: 1px;
+	border-color: rgb(235, 235, 235); 
+	border-style: solid none none none;
+}
+#protect0Frame, #speedFrame, #temp0Frame, #paramFrame {
+	background-color: #2d4586;
+	border-radius: 15px;
+	padding: 5px 0px;
+}
+ #protect0Frame:hover, #speedFrame:hover, #temp0Frame:hover, #paramFrame:hover {
+	background-color: #2c3e75;
+}
+#ContButtonFrame, #AboutPageFrame {
+	background-color: #2A377A;
+	border-bottom-right-radius: 10px;
+	border-width: 1px;
+	border-style: solid solid solid none;
+	border-color: rgb(235, 235, 235); 
+}
+#InfoButton:hover, #AboutButton:hover, #SliderButton:hover, #AppsButton:hover {
+	background-color: #68A2CC;
+	border-width: 1px;
+    border-style: solid none solid solid;
+}
+#ReloadApps, #ReloadModels, #ReloadConfig, #clearContextButton, #promptEditButton,  #ollamaNameChangeButton, #GitHubbtn, #Telegrambtn, #Supportbtn, #saveIndexButton {
+	padding: 5px;
+}
+#ReloadApps:hover, #ReloadModels:hover, #ReloadConfig:hover, #clearContextButton:hover, #promptEditButton:hover, #ollamaNameChangeButton:hover, #GitHubbtn:hover, #Telegrambtn:hover, #Supportbtn:hover {
+	border-width: 1px;
+    border-style: solid;
+    border-radius: 10px; 
+}
+#saveIndexButton:hover {
+	border-width: 1px;
+    border-style: none none solid none;
+    border-radius: 5px;
+}
+#closeButton, #hideButton {
+	padding: 5px;
+}
+#closeButton:hover, #hideButton:hover {
+	border-width: 1px;
+    border-style: none none solid solid;
+    border-radius: 4px; 
+} 
+#ModButton:hover, #NoLlamaButton:hover, #PauseButton:hover {
+	background-color: #68A2CC;
+	border-width: 1px;
+	border-style: solid;
+}
+#Checking {
+	padding: 5px;
+	background-color:  #2d4586;
+	border-radius: 10px
+}
+#Checking QFrame {
+	border-style: none none solid none;
+	border-color: rgb(235, 235, 235);  
+	border-width: 1px;
+}
+#Checking QLabel {
+	border-style: none;
+}

@@ -9,7 +9,8 @@ def start_menu_searcher() -> list[dict[str, str]]:
     t = [
         'python', 'steam', 'desktop', 'powershell', 'tools', 'access',
         'unins', 'удал', 'инсталл', 'nsight', 'nvidia', 'profiler',
-        'bash', 'cmd', 'gui', 'java', 'help', 'application verifier'
+        'bash', 'cmd', 'gui', 'java', 'help', 'application verifier',
+        'vc_red',
         ]
     _pathslinked = {}
     _nameslinked = {}
@@ -81,13 +82,10 @@ class InstallApplication:
                 sequences = {}
                 if len(self.files) == 0: return
 
-                # result = get_close_matches(self.name, self.files)
-
                 for file in self.files:
                     sequences[SequenceMatcher(None, file, self.default+"\\"+self.name).ratio()] = file
                 max_sequence = max(sequences)
                 if max_sequence > 0.2:
-                    # Safety
                     if self.default+"\\"+sequences[max_sequence] != self.expectLaunchFile:
                         self.expectLaunchFile = self.default+"\\"+sequences[max_sequence]
                     else:

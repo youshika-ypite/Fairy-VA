@@ -6,7 +6,7 @@ from ui_notify import *
 from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
 
 from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout
-from PySide6.QtWidgets import QWidget, QMainWindow, QLabel
+from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QSpacerItem
 from PySide6.QtWidgets import QFrame, QComboBox, QVBoxLayout
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
 from PySide6.QtGui import QMouseEvent, Qt, QIcon
@@ -251,80 +251,56 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool):
     toolTips = Localization.get_ToolLang()
 
     widget = QWidget()
-
-    mainlayout = QVBoxLayout(widget)
+    mainlayout = QHBoxLayout(widget)
+    secondlayout = QHBoxLayout()
     mainframe = QFrame()
-    mainframe_Layout = QVBoxLayout()
+    mainframe.setObjectName("mainframeB")
 
-    _firstdlayout = QVBoxLayout()
-    _firstlayout_adt = QHBoxLayout()
-    _secondlayout = QHBoxLayout()
+    Name = QLabel(data["name"])
+    urlButton = QPushButton("")
+    editButton = QPushButton("")
+    applyButton = QPushButton("")
+    deleteButton = QPushButton("")
 
-    __firstdFrame, __firstFrame_adt = QFrame(), QFrame()
-    __secondFrame = QFrame()
+    Name.setObjectName("namer")
 
-    colorCircle, color = colorCircles["green"], '#00d26a'
-    toolTip = toolTips['green']
-    if data["possible_path"] is None:
-        colorCircle, color = colorCircles["red"], '#ff5252'
-        toolTip = toolTips['red']
-    elif data["relative_path"] is None:
-        colorCircle, color = colorCircles["yellow"], '#ffda13'
-        toolTip = toolTips['yellow']
+    mainframe.setContentsMargins(0, 0, 0, 0)
+    mainlayout.setContentsMargins(0, 0, 0, 0)
+    secondlayout.setContentsMargins(0, 0, 0, 0)
+    secondlayout.addWidget(Name)
 
-    mainframe.setObjectName("mainFrameB")
-    mainframe.setStyleSheet(
-        "* {background-color: #373737;}\n"\
-        "#mainFrameB "\
-        "{\n"\
-        "   border-style: none none none solid;\n"\
-        "   border-width: 5px;\n"\
-        "   border-radius: 10px;\n"\
-        "   border-color: "+color+";\n"\
-        "}")
+    spacer_item = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+    secondlayout.addItem(spacer_item)
+
+    buttonSize = QSize(18, 18)
     
-    appName, appPath = QLabel(data["name"]), data["possible_path"]
-    openButton = QPushButton(localization["openphButton"])
-    chngButton = QPushButton(localization["changeButton"])
-    _delButton = QPushButton(localization["deleteButton"])
-    _appStatus = QLabel(colorCircle)
-    _appStatus.setToolTip(toolTip)
-
-    _delButton.setStyleSheet("QPushButton:hover {background-color: #ff5252;}")
-
-    openButton.setToolTip(data['possible_path'])
-
-    openButton.clicked.connect(lambda: openDir(appPath))
-    _delButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
-    chngButton.clicked.connect(lambda: _change(mainlayout, widget))
-
-    _firstlayout_adt.addWidget(appName)
-    _firstlayout_adt.addWidget(_appStatus, alignment=Qt.AlignRight)
-
-    __firstFrame_adt.setLayout(_firstlayout_adt)
-
-    _firstdlayout.addWidget(__firstFrame_adt)
-    _firstdlayout.addWidget(openButton)
-
     if confirmBtn:
-        confirmButton = QPushButton(localization['confrmButton'])
-        confirmButton.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
-        confirmButton.clicked.connect(lambda: confirm(mainlayout, widget))
-        _secondlayout.addWidget(confirmButton)
-    _secondlayout.addWidget(chngButton)
-    _secondlayout.addWidget(_delButton)
+        applyButton = QPushButton("")
+        applyButton.setIconSize(buttonSize)
+        applyButton.setIcon(QIcon("ui/svg/check-square.svg"))
+        applyButton.clicked.connect(lambda: confirm(mainlayout, widget))
+        secondlayout.addWidget(applyButton)
 
-    _firstdlayout.setContentsMargins(0, 0, 0, 0)
-    _secondlayout.setContentsMargins(0, 0, 0, 0)
+    urlButton = QPushButton("")
+    urlButton.setIconSize(buttonSize)
+    urlButton.setToolTip(data['possible_path'])
+    urlButton.setIcon(QIcon("ui/svg/external-link.svg"))
+    urlButton.clicked.connect(lambda: openDir(data["possible_path"]))
+    secondlayout.addWidget(urlButton)
+    
+    editButton = QPushButton("")
+    editButton.setIconSize(buttonSize)
+    editButton.setIcon(QIcon("ui/svg/edit.svg"))
+    editButton.clicked.connect(lambda: _change(mainlayout, widget))
+    secondlayout.addWidget(editButton)
 
-    __firstdFrame.setLayout(_firstdlayout)
-    __secondFrame.setLayout(_secondlayout)
+    deleteButton = QPushButton("")
+    deleteButton.setIconSize(buttonSize)
+    deleteButton.setIcon(QIcon("ui/svg/slash.svg"))
+    deleteButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
+    secondlayout.addWidget(deleteButton)
 
-    mainframe_Layout.addWidget(__firstdFrame)
-    mainframe_Layout.addWidget(__secondFrame)
-
-    mainframe.setLayout(mainframe_Layout)
-
+    mainframe.setLayout(secondlayout)
     mainlayout.addWidget(mainframe)
 
     return widget
@@ -334,11 +310,31 @@ class AppConfigurator(QMainWindow):
         super().__init__()
 
         self.setStyleSheet(
-            "* {background-color: #171717;}\n"\
-            "QLabel {color: white;}\n"\
-            "QPushButton {color: white;}\n"\
-            "QPushButton:hover {background-color: gray; color: black;}\n"\
-            "#CA_Button:hover {background-color: lightgreen;}"
+            "* {background-color: #30354c;}\n"\
+            "#namer {padding: 5px;}"\
+            "#mainframeB {"\
+                "background-color: rgba(0, 0, 0, 0);"\
+                "padding: 5px;"\
+            "}"\
+            "#mainframeB:hover {background-color: #2d4586;}"\
+            "QLabel {"\
+                "background-color: transparent;"\
+                "color: white;"\
+                "border-style: none;"\
+            "}"\
+            "QPushButton {"\
+                "padding: 4px;"
+                "color: rgb(230, 230, 230);"\
+                "background-color: transparent;"\
+                "border-width: 1px;"\
+                "border-style: none none solid none;"\
+                "border-color: rgb(230, 230, 230);"\
+            "}"\
+            "QPushButton:hover {"\
+                "border-width: 1px;"\
+                "border-style: solid;"\
+                "border-radius: 5px;"\
+            "}"
             )
         self.setWindowTitle(f"Fairy!! | App Configurator / Конфигуратор приложений")
         self.setWindowIcon(QIcon("ui/icon.png"))
@@ -396,7 +392,7 @@ class AppConfigurator(QMainWindow):
 
         self.matrix_build()
 
-        self.setMinimumWidth(int(self.scroller.width()*1.2))
+        self.setMinimumWidth(int(self.scroller.width()*1.5))
         self.setMinimumHeight(570)
 
     def closeEvent(self, event):

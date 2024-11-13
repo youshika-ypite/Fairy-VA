@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'newyLTSYB.ui'
+## Form generated from reading UI file 'newWCSSeejuoB.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
@@ -33,143 +33,7 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         font.setStyleStrategy(QFont.PreferAntialias)
         MainWindow.setFont(font)
-        MainWindow.setStyleSheet(u"* {\n"
-"	color: #fff;\n"
-"	background-color : transparent;\n"
-"	background: transparent;\n"
-"	font: 10pt \"MiSans\";\n"
-"	padding: 0;\n"
-"	margin: 0;\n"
-"	border: none;\n"
-"}\n"
-"#centralwidget {\n"
-"	background-color: #4D4956;\n"
-"}\n"
-"#LeftMenuFrame {\n"
-"	background-color: #2A377A;\n"
-"	padding: 20px 0px;\n"
-"	border-width: 1px;\n"
-"	border-style: solid;\n"
-"	border-color: rgb(235, 235, 235);\n"
-"	border-bottom-right-radius: 10px;\n"
-"}\n"
-"#LeftMenuFrame QPushButton {\n"
-"	font-size: 11pt;\n"
-"	text-align: left;\n"
-"	padding: 5px 10px;\n"
-"	border-top-left-radius: 10px;\n"
-"	border-bottom-left-radius: 10px;\n"
-"}\n"
-"#ControlFrame QPushButton {\n"
-"	text-align: right;\n"
-"}\n"
-"QSpinBox {\n"
-"	margin: 5px 15px;\n"
-"	padding: 5px;\n"
-"	border-color: rgb(235, 235, 235);\n"
-"	border-width: 1px;\n"
-"    border-style: solid;\n"
-"	border-radius: 4px; \n"
-"}\n"
-"QComboBox {\n"
-"	text-align: right;\n"
-"	padding: 5px 10px;\n"
-"	border-width: 1px;\n"
-"    border-style: solid;\n"
-"    border-color: rgb(235, 235, 235"
-                        ");  \n"
-"    border-radius: 4px; \n"
-"	background-color: rgb(235, 235, 235);\n"
-"	selection-background-color: rgb(235, 235, 235); \n"
-"	color: #30354c;\n"
-"}\n"
-"QPushButton {\n"
-"	border-color: rgb(235, 235, 235);  \n"
-"}\n"
-"#ReloadButtonsFrame, #modFrame, #nlFrame, #pauseFrame, #slf, #setFrame {\n"
-"	background-color: #0a5fad;\n"
-"	border-radius: 15px;\n"
-"}\n"
-"#ControlFrame, #ModelFrame, #InfosubFrame, #Buttons {\n"
-"	background-color: #2d4586;\n"
-"	border-radius: 15px;\n"
-"}\n"
-"#ControlFrame:hover, #ModelFrame:hover, #InfosubFrame:hover {\n"
-"	background-color: #2c3e75;\n"
-"}\n"
-"#ControlFrame QPushButton {\n"
-"	padding-top: 10px;\n"
-"	padding-bottom: 10px;\n"
-"	padding-right: 10px;\n"
-"	padding-left: 10px;\n"
-"	border-radius: 10px;\n"
-"}\n"
-"#InfoFrame QLabel {\n"
-"	border-width: 1px;\n"
-"	border-color: rgb(235, 235, 235); \n"
-"	border-style: solid none none none;\n"
-"}\n"
-"#protect0Frame, #speedFrame, #temp0Frame, #paramFrame {\n"
-"	background-color: #2d4586;\n"
-"	border-radius: 15px;\n"
-"	padding: 5p"
-                        "x 0px;\n"
-"}\n"
-" #protect0Frame:hover, #speedFrame:hover, #temp0Frame:hover, #paramFrame:hover {\n"
-"	background-color: #2c3e75;\n"
-"}\n"
-"#ContButtonFrame, #AboutPageFrame {\n"
-"	background-color: #2A377A;\n"
-"	border-bottom-right-radius: 10px;\n"
-"	border-width: 1px;\n"
-"	border-style: solid solid solid none;\n"
-"	border-color: rgb(235, 235, 235); \n"
-"}\n"
-"#InfoButton:hover, #AboutButton:hover, #SliderButton:hover, #AppsButton:hover {\n"
-"	background-color: #68A2CC;\n"
-"	border-width: 1px;\n"
-"    border-style: solid none solid solid;\n"
-"}\n"
-"#ReloadApps, #ReloadModels, #ReloadConfig, #clearContextButton, #promptEditButton,  #ollamaNameChangeButton, #GitHubbtn, #Telegrambtn, #Supportbtn, #saveIndexButton {\n"
-"	padding: 5px;\n"
-"}\n"
-"#ReloadApps:hover, #ReloadModels:hover, #ReloadConfig:hover, #clearContextButton:hover, #promptEditButton:hover, #ollamaNameChangeButton:hover, #GitHubbtn:hover, #Telegrambtn:hover, #Supportbtn:hover {\n"
-"	border-width: 1px;\n"
-"    border-style: solid;\n"
-"    border-rad"
-                        "ius: 10px; \n"
-"}\n"
-"#saveIndexButton:hover {\n"
-"	border-width: 1px;\n"
-"    border-style: none none solid none;\n"
-"    border-radius: 5px;\n"
-"}\n"
-"#closeButton, #hideButton {\n"
-"	padding: 5px;\n"
-"}\n"
-"#closeButton:hover, #hideButton:hover {\n"
-"	border-width: 1px;\n"
-"    border-style: none none solid solid;\n"
-"    border-radius: 4px; \n"
-"} \n"
-"#ModButton:hover, #NoLlamaButton:hover, #PauseButton:hover {\n"
-"	background-color: #68A2CC;\n"
-"	border-width: 1px;\n"
-"	border-style: solid;\n"
-"}\n"
-"#Checking {\n"
-"	padding: 5px;\n"
-"	background-color:  #2d4586;\n"
-"	border-radius: 10px\n"
-"}\n"
-"#Checking QFrame {\n"
-"	border-style: none none solid none;\n"
-"	border-color: rgb(235, 235, 235);  \n"
-"	border-width: 1px;\n"
-"}\n"
-"#Checking QLabel {\n"
-"	border-style: none;\n"
-"}")
+        MainWindow.setStyleSheet(u"")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
@@ -377,20 +241,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.ActiveModelLabel)
 
-        self.FoundModelsLabel = QLabel(self.InfosubFrame)
-        self.FoundModelsLabel.setObjectName(u"FoundModelsLabel")
-
-        self.verticalLayout_8.addWidget(self.FoundModelsLabel)
-
         self.PauseStatusLabel = QLabel(self.InfosubFrame)
         self.PauseStatusLabel.setObjectName(u"PauseStatusLabel")
 
         self.verticalLayout_8.addWidget(self.PauseStatusLabel)
 
-        self.LinksLabel = QLabel(self.InfosubFrame)
-        self.LinksLabel.setObjectName(u"LinksLabel")
+        self.FoundModelsLabel = QLabel(self.InfosubFrame)
+        self.FoundModelsLabel.setObjectName(u"FoundModelsLabel")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.FoundModelsLabel.sizePolicy().hasHeightForWidth())
+        self.FoundModelsLabel.setSizePolicy(sizePolicy)
+        self.FoundModelsLabel.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
 
-        self.verticalLayout_8.addWidget(self.LinksLabel)
+        self.verticalLayout_8.addWidget(self.FoundModelsLabel)
 
 
         self.verticalLayout_5.addWidget(self.InfosubFrame)
@@ -438,11 +303,11 @@ class Ui_MainWindow(object):
 
         self.SelectLangBox = QComboBox(self.langframe)
         self.SelectLangBox.setObjectName(u"SelectLangBox")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.SelectLangBox.sizePolicy().hasHeightForWidth())
-        self.SelectLangBox.setSizePolicy(sizePolicy)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.SelectLangBox.sizePolicy().hasHeightForWidth())
+        self.SelectLangBox.setSizePolicy(sizePolicy1)
         self.SelectLangBox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.SelectLangBox.setFrame(True)
 
@@ -838,11 +703,11 @@ class Ui_MainWindow(object):
 
         self.resourceFrame = QFrame(self.Checking)
         self.resourceFrame.setObjectName(u"resourceFrame")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.resourceFrame.sizePolicy().hasHeightForWidth())
-        self.resourceFrame.setSizePolicy(sizePolicy1)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.resourceFrame.sizePolicy().hasHeightForWidth())
+        self.resourceFrame.setSizePolicy(sizePolicy2)
         self.resourceFrame.setFrameShape(QFrame.Shape.StyledPanel)
         self.resourceFrame.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_21 = QVBoxLayout(self.resourceFrame)
@@ -972,7 +837,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.InfoButton.setDefault(False)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1006,9 +871,8 @@ class Ui_MainWindow(object):
         self.closeButton.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+X", None))
 #endif // QT_CONFIG(shortcut)
         self.ActiveModelLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.FoundModelsLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.PauseStatusLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.LinksLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.FoundModelsLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.SelectLangLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.SelectModelLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.SelectVModLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))

@@ -12,25 +12,28 @@ class Voice():
         self.path = Pathlib_y.get_mainLOCALpath()+"/result.wav"
         self.generateReadyAnswer()
 
-    def generate(self, text: str, pattern: bool = False, filename: str =None):
+    def generate(self, text: str, pattern: bool = False, filename: str = None) -> bool:
         self.text = text
 
         config = App.model()
 
-        self.voice.tts(
+        result = self.voice.tts(
             text,
             
             config['speed'],
+
             config['tts'],
 
             config['f0_key_up'],
             config['f0_method'],
+            
             config['index_rate'],
             config['protect0'],
 
             pattern=pattern,
             filename=filename
         )
+        return result
 
     def generateReadyAnswer(self):
         texts = Localization.get_ReadyAnsw_lang()
@@ -40,15 +43,20 @@ class Voice():
         _path = Pathlib_y.get_voicePatternspath()
         files = os.listdir(_path)
 
+        i = 0
         ready = False
         
         for file in files:
             if modelName in file: ready = True
         if ready: return
-        print("Generate voice patterns..")
-        for text in texts:
-            self.generate(text, pattern=True, filename=modelName+text+".wav")
-        print("Success")
+        print("Voice || Generate voice patterns..")
+
+        while i <= 3:
+            r = self.generate(texts[i], pattern=True, filename=modelName+texts[i]+".wav")
+            if r: i += 1
+            else: print(f"Voice || Pattern generate ({texts[i]}) was failed, retrying..")
+        
+        print("Voice || Success")
 
     def speak(self): winsound.PlaySound(self.path, winsound.SND_FILENAME)
 
@@ -64,6 +72,6 @@ class Voice():
             file = random.choice(activeFiles)
             winsound.PlaySound(_path+"/"+file, winsound.SND_FILENAME)
         else:
-            print("Patterns not found")
+            print("Voice || Patterns not found")
             self.generateReadyAnswer()
             self.speakReady()

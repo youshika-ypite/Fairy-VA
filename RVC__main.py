@@ -134,20 +134,18 @@ class generateTTS():
         filter_radius=3,
         resample_sr=0,
         rms_mix_rate=0.25
-    ):
+    ) -> bool:
         model_name = App.modelsList()[App.modelIndex()]
-        print( "tts-out ||------------------||")
-        print( "tts-out || ", datetime.datetime.now())
-        print( "tts-out ||------------------||")
-        print( "tts-out || tts_text:")
+        print( "tts-out || ------------------||")
+        print( "tts-out || time: ", datetime.datetime.now())
+        print( "tts-out || tts_text: ")
         print(f"tts-out || {tts_text}")
         print(f"tts-out || tts_voice: {tts_voice}")
         print(f"tts-out || Model name: {model_name}")
         print(f"tts-out || F0: {f0_method}, Key: {f0_up_key}, Index: {index_rate}, Protect: {protect}")
-        print( "tts-out ||------------------||")
+        print( "tts-out || ------------------||")
         try:
             if limitation and len(tts_text) > 280:
-                print( "tts-out || ############### ERROR ###############")
                 print( "tts-out || Error: Text too long")
                 print(f"tts-out || Text characters should be at most 280 in this huggingface space, but got {len(tts_text)} characters.")
                 return 0
@@ -162,7 +160,9 @@ class generateTTS():
                         tts_text, "-".join(tts_voice.split("-")[:-1]), rate=speed_str
                     ).save(edge_output_filename)
                 )
-            except Exception as exc: print("tts-out || ", exc)
+            except Exception as exc:
+                print("tts-out || ", exc)
+                return 0
             
             t1 = time.time()
             edge_time = t1 - t0
@@ -211,5 +211,11 @@ class generateTTS():
             
             processing_utils.audio_to_file(self.tgt_sr, audio_opt, filename, 'wav')
 
-            print(f"tts-out || Success. Time: edge-tts: {edge_time}s, npy: {times[0]}s, f0: {times[1]}s, infer: {times[2]}s")        
-        except EOFError: print("tts-out || It seems that the edge-tts output is not valid. LangError")
+            out = [round(edge_time, 2), round(times[0], 2), round(times[1], 2), round(times[2], 2)]
+
+            print(f"tts-out || Success. Time: edge-tts: {out[0]}s, npy: {out[1]}s, f0: {out[2]}s, infer: {out[3]}s")
+            return 1
+        
+        except EOFError as exc:
+            print("tts-out || It seems that the edge-tts output is not valid.")
+            return 0

@@ -41,7 +41,6 @@
             "SelectVModLabel": "Выберите основу модели",
             "ActiveModelLabel": "Активная модель: :MD:",
             "FoundModelsLabel": "Найденные модели: :MDS:",
-            "LinksLabel": "Ссылки",
             "PauseStatusLabel": "Состояние паузы: :P:",
             "ReloadApps": "Сбросить приложения",
             "ReloadModels": "Найти модели",
@@ -98,7 +97,7 @@
             "Одну секунду!",
             "Всё!"
         ],
-        "Changer":{
+        "Changer": {
             "notify": "Пожалуйста  перезагрузите приложение чтобы изменения вступили в силу",
             "error_e": "Не может быть пустым",
             "OllamaNameChange": {
@@ -150,7 +149,6 @@
             "SelectVModLabel": "Choose base model",
             "ActiveModelLabel": "Active model: :MD:",
             "FoundModelsLabel": "Found Models: :MDS:",
-            "LinksLabel": "Links",
             "PauseStatusLabel": "Pause status: :P:",
             "ReloadApps": "Reload apps",
             "ReloadModels": "Find models",
@@ -207,7 +205,7 @@
             "One second!",
             "Done!"
         ],
-        "Changer":{
+        "Changer": {
             "notify": "Please restart the application for the changes to take effect",
             "error_e": "Cannot be empty",
             "OllamaNameChange": {

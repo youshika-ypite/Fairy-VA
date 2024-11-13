@@ -99,6 +99,7 @@ class MainWindow(QMainWindow):
     def _closeFROMTRAY(self):
         App.stopApp()
         Applicator._checkSave()
+        LlamaConfig.save()
         self.close()
     def closeEvent(self, event):
         self.hide()
@@ -303,17 +304,16 @@ class MainWindow(QMainWindow):
         
         if not App.modelsList(): App.search()
         vmodels = App.modelsList()
-        models = "\n"
+        models = "\n\n"
         model = vmodels[App.modelIndex()]
         if not App.voiceModule(): model = "None"
         MD = self.lang_Local['ActiveModelLabel'].replace(":MD:", model)
-        for i, el in enumerate(vmodels, 0):models += f"{i}. - {el}\n"
+        for i, el in enumerate(vmodels, 0):models += f"|| {i} - {el}\n"
         MDS = self.lang_Local['FoundModelsLabel'].replace(":MDS:", models)
         P = self.lang_Local['PauseStatusLabel'].replace(":P:", str(pause))
 
         self.ui.ActiveModelLabel.setText(MD)
         self.ui.FoundModelsLabel.setText(MDS)
-        self.ui.LinksLabel.setText(self.lang_Local['LinksLabel'])
         self.ui.PauseStatusLabel.setText(P)
 
         self.ui.tempLabel.setText("temp0")

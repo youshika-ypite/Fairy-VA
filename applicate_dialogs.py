@@ -11,8 +11,6 @@ from PySide6.QtWidgets import QFrame, QComboBox, QVBoxLayout
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
 from PySide6.QtGui import QMouseEvent, Qt, QIcon
 
-colorCircles = {"red": "🟥", "yellow": "🟨", "green": "🟩"}
-
 class Notify(QDialog):
     def __init__(self) -> None:
         QDialog.__init__(self)
@@ -27,7 +25,7 @@ class Notify(QDialog):
     def changeText(self, text): self.ui.label.setText(text)
 
 class AppCreator(QMainWindow):
-    def __init__(self, updater) -> None:
+    def __init__(self) -> None:
         QMainWindow.__init__(self)
         self.ui = ac_Ui_MainWindow()
         self.ui.setupUi(self)
@@ -36,7 +34,6 @@ class AppCreator(QMainWindow):
         self.setWindowIcon(QIcon("ui/icon.png"))
         self.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
 
-        self.updater = updater
         self.notificator = Notify()
         self.ui.saveButton.clicked.connect(self.save_app)
 
@@ -45,7 +42,10 @@ class AppCreator(QMainWindow):
 
         _name = self.ui.inputName.toPlainText()
         _path = self.ui.inputPath.toPlainText()
-
+        # Защита от копипаста пути от проводника с кавычкми
+        if _path[0] == '"' and _path[-1] == '"':
+            _path = _path[1:-1]
+        # Проверка правльности пути
         if _name in ["", " ", None]:
             self.notificator.changeText(notify_lang["nameError_e"])
             self.notificator.show()
@@ -64,18 +64,16 @@ class AppCreator(QMainWindow):
             return
         
         Applicator.appendApp(_name, _path)
-        self.updater()
 
 class PathChanger(QMainWindow):
     def __init__(
             self,
-            datapack: dict, updater,
+            datapack: dict,
             windows: list[QLayout, QWidget] = None
             ) -> None:
         super().__init__()
         
         self.windows = windows
-        self.updater = updater
         self.notificator = Notify()
 
         self.secondWin = Localization.get_SecondsWinLang()
@@ -189,35 +187,33 @@ class PathChanger(QMainWindow):
             self.windows[1].deleteLater()
 
     def _delete(self) -> None:
-        Applicator.deleteApp(self.name)
-        self.updater()
+        Applicator.deleteApp(self.name, appKey=True)
         self.remove_()
         self.close()
 
     def _savePath(self) -> None:
         _path = self.getPath_()
 
-        Applicator.deleteNeedAcceptApps(self.name, _path)
-        self.updater()
-        self.remove_()
+        Applicator.deleteApp(self.name, acceptKey=True, path=_path)
         self.close()
 
     def _cancel(self) -> None: self.close()
     def boxTrigger(self): self.input_inputPath.setText(self.getBoxText_())
 
-def generateApp(data: dict, updater, pch, confirmBtn: bool):
+def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
 
     notificator = Notify()
     notify_lang = Localization.get_NotificateLang()
+
+    colors = ["#ff5252", "#e4ce0c"]
 
     def remover(layout: QLayout, widget: QWidget):
         layout.removeWidget(widget)
         widget.deleteLater()
 
-    def confirm(layout: QLayout, widget: QWidget):
-        remover(layout, widget)
-        Applicator.deleteNeedAcceptApps(data["name"], data["possible_path"])
-        updater()
+    def confirm(layout: QLayout, button: QWidget):
+        remover(layout, button)
+        Applicator.deleteApp(data["name"], acceptKey=True)
 
     def openDir(_path: str | None):
         if _path is None:
@@ -241,63 +237,84 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool):
 
     def _delete(layout: QLayout, widget: QWidget, name: str):
         remover(layout, widget)
-        Applicator.deleteApp(name)
-        updater()
+        Applicator.deleteApp(name, appKey=True)
 
     def _change(layout: QLayout, widget: QWidget):
-        pch(PathChanger(data, updater, [layout, widget]))
+        pchangershow(PathChanger(data, [layout, widget]))
 
-    localization = Localization.get_SecondsWinLang()
-    toolTips = Localization.get_ToolLang()
+    dataNeed = data["possible_path"] is None
+    accessNeed = data['relative_path'] is None and not dataNeed
+
+    color = colors[0] if dataNeed else colors[1] if accessNeed else None
 
     widget = QWidget()
+
     mainlayout = QHBoxLayout(widget)
+    mainlayout.setContentsMargins(0, 0, 0, 0)
+    
     secondlayout = QHBoxLayout()
+    secondlayout.setContentsMargins(0, 0, 0, 0)
+    
     mainframe = QFrame()
     mainframe.setObjectName("mainframeB")
+    if color is not None:
+        mainframe.setStyleSheet(\
+            "#mainframeB{"\
+                "border-left-style: solid;"\
+                "border-left-width: 3px;"\
+                "border-left-color: "+color+";"\
+            "}")
+    mainframe.setContentsMargins(0, 0, 0, 0)
 
     Name = QLabel(data["name"])
-    urlButton = QPushButton("")
-    editButton = QPushButton("")
-    applyButton = QPushButton("")
-    deleteButton = QPushButton("")
-
     Name.setObjectName("namer")
 
-    mainframe.setContentsMargins(0, 0, 0, 0)
-    mainlayout.setContentsMargins(0, 0, 0, 0)
-    secondlayout.setContentsMargins(0, 0, 0, 0)
-    secondlayout.addWidget(Name)
-
     spacer_item = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-    secondlayout.addItem(spacer_item)
 
     buttonSize = QSize(18, 18)
-    
-    if confirmBtn:
-        applyButton = QPushButton("")
-        applyButton.setIconSize(buttonSize)
-        applyButton.setIcon(QIcon("ui/svg/check-square.svg"))
-        applyButton.clicked.connect(lambda: confirm(mainlayout, widget))
-        secondlayout.addWidget(applyButton)
 
-    urlButton = QPushButton("")
-    urlButton.setIconSize(buttonSize)
-    urlButton.setToolTip(data['possible_path'])
-    urlButton.setIcon(QIcon("ui/svg/external-link.svg"))
-    urlButton.clicked.connect(lambda: openDir(data["possible_path"]))
-    secondlayout.addWidget(urlButton)
-    
+    secondlayout.addWidget(Name)
+    secondlayout.addItem(spacer_item)
+
     editButton = QPushButton("")
     editButton.setIconSize(buttonSize)
+    editButton.setObjectName("editBtn")
+    editButton.setToolTip(str(ToolTip_lang["editBtn"]))
+    editButton.setToolTipDuration(0.5)
     editButton.setIcon(QIcon("ui/svg/edit.svg"))
     editButton.clicked.connect(lambda: _change(mainlayout, widget))
-    secondlayout.addWidget(editButton)
 
     deleteButton = QPushButton("")
     deleteButton.setIconSize(buttonSize)
+    deleteButton.setObjectName("deleteBtn")
+    deleteButton.setToolTip(str(ToolTip_lang["deleteBtn"]))
+    deleteButton.setToolTipDuration(0.5)
     deleteButton.setIcon(QIcon("ui/svg/slash.svg"))
     deleteButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
+    
+    applyButton = QPushButton("")
+    applyButton.setIconSize(buttonSize)
+    applyButton.setObjectName("applyBtn")
+    applyButton.setToolTip(str(ToolTip_lang["applyBtn"]))
+    applyButton.setToolTipDuration(0.5)
+    applyButton.setIcon(QIcon("ui/svg/check.svg"))
+    applyButton.clicked.connect(lambda: confirm(secondlayout, applyButton))
+
+    urlButton = QPushButton("")
+    urlButton.setIconSize(buttonSize)
+    urlButton.setObjectName("urlBtn")
+    urlButton.setToolTip(str(ToolTip_lang["urlBtn"])+str(data['possible_path']))
+    urlButton.setToolTipDuration(0.5)
+    urlButton.setIcon(QIcon("ui/svg/arrow-up-right.svg"))
+    urlButton.clicked.connect(lambda: openDir(data["possible_path"]))
+
+    if dataNeed: urlButton.setVisible(False)
+    if not accessNeed: applyButton.setVisible(False)
+
+    secondlayout.addWidget(applyButton)
+    secondlayout.addWidget(urlButton)
+
+    secondlayout.addWidget(editButton)
     secondlayout.addWidget(deleteButton)
 
     mainframe.setLayout(secondlayout)
@@ -306,41 +323,15 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool):
     return widget
 
 class AppConfigurator(QMainWindow):
-    def __init__(self, updater, enumerator):
+    def __init__(self):
         super().__init__()
 
-        self.setStyleSheet(
-            "* {background-color: #30354c;}\n"\
-            "#namer {padding: 5px;}"\
-            "#mainframeB {"\
-                "background-color: rgba(0, 0, 0, 0);"\
-                "padding: 5px;"\
-            "}"\
-            "#mainframeB:hover {background-color: #2d4586;}"\
-            "QLabel {"\
-                "background-color: transparent;"\
-                "color: white;"\
-                "border-style: none;"\
-            "}"\
-            "QPushButton {"\
-                "padding: 4px;"
-                "color: rgb(230, 230, 230);"\
-                "background-color: transparent;"\
-                "border-width: 1px;"\
-                "border-style: none none solid none;"\
-                "border-color: rgb(230, 230, 230);"\
-            "}"\
-            "QPushButton:hover {"\
-                "border-width: 1px;"\
-                "border-style: solid;"\
-                "border-radius: 5px;"\
-            "}"
-            )
+        with open("ui_confStyle.css", "r") as file:
+            self.setStyleSheet(file.read())
         self.setWindowTitle(f"Fairy!! | App Configurator / Конфигуратор приложений")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notificator = Notify()
-        self.updater = updater
 
         self.localizationSeconds = Localization.get_SecondsWinLang()
         self.localizationToolTip = Localization.get_ToolLang()
@@ -356,34 +347,15 @@ class AppConfigurator(QMainWindow):
         self.infoLayout = QHBoxLayout()
 
         self.addAppButton = QPushButton(self.localizationSeconds["addAppButton"])
-        self.addAppButton.clicked.connect(lambda: self.newApp(updater))
+        self.addAppButton.setObjectName("AABtn")
+        self.addAppButton.clicked.connect(self.newApp)
+        
+        apps = Applicator.getApps().values()
+        self.apps, self.appsPath = [], {}
 
-        self.infotext = QLabel(
-            "| "\
-            f"{colorCircles['green']} - Good |"\
-            f"{colorCircles['yellow']} - Need confirm to use |"\
-            f"{colorCircles['red']} - Need path |"
-            )
-        self.infotext.setAlignment(Qt.AlignCenter)
-
-        self.infoLayout.addWidget(self.infotext)
-
-        if enumerator:
-            self.confirmAllPathButton = QPushButton(self.localizationSeconds['confirmAllBt'])
-            self.confirmAllPathButton.setObjectName("CA_Button")
-            self.confirmAllPathButton.setToolTip(self.localizationToolTip['confirmTip'])
-            self.confirmAllPathButton.clicked.connect(self.confirm)
-            self.infoLayout.addWidget(self.confirmAllPathButton)
-
-        confirmBtn = True if enumerator else False
-        apps = Applicator.getNeedAcceptApps().values() if enumerator else Applicator.getApps().values()
-        self.apps = []
-        self.appsPath = {}
         for data in apps:
             if "name" in data:
-                self.apps.append(generateApp(
-                    data, self.updater, self.pchangershow, confirmBtn)
-                    )
+                self.apps.append(generateApp(data, self.pchangershow, self.localizationToolTip))
                 if data['relative_path'] is None and data['possible_path'] is not None:
                     self.appsPath[data['name']] = data['possible_path']  
 
@@ -392,7 +364,7 @@ class AppConfigurator(QMainWindow):
 
         self.matrix_build()
 
-        self.setMinimumWidth(int(self.scroller.width()*1.5))
+        self.setMinimumWidth(int(self.scroller.width()))
         self.setMinimumHeight(570)
 
     def closeEvent(self, event):
@@ -402,19 +374,15 @@ class AppConfigurator(QMainWindow):
         if self.appCreator is not None:
             try: self.appCreator.close()
             except: pass
+        Applicator._checkSave()
 
     def matrix_build(self):
-        matrix = [0, 0]
         self.appLayout = QGridLayout(self.appWidget)
         for i, app in enumerate(self.apps):
             self.appLayout.addWidget(
-                app, matrix[0], matrix[1],
+                app, i, 0,
                 alignment=Qt.AlignTop
                 )
-            if matrix[1] != 1: matrix[1] += 1
-            else:
-                matrix[0] += 1
-                matrix[1] = 0
 
         self.scroller = QScrollArea()
         self.scroller.setWidgetResizable(True)
@@ -423,23 +391,21 @@ class AppConfigurator(QMainWindow):
         self.mainlayout.addWidget(self.scroller)
 
         self.scroller.setWidget(self.appWidget)
-
         self.setCentralWidget(self.widget)
 
     def pchangershow(self, pchange: PathChanger):
         self.pchange = pchange
         self.pchange.show()
 
-    def newApp(self, updater):
-        self.appCreator = AppCreator(updater)
+    def newApp(self):
+        self.appCreator = AppCreator()
         self.appCreator.show()
 
     def confirm(self):
         def close(): self.tempFrame.deleteLater()
         def agree():
             for app in self.appsPath:
-                Applicator.deleteNeedAcceptApps(app, self.appsPath[app])
-            self.updater()
+                Applicator.deleteApp(app, acceptKey=True)
             self.warningText.setText(
                 self.localizationSeconds["warningText"]
             )
@@ -455,12 +421,6 @@ class AppConfigurator(QMainWindow):
         self.tempLayout = QVBoxLayout()
         self.tempFrame = QFrame()
         self.tempFrame.setObjectName("mainTempFrame")
-        self.tempFrame.setStyleSheet(
-            "QFrame {background-color: #373737;}\n"\
-            "QLabel {color: white}\n"\
-            "#mainTempFrame {border-style: dotted none none none; border-width: 1.5px; border-color: white;}\n"\
-            "#agreeButton:hover {background-color: #ff5252;}"
-            )
         self.secondTempLayout = QHBoxLayout()
         self.secondTempFrame = QFrame()
 

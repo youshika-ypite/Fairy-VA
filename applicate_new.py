@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QSystemTrayIcon, QMenu
 class Application:
     def __init__(self, params = None):
         self.app = QApplication(sys.argv+['-style', 'fusion', '-platform', 'windows:darkmode=0'])
+        self.app.setFont(QFont("Mi Sans", 10))
 
         self._window()
         if params is None: self._tray()
@@ -89,7 +90,7 @@ class MainWindow(QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(2)
     
     def _configurating(self): # Конфигуратор приложений
-        self.confWindow = AppConfigurator(self.appUpdater, 0)
+        self.confWindow = AppConfigurator()
         self.confWindow.show()
     
     def showNormal(self):
@@ -146,12 +147,7 @@ class MainWindow(QMainWindow):
     def _mod(self): pass # Изменим под управление поиском в интерноте
     def _NoLlama(self): pass # Мод отключения функции Ламы (только после добавления поиска в интернете)
     # Перезагрузка и пересчет найденных приложений (монитор отсутствует)
-    def _reloadApps(self):
-        Applicator.reloadAppList()
-        countALL = Applicator.getAppsCount()
-        countReady = Applicator.getReadyAppsCount()
-        countData = Applicator.getNeedDataAppsCount()
-        countConfirm = Applicator.getNeedAcceptAppsCount()
+    def _reloadApps(self): Applicator.reloadAppList()
     # Перезагрузка RVC моделей из папки weights
     def _reloadModels(self):
         App.search()
@@ -196,12 +192,6 @@ class MainWindow(QMainWindow):
             self.ui.ActiveModelLabel.setText(AML)
             self.ui.SelectModelBox.setCurrentIndex(0)
             self.ui.SelectVModBox.setCurrentIndex(0)
-    # Не используется с нового интерфейса (нужно кнопку добавить)
-    def enumerating(self):
-        self.newWindow = AppConfigurator(self.appUpdater, 1)
-        self.newWindow.show()
-    # Внутрянка
-    def appUpdater(self): Applicator.reloadAppList()
     ## Управление положением окна
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:

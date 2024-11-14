@@ -2,7 +2,7 @@ import os
 import webbrowser
 from json import load, dump
 
-from configure_appFounder import search
+from configure_appFounder import search, InstallApplication
 
 class Pathlib_y:
 
@@ -24,136 +24,105 @@ class Pathlib_y:
 class Applicator:
 
     application = load(open("configs/application.json", "r", encoding="utf-8"))
-    applicationcount = len(application)-1
+    # Статус изменения конфигурации приложений False - если изменений не было
     saveOption = False
+
+    @staticmethod # Загружает последний сохраненный файл конфигурации (потеря данных в процессе сессии)
+    def __load() -> None:
+        Applicator.application = load(open("configs/application.json", "r", encoding="utf-8"))
 
     @staticmethod
     def reloadAppList() -> None:
+        """Заново ищет приложения в системе, заменяя уже созданные"""
         result = search(set(Applicator.application['settings']['triggers']))
+        # Сохранение списка новых приложений
         Applicator.__saveApplicationList(result[0])
-        Applicator.__updateHelperCount(result[1])
-        Applicator.__save()
-
-    @staticmethod
-    def getApps()                -> dict: return Applicator.application
-    @staticmethod
-    def getAppsCount()           ->  int: return Applicator.applicationcount
-    
-    @staticmethod
-    def getReadyApps()           -> dict: return Applicator.application['settings']['readyApps']
-    @staticmethod
-    def getReadyAppsCount()      ->  int: return Applicator.application['settings']['readyAppslen']
-
-    @staticmethod
-    def getNeedDataApps()        -> dict: return Applicator.application['settings']['needDataApps']
-    @staticmethod
-    def getNeedDataAppsCount()   ->  int: return Applicator.application['settings']['needDataAppslen']
-
-    @staticmethod
-    def getNeedAcceptApps()      -> dict: return Applicator.application['settings']['needAcceptApps']
-    @staticmethod
-    def getNeedAcceptAppsCount() ->  int: return Applicator.application['settings']['needAcceptAppslen']
-
-    @staticmethod
-    def appendApp(name: str, path: str):
-        Applicator.application[name] = {
-            'name': name,
-            'relative_path': path,
-            'possible_path': path,
-            'user_application': True,
-            'status': True
-        }
-        Applicator.application['settings']['readyApps'][name] = path
-        Applicator.applicationcount += 1
-        Applicator.__save()
-        Applicator.__updateCount()
-
-    @staticmethod
-    def deleteApp(name: str):
-        try: del Applicator.application[name]
-        except KeyError as exc_ke: print("youshika |INFO| Not found for delete", exc_ke)
-        for ctg in ['readyApps', 'needDataApps', 'needAcceptApps']:
-            try:
-                del Applicator.application['settings'][ctg][name]
-                print(f"youshika |INFO| App found for delete {ctg}")
-            except Exception as exc_ke:
-                print(f"youshika |INFO| Can't find {name} in {ctg}")
-        Applicator.applicationcount -= 1
         Applicator.saveOption = True
-        Applicator.__updateCount()
 
-    @staticmethod
-    def deleteReadyApps(appName: str): Applicator.deleteApp(appName)
-    @staticmethod
-    def deleteNeedDataApps(appName: str, appPath: str, deleteAction: bool = False):
-        try: 
-            del Applicator.application['settings']['needDataApps'][appName]
-            if not deleteAction: Applicator.application['settings']['readyApps'][appName] = appPath
-            Applicator.__deleteUpdater(appName, appPath, 0 if not deleteAction else 1)
-        except Exception as exc: print(f"youshika |ERROR| App not found |configure.py | {appName}\n", exc)
-    @staticmethod
-    def deleteNeedAcceptApps(appName: str, appPath: str, deleteAction: bool = False):
-        try: 
-            del Applicator.application['settings']['needAcceptApps'][appName]
-            if not deleteAction: Applicator.application['settings']['readyApps'][appName] = appPath
-            Applicator.__deleteUpdater(appName, appPath, 0 if not deleteAction else 1)
-        except Exception as exc: print(f"youshika |ERROR| App not found |configure.py | {appName}\n", exc)
-    @staticmethod
-    def _checkSave():
-        if Applicator.saveOption: Applicator.__save()
-    # Private functions
-    @staticmethod
-    def __deleteUpdater(name: str = None, path: str = None, flg: bool = 0):
-        """Only DRA | DNDA | DNAA"""
-        if not flg:
-            Applicator.__updateApplication(name, path)
-        else:
-            Applicator.deleteApp(name)
-            Applicator.saveOption = True
-
-        Applicator.__updateCount()
-    @staticmethod
-    def __updateApplication(appName: dict, appPath: str) -> None:
-        Applicator.application[appName]['relative_path'] = appPath
-        Applicator.application[appName]['possible_path'] = appPath
-        Applicator.application[appName]['user_application'] = True
-        Applicator.application[appName]['status'] = True
-        Applicator.saveOption = True
-    @staticmethod
-    def __saveApplicationList(applications: list) -> None:
-        Applicator.applicationcount = 0
-        if applications is None: applications = Applicator.application
+    @staticmethod # Сохранение списка новых найденных приложений
+    def __saveApplicationList(applications: list[InstallApplication]) -> None:
+        if applications is None:
+            applications = Applicator.application
         for app in applications:
             app = app.getinfo()
             if app['name'] not in Applicator.application:
                 Applicator.application[app['name']] = app
-            Applicator.applicationcount += 1
+
+    @staticmethod # Возвращает общий список приложений
+    def getApps() -> dict: return Applicator.application
+    @staticmethod # Возвращает список готовых(найденных) приложений
+    def getReadyApps() -> dict: return Applicator.application['settings']['readyApps']
+    @staticmethod # Возвращает список приложений с отсутствующим путем (не найденных)
+    def getNeedDataApps() -> dict: return Applicator.application['settings']['needDataApps']
+    @staticmethod # Возвращает список прилоежний с найденным но не точным путем
+    def getNeedAcceptApps() -> dict: return Applicator.application['settings']['needAcceptApps']
+
+    @staticmethod # Добавление нового приложения
+    def appendApp(name: str, path: str, user = True):
+        Applicator.application[name] = {
+            'name': name,
+            'relative_path': path,
+            'possible_path': path,
+            'user_application': True if user else False,
+            'status': True
+        }
+        Applicator.application['settings']['readyApps'][name] = path
+        Applicator.saveOption = True
+
     @staticmethod
-    def __updateCount():
-        Applicator.application['settings']['readyAppslen']      = Applicator.application['settings']['readyApps'].__len__()
-        Applicator.application['settings']['needDataAppslen']   = Applicator.application['settings']['needDataApps'].__len__()
-        Applicator.application['settings']['needAcceptAppslen'] = Applicator.application['settings']['needAcceptApps'].__len__()
-    @staticmethod
-    def __updateHelperCount(counter: list[list]) -> None:
-        Applicator.application['settings']['readyAppslen']      = counter[0].__len__()
-        Applicator.application['settings']['needDataAppslen']   = counter[1].__len__()
-        Applicator.application['settings']['needAcceptAppslen'] = counter[2].__len__()
-        # Reload ready, none-data and confirm-type Application
-        for item in counter[0]:
-            data = item.getinfo()
-            name, path = data['name'], data['relative_path']
-            Applicator.application['settings']['readyApps'][name] = path
-        for item in counter[1]:
-            data = item.getinfo()
-            name = data['name']
-            Applicator.application['settings']['needDataApps'][name] = data
-        for item in counter[2]:
-            data = item.getinfo()
-            name = data['name']
-            Applicator.application['settings']['needAcceptApps'][name] = data
-    @staticmethod
+    def deleteApp(name: str, appKey = False, readyKey = False, dataKey = False, acceptKey = False, path = None):
+        """
+        Удаляет приложение из всех словарей если не указано иначе:
+        * appKey - удаление данных о приложении. Если True другие параметры воспринимаются как True
+        * readyKey - удаление статуса готовности. Переводит приложение в needAcceptApps.
+        * dataKey - удаляет статус проверки, переводит в готовность (если указан path).
+        Не удаляет данные приложения если appKey - False, иначе полное удаление.
+        * acceptKey - удаляет статус неподтвержденного, переводит в готовность.
+        Не удаляет данные приложения если appKey - False, иначе полное удаление.
+        \n### Пример использования\n
+        >>> Applicator.deleteApp('Name', appKey = True) # Удаление приложения из памяти
+        >>> Applicator.deleteApp('Name', dataKey = True, Path = 'path') # Когда указан путь к приложению без пути
+        >>> Applicator.deleteApp('Name', acceptKey = True # Подтверждение найденного пути у приложения
+        """
+
+        if name in Applicator.application and appKey:
+            Applicator.application.pop(name, None)
+            readyKey, dataKey, acceptKey = True, True, True
+            #print("Delete from Applicator")
+
+        keys = ['readyApps', 'needDataApps', 'needAcceptApps']
+        
+        if name in Applicator.application['settings'][keys[0]] and readyKey:
+            if not appKey:
+                Applicator.application['settings'][keys[2]][name] = Applicator.application[name]
+                #print("Append to NeedAcceptApps")
+            Applicator.application['settings'][keys[0]].pop(name)
+            #print("Delete from ", keys[0])
+        
+        if name in Applicator.application['settings'][keys[1]] and dataKey:
+            if path is not None and not appKey:
+                Applicator.application['settings']['readyApps'][name] = path
+                #print("Append to readyApps")
+            Applicator.application['settings'][keys[1]].pop(name)
+            #print("Delete from ", keys[1])
+        
+        if name in Applicator.application['settings'][keys[2]] and acceptKey:
+            if not appKey:
+                if path is None:
+                    path = Applicator.application['settings'][keys[2]][name]["possible_path"]
+                Applicator.application[name]["relative_path"] = path
+                Applicator.application[name]["user_application"] = True
+                Applicator.application[name]["status"] = True
+                Applicator.application['settings']['readyApps'][name] = path
+                #print("Append to readyApps")
+            Applicator.application['settings'][keys[2]].pop(name)
+            #print("Delete from ", keys[2])
+
+        Applicator.saveOption = True
+
+    @staticmethod # Сохранение файла конфигурации (в конце сессии)
     def __save() -> None:
-        # If Apps configuration never been update
+        # Если конфигурация никогда не загружалась
         if not Applicator.application['settings']['load']:
             Applicator.application['settings']['load'] = True
         dump(
@@ -162,10 +131,10 @@ class Applicator:
             ensure_ascii=False,
             indent=4
         )
+
     @staticmethod
-    def __load() -> None:
-        Applicator.application = load(open("configs/application.json", "r", encoding="utf-8"))
-        Applicator.applicationcount = len(Applicator.application)-1
+    def _checkSave(): # Если в процессе были изменены файлы, то сохраняем конфигурацию
+        if Applicator.saveOption: Applicator.__save()
 
 
 

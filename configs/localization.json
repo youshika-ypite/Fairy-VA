@@ -54,10 +54,10 @@
             "Supportbtn": "Поддержать"
         },
         "ToolTips": {
-            "green": "Все в порядке, ничего не требуется!",
-            "red": "Вам нужно ввести собственный путь к приложению",
-            "yellow": "Нужно подтвердить путь или ввести собственный",
-            "confirmTip": "Предупреждение! Пути приложений могут привести к ненужным программам!"
+            "editBtn": "Изменить путь к приложению",
+            "deleteBtn":"Удалить приложение",
+            "applyBtn":"Подтвердить путь",
+            "urlBtn":"Показать в проводнике - "
         },
         "NotificateTexts": {
             "voiceWarn": "Перезапустите приложение для применения изменений",
@@ -98,7 +98,7 @@
             "Одну секунду!",
             "Всё!"
         ],
-        "Changer":{
+        "Changer": {
             "notify": "Пожалуйста  перезагрузите приложение чтобы изменения вступили в силу",
             "error_e": "Не может быть пустым",
             "OllamaNameChange": {
@@ -163,10 +163,10 @@
             "Supportbtn": "Support"
         },
         "ToolTips": {
-            "green": "Nothing is needed, everything is fine!",
-            "red": "You need to enter your own path",
-            "yellow": "You need to confirm the found path OR enter it yourself",
-            "confirmTip": "Warning! The resulting path of any applications may lead to unwanted programs!"
+            "editBtn": "Edit App Path",
+            "deleteBtn": "Delete Application",
+            "applyBtn": "Confirm Path",
+            "urlBtn": "Show in File Explorer - "
         },
         "NotificateTexts": {
             "voiceWarn": "Restart the app to apply changes",
@@ -207,7 +207,7 @@
             "One second!",
             "Done!"
         ],
-        "Changer":{
+        "Changer": {
             "notify": "Please restart the application for the changes to take effect",
             "error_e": "Cannot be empty",
             "OllamaNameChange": {

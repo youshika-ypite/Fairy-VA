@@ -1,0 +1,65 @@
+* {
+    background-color: #30354c;
+}
+QLabel {
+    background-color: transparent;
+    color: #ffffff;
+    border-style: none;
+}
+#namer {
+    padding: 5px;
+}
+#mainframeB {
+    background-color: rgba(0, 0, 0, 0);
+    padding: 5px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+#mainframeB:hover {
+    background-color: #2d4586;
+}
+#mainTempFrame {
+    border-style: dotted none none none;
+    border-width: 1.5px;
+    border-color: #ffffff;
+}
+#mainTempFrame QFrame {
+    background-color: #373737;
+}
+#mainTempFrame QLabel {
+    color: #ffffff;
+}
+QPushButton {
+    padding: 8px;
+    color: rgb(230, 230, 230);
+    background-color: transparent;
+    border-width: 1px;
+    border-style: none;
+    border-color: rgb(230, 230, 230);
+}
+QPushButton:hover {
+    border-width: 1.2px;
+    border-style: solid;
+}
+QToolTip {
+    color:#ffffff;
+    background-color: #30354c;
+    border: 0px;
+    padding: 3px;
+}
+#AABtn {
+    border-style: solid;
+    border-radius: 5px;
+}
+#AABtn:hover {
+    background-color: #2d4586;
+}
+#agreeButton:hover {
+    background-color: #ff5252;
+}
+#deleteBtn:hover {
+    border-color: #ff5252;
+}
+#applyBtn:hover {
+    border-color: #3cb371;
+}

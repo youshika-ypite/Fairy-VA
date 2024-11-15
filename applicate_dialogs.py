@@ -200,20 +200,25 @@ class PathChanger(QMainWindow):
     def _cancel(self) -> None: self.close()
     def boxTrigger(self): self.input_inputPath.setText(self.getBoxText_())
 
-def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
+def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict):
 
     notificator = Notify()
-    notify_lang = Localization.get_NotificateLang()
 
-    colors = ["#ff5252", "#e4ce0c"]
+    colors = ["#ff5252", "#e4ce0c", "rgba(0, 0, 0, 0)"]
 
     def remover(layout: QLayout, widget: QWidget):
         layout.removeWidget(widget)
         widget.deleteLater()
 
-    def confirm(layout: QLayout, button: QWidget):
-        remover(layout, button)
+    def confirm(layout:QLayout, button: QWidget, infoButton: QWidget, mainframe: QFrame):
         Applicator.deleteApp(data["name"], acceptKey=True)
+        remover(layout, button)
+        infoButton.setToolTip(str(ToolTip_lang["infoBtn_0"]))
+        mainframe.setStyleSheet("#mainframeB {"\
+                                    "border-left-style: solid;"\
+                                    "border-left-width: 3px;"\
+                                    "border-left-color: rgba(0, 0, 0, 0);"\
+                                "}")
 
     def openDir(_path: str | None):
         if _path is None:
@@ -245,7 +250,7 @@ def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
     dataNeed = data["possible_path"] is None
     accessNeed = data['relative_path'] is None and not dataNeed
 
-    color = colors[0] if dataNeed else colors[1] if accessNeed else None
+    color = colors[0] if dataNeed else colors[1] if accessNeed else colors[2]
 
     widget = QWidget()
 
@@ -257,13 +262,11 @@ def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
     
     mainframe = QFrame()
     mainframe.setObjectName("mainframeB")
-    if color is not None:
-        mainframe.setStyleSheet(\
-            "#mainframeB{"\
-                "border-left-style: solid;"\
-                "border-left-width: 3px;"\
-                "border-left-color: "+color+";"\
-            "}")
+    mainframe.setStyleSheet("#mainframeB {"\
+                                    "border-left-style: solid;"\
+                                    "border-left-width: 3px;"\
+                                    "border-left-color: "+color+";"\
+                                "}")
     mainframe.setContentsMargins(0, 0, 0, 0)
 
     Name = QLabel(data["name"])
@@ -273,13 +276,25 @@ def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
 
     buttonSize = QSize(18, 18)
 
-    secondlayout.addWidget(Name)
-    secondlayout.addItem(spacer_item)
+    infoButton = QPushButton("")
+    infoButton.setIconSize(buttonSize)
+    infoButton.setObjectName("infoBtn")
+    key = "infoBtn_1" if accessNeed and not dataNeed else "infoBtn_0"
+    infoButton.setToolTip(ToolTip_lang[key])
+    infoButton.setToolTipDuration(0.5)
+    infoButton.setIcon(QIcon("ui/svg/alert-circle.svg"))
+
+    warnButton = QPushButton("")
+    warnButton.setIconSize(buttonSize)
+    warnButton.setObjectName("warnBtn")
+    warnButton.setToolTip(ToolTip_lang["warnBtn"])
+    warnButton.setToolTipDuration(0.5)
+    warnButton.setIcon(QIcon("ui/svg/alert-triangle.svg"))
 
     editButton = QPushButton("")
     editButton.setIconSize(buttonSize)
     editButton.setObjectName("editBtn")
-    editButton.setToolTip(str(ToolTip_lang["editBtn"]))
+    editButton.setToolTip(ToolTip_lang["editBtn"])
     editButton.setToolTipDuration(0.5)
     editButton.setIcon(QIcon("ui/svg/edit.svg"))
     editButton.clicked.connect(lambda: _change(mainlayout, widget))
@@ -287,7 +302,7 @@ def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
     deleteButton = QPushButton("")
     deleteButton.setIconSize(buttonSize)
     deleteButton.setObjectName("deleteBtn")
-    deleteButton.setToolTip(str(ToolTip_lang["deleteBtn"]))
+    deleteButton.setToolTip(ToolTip_lang["deleteBtn"])
     deleteButton.setToolTipDuration(0.5)
     deleteButton.setIcon(QIcon("ui/svg/slash.svg"))
     deleteButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
@@ -295,24 +310,27 @@ def generateApp(data: dict, pchangershow, ToolTip_lang: dict):
     applyButton = QPushButton("")
     applyButton.setIconSize(buttonSize)
     applyButton.setObjectName("applyBtn")
-    applyButton.setToolTip(str(ToolTip_lang["applyBtn"]))
+    applyButton.setToolTip(ToolTip_lang["applyBtn"])
     applyButton.setToolTipDuration(0.5)
     applyButton.setIcon(QIcon("ui/svg/check.svg"))
-    applyButton.clicked.connect(lambda: confirm(secondlayout, applyButton))
+    applyButton.clicked.connect(lambda: confirm(secondlayout, applyButton, infoButton, mainframe))
 
     urlButton = QPushButton("")
     urlButton.setIconSize(buttonSize)
     urlButton.setObjectName("urlBtn")
-    urlButton.setToolTip(str(ToolTip_lang["urlBtn"])+str(data['possible_path']))
+    urlButton.setToolTip(ToolTip_lang["urlBtn"]+str(data['possible_path']))
     urlButton.setToolTipDuration(0.5)
     urlButton.setIcon(QIcon("ui/svg/arrow-up-right.svg"))
     urlButton.clicked.connect(lambda: openDir(data["possible_path"]))
 
-    if dataNeed: urlButton.setVisible(False)
-    if not accessNeed: applyButton.setVisible(False)
+    if not dataNeed: secondlayout.addWidget(infoButton)
+    else: secondlayout.addWidget(warnButton)
 
-    secondlayout.addWidget(applyButton)
-    secondlayout.addWidget(urlButton)
+    secondlayout.addWidget(Name)
+    secondlayout.addItem(spacer_item)
+
+    if accessNeed and not dataNeed: secondlayout.addWidget(applyButton)
+    if not dataNeed: secondlayout.addWidget(urlButton)
 
     secondlayout.addWidget(editButton)
     secondlayout.addWidget(deleteButton)
@@ -333,8 +351,7 @@ class AppConfigurator(QMainWindow):
 
         self.notificator = Notify()
 
-        self.localizationSeconds = Localization.get_SecondsWinLang()
-        self.localizationToolTip = Localization.get_ToolLang()
+        self.lang_load()
 
         self.pchange = None
         self.appCreator = None
@@ -355,7 +372,12 @@ class AppConfigurator(QMainWindow):
 
         for data in apps:
             if "name" in data:
-                self.apps.append(generateApp(data, self.pchangershow, self.localizationToolTip))
+                self.apps.append(
+                    generateApp(
+                        data,
+                        self.pchangershow,
+                        self.notifyLang,
+                        self.localizationToolTip))
                 if data['relative_path'] is None and data['possible_path'] is not None:
                     self.appsPath[data['name']] = data['possible_path']  
 
@@ -366,6 +388,11 @@ class AppConfigurator(QMainWindow):
 
         self.setMinimumWidth(int(self.scroller.width()))
         self.setMinimumHeight(570)
+
+    def lang_load(self):
+        self.notifyLang = Localization.get_NotificateLang()
+        self.localizationSeconds = Localization.get_SecondsWinLang()
+        self.localizationToolTip = Localization.get_ToolLang()
 
     def closeEvent(self, event):
         if self.pchange is not None:
@@ -401,7 +428,7 @@ class AppConfigurator(QMainWindow):
         self.appCreator = AppCreator()
         self.appCreator.show()
 
-    def confirm(self):
+    """def confirm(self):
         def close(): self.tempFrame.deleteLater()
         def agree():
             for app in self.appsPath:
@@ -442,4 +469,4 @@ class AppConfigurator(QMainWindow):
 
         self.tempFrame.setLayout(self.tempLayout)
 
-        self.mainlayout.addWidget(self.tempFrame)
+        self.mainlayout.addWidget(self.tempFrame)"""

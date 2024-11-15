@@ -57,7 +57,10 @@
             "editBtn": "Изменить путь к приложению",
             "deleteBtn":"Удалить приложение",
             "applyBtn":"Подтвердить путь",
-            "urlBtn":"Показать в проводнике - "
+            "urlBtn":"Показать в проводнике - ",
+            "infoBtn_0":"Все в порядке, готово к использованию",
+            "infoBtn_1":"Нужно подтвердить путь к приложению",
+            "warnBtn":"Путь не найден, необходимо ввести собственный"
         },
         "NotificateTexts": {
             "voiceWarn": "Перезапустите приложение для применения изменений",
@@ -166,7 +169,10 @@
             "editBtn": "Edit App Path",
             "deleteBtn": "Delete Application",
             "applyBtn": "Confirm Path",
-            "urlBtn": "Show in File Explorer - "
+            "urlBtn": "Show in File Explorer - ",
+            "infoBtn_0":"Everything is fine, ready to use",
+            "infoBtn_1":"You need to confirm the path to the application",
+            "warnBtn":"The path will not be found, you need to enter your own"
         },
         "NotificateTexts": {
             "voiceWarn": "Restart the app to apply changes",

@@ -34,6 +34,8 @@ class MainWindow(QMainWindow):
 
         self.notify = Notify()
         self.changer = Changer()
+        # Для предварительной генерации сетки приложений
+        self.confWindow = AppConfigurator()
 
         with open("ui_style.css", "r") as file:
             self.setStyleSheet(file.read())
@@ -90,9 +92,11 @@ class MainWindow(QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(2)
     
     def _configurating(self): # Конфигуратор приложений
-        self.confWindow = AppConfigurator()
+        # Перезагрузка сетки приложений если она изменялась (защита)
+        if Applicator.saveOption:
+            self.confWindow = AppConfigurator()
         self.confWindow.show()
-    
+        
     def showNormal(self):
         self.show()
     def _hideNormal(self):
@@ -247,6 +251,8 @@ class MainWindow(QMainWindow):
         self.ui.tempKeyLabelVAL.setText(str(App.model()["f0_key_up"]))
     ## Локализация приложения
     def load_language(self):
+        self.confWindow.lang_load()
+        
         lang = Localization.getLANG().replace("_TG", "")
         self.lang_Local = Localization.get_AppLang()
         self.notify_lang = Localization.get_NotificateLang()

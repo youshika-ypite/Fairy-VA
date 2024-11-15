@@ -31,22 +31,60 @@ class Applicator:
     def __load() -> None:
         Applicator.application = load(open("configs/application.json", "r", encoding="utf-8"))
 
+    @staticmethod # Проверка первой загрузки приложений (при запуске) 
+    def checkApplicationLoad():
+        if not Applicator.application['settings']['load']:
+            Applicator.reloadAppList()
+
     @staticmethod
     def reloadAppList() -> None:
-        """Заново ищет приложения в системе, заменяя уже созданные"""
+        """Заново ищет приложения в системе, заменяя уже созданные\n
+        Не изменяет сохраненные пользователем приложения (с меткой `user_application=True`)"""
         result = search(set(Applicator.application['settings']['triggers']))
+        # Фильтрация пользовательских приложений
+        newTempDict = {}
+        tempApplicDict = Applicator.getApps().copy()
+        tempApplicDict["settings"]["readyApps"] = {}
+        tempApplicDict["settings"]["needDataApps"] = {}
+        tempApplicDict["settings"]["needAcceptApps"] = {}
+
+        for i, item in enumerate(tempApplicDict.values()):
+            if i == 0: # Сохранение настроек
+                newTempDict["settings"] = item
+                continue
+            if item["user_application"]:
+                newTempDict[item["name"]] = item
         # Сохранение списка новых приложений
-        Applicator.__saveApplicationList(result[0])
+        for app in result:
+            app = app.getinfo()
+            if app["name"] not in newTempDict:
+                newTempDict[app["name"]] = app
+        # Общее сохранение
+        Applicator.application = newTempDict
+        Applicator.__applicationCounter()
         Applicator.saveOption = True
 
-    @staticmethod # Сохранение списка новых найденных приложений
-    def __saveApplicationList(applications: list[InstallApplication]) -> None:
-        if applications is None:
-            applications = Applicator.application
-        for app in applications:
-            app = app.getinfo()
-            if app['name'] not in Applicator.application:
-                Applicator.application[app['name']] = app
+    @staticmethod # Переносит приложения в подходящии словари
+    def __applicationCounter() -> None:
+        PP, RP = "possible_path", "relative_path"
+        ST = "settings"
+        RA, NDA, NAA = "readyApps", "needDataApps", "needAcceptApps"
+        tempDict = Applicator.getApps().copy()
+        tempDict.pop(ST)
+        for app in tempDict:
+            APD = Applicator.application[app]
+            # Если предпологаемый путь отсутствует
+            if APD[PP] is None and APD[RP] is None:
+                # Требуются данные
+                Applicator.application[ST][NDA][app] = APD
+            # Если есть предпологаемый путь, но он не точный
+            elif APD[PP] is not None and APD[RP] is None:
+                # Требуется подтверждение
+                Applicator.application[ST][NAA][app] = APD
+            # Если есть все вышеп. приложение готово к использованию
+            elif APD[PP] is not None and APD[RP] is not None:
+                # Ничего не требуется
+                Applicator.application[ST][RA][app] = APD[RP]
 
     @staticmethod # Возвращает общий список приложений
     def getApps() -> dict: return Applicator.application
@@ -56,6 +94,10 @@ class Applicator:
     def getNeedDataApps() -> dict: return Applicator.application['settings']['needDataApps']
     @staticmethod # Возвращает список прилоежний с найденным но не точным путем
     def getNeedAcceptApps() -> dict: return Applicator.application['settings']['needAcceptApps']
+    @staticmethod # Возвращает количество найденных приложений -1 (словарь с параметрами)
+    def getAppsCount() -> int: return len(Applicator.application)-1
+    @staticmethod # Возвращает количество готовых к использованию приложений
+    def getReadyAppsCount() -> int: return len(Applicator.application['settings']['readyApps'])
 
     @staticmethod # Добавление нового приложения
     def appendApp(name: str, path: str, user = True):
@@ -134,7 +176,9 @@ class Applicator:
 
     @staticmethod
     def _checkSave(): # Если в процессе были изменены файлы, то сохраняем конфигурацию
-        if Applicator.saveOption: Applicator.__save()
+        if Applicator.saveOption:
+            Applicator.__save()
+            Applicator.saveOption = False
 
 
 

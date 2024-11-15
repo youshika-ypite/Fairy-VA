@@ -54,6 +54,9 @@ QToolTip {
 #AABtn:hover {
     background-color: #2d4586;
 }
+#infoBtn, #warnBtn {
+    border-color: rgba(0, 0, 0, 0);  
+}
 #agreeButton:hover {
     background-color: #ff5252;
 }

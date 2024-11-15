@@ -1,6 +1,6 @@
 # Голосовой ассистент Фея
 
-![Screenshot](assets/screenshot.jpg)
+![Screenshot](assets/1screenshot.jpg)
 
 Проект использует способ генерации речи TTS из [RVC-tts-webui](https://github.com/litagin02/rvc-tts-webui)
 

@@ -1,20 +1,20 @@
 import os
 
-from configure__main import Applicator, Localization
+from configure__main import Applicator, Localization, LlamaConfig
 
-from ui_notify import *
-from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
+from ui_notify import Ui_Dialog as UID_notify
+from ui_changer import *
 
 from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout
 from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QSpacerItem
-from PySide6.QtWidgets import QFrame, QComboBox, QVBoxLayout
-from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
-from PySide6.QtGui import QMouseEvent, Qt, QIcon
+from PySide6.QtWidgets import QFrame, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QPushButton
+from PySide6.QtGui import Qt, QIcon
 
 class Notify(QDialog):
     def __init__(self) -> None:
         QDialog.__init__(self)
-        self.ui = Ui_Dialog()
+        self.ui = UID_notify()
         self.ui.setupUi(self)
         self.setWindowTitle("Fairy VA - Notificate/Уведомление")
         self.setWindowIcon(QIcon("ui/icon.png"))
@@ -24,181 +24,163 @@ class Notify(QDialog):
     def notify(self): self.show()
     def changeText(self, text): self.ui.label.setText(text)
 
-class AppCreator(QMainWindow):
+class Changer(QDialog):
     def __init__(self) -> None:
-        QMainWindow.__init__(self)
-        self.ui = ac_Ui_MainWindow()
+        QDialog.__init__(self)
+        self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-
-        self.setWindowTitle(f"Fairy!!")
         self.setWindowIcon(QIcon("ui/icon.png"))
-        self.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
 
-        self.notificator = Notify()
-        self.ui.saveButton.clicked.connect(self.save_app)
+        self.notify = Notify()
 
-    def save_app(self):
-        notify_lang = Localization.get_NotificateLang()
+        self.lang = Localization.get_ChangerLang()
+        self.ui.buttonBox.rejected.connect(self.closer)
 
-        _name = self.ui.inputName.toPlainText()
-        _path = self.ui.inputPath.toPlainText()
-        # Защита от копипаста пути от проводника с кавычкми
-        if _path[0] == '"' and _path[-1] == '"':
-            _path = _path[1:-1]
-        # Проверка правльности пути
-        if _name in ["", " ", None]:
-            self.notificator.changeText(notify_lang["nameError_e"])
-            self.notificator.show()
-            return
-        if _path in ["", " ", None]:
-            self.notificator.changeText(notify_lang["pathError_e"])
-            self.notificator.show()
-            return
-        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])):
-            self.notificator.changeText(notify_lang["pathError_w"])
-            self.notificator.show()
-            return
-        if not os.path.isfile(_path):
-            self.notificator.changeText(notify_lang["pathError_f"])
-            self.notificator.show()
-            return
+    def passing(self):
+        pass
+
+    def closer(self):
+        self.ui.buttonBox.accepted.connect(self.passing)
+
+    def shower(self):
+        self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
+        self.show()
+
+    def disconnect(self):
+        try: self.ui.buttonBox.accepted.disconnect()
+        except: pass
+
+    def path_init(self, app_dict: dict):
+        self.disconnect()
+        name = app_dict["name"]
+        self.setWindowTitle(name)
+        self.ui.label.setText(self.lang["PathChange"]["text"].replace(":APP:", name))
+        _path = app_dict["possible_path"]
+        pht = self.lang["PathChange"]["placeHolderText"] if _path is None else _path 
+        self.ui.textEdit.setPlaceholderText(pht)
+
+        self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
+
+    def show_PathChanger(self): self.shower()
         
-        Applicator.appendApp(_name, _path)
+    def savePath(self, app_dict: dict):
+        self.disconnect()
+        path_ = app_dict["possible_path"]
+        _path = self.ui.textEdit.toPlainText()
+        if _path not in ["", " ", None]:
+            if _path != path_:
+                if all(
+                    [
+                        _path[1] == ":",
+                        os.path.isfile(_path)
+                    ]
+                    ):
+                    Applicator.updateApp(app_dict["name"], _path)
+                    
+                    self.ui.label.setText('✅'+self.ui.label.text())
+                    self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
 
-class PathChanger(QMainWindow):
-    def __init__(
-            self,
-            datapack: dict,
-            windows: list[QLayout, QWidget] = None
-            ) -> None:
-        super().__init__()
-        
-        self.windows = windows
-        self.notificator = Notify()
+                else:
+                    self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_wp"])
+                    self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
+            else:
+                self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_rp"])
+                self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
+        else:
+            self.ui.textEdit.setPlaceholderText(self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
 
-        self.secondWin = Localization.get_SecondsWinLang()
-        self.notify_lang = Localization.get_NotificateLang()
+    def create_init(self):
+        self.disconnect()
+        self.setWindowTitle("Create app")
+        self.ui.label.setText(self.lang["AppCreate"]["text_0"])
+        self.ui.textEdit.setPlaceholderText(self.lang["AppCreate"]["placeHolderText_0"])
 
-        self.activePath = datapack['possible_path']
-        if self.activePath is None: self.activePath = "None"
-        self.name = datapack['name']
+        self.ui.buttonBox.accepted.connect(self.next_step)
 
-        self.setWindowTitle("Fairy!!"+self.name)
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setWindowIcon(QIcon("ui/icon.png"))
-        self.setStyleSheet(
-            "QFrame {border-color: black; border-width: 2px}\n"\
-            "#tittle {border-style: solid solid dotted solid;}\n"\
-            "#input {border-style: none solid none solid;}\n"\
-            "#info {border-style: dotted solid solid solid;}\n"\
-            "#saveButton:hover {background-color: #00d26a;}\n"\
-            "#deltButton:hover {background-color: #ff5252;}\n"\
-            "#cancButton:hover {background-color: lightblue;}"
-            )
-        
-        self.oldpos = None
+    def show_AppCreator(self): self.shower()
 
-        self.widget = QWidget()
-        self.mainlayout = QVBoxLayout(self.widget)
+    def next_step(self):
+        self.disconnect()
+        _name = self.ui.textEdit.toPlainText()
+        if _name not in ["", " ", None]:
+            self.ui.label.setText(self.lang["AppCreate"]["text_1"] +" "+ _name)
+            self.ui.textEdit.setPlaceholderText(self.lang["AppCreate"]["placeHolderText_1"])
+            self.ui.textEdit.setText("")
+            self.ui.buttonBox.accepted.connect(lambda: self.saveApp(_name))
+        else:
+            self.ui.textEdit.setPlaceholderText(self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(self.next_step)
 
-        self.tittleFrame = QFrame()
-        self.inputFrame = QFrame()
-        self.infoFrame = QFrame()
+    def saveApp(self, name: str):
+        self.disconnect()
+        text = self.ui.label.text()
+        if "\n" in text:
+            self.ui.label.setText(text[:text.index("\n")])
+        _path = self.ui.textEdit.toPlainText()
+        if _path not in ["", " ", None]:
+            if all(
+                [
+                    _path[1] == ":",
+                    os.path.isfile(_path)
+                ]
+                ):
+                Applicator.appendApp(name, _path)
 
-        self.inputFrame.setObjectName("input")
-        self.tittleFrame.setObjectName("tittle")
-        self.infoFrame.setObjectName("info")
+                self.ui.label.setText('✅'+self.ui.label.text())
+                self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
 
-        self.tittlelayout = QHBoxLayout()
-        self.inputlayout = QHBoxLayout()
-        self.infolayout = QHBoxLayout()
+            else:
+                self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_wp"])
+                self.ui.buttonBox.accepted.connect(lambda: self.saveApp(name))
+        else:
+            self.ui.textEdit.setPlaceholderText(self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(lambda: self.saveApp(name))
 
-        self.tittle_infoText = QLabel(self.secondWin['infoText']+self.name)
-        self.tittle_pathBox = QComboBox()
-        self.tittle_pathBox.addItem(self.activePath)
-        self.tittle_pathBox.activated.connect(self.boxTrigger)
+    def show_OllamaPromptChange(self):
+        self.disconnect()
+        self.ui.label.setText(self.lang['OllamaPromptChange']['text'])
+        self.ui.textEdit.setPlaceholderText(self.lang['OllamaPromptChange']['placeHolderText'])
+        self.ui.textEdit.setText(LlamaConfig.currentPrompt())
 
-        self.tittlelayout.addWidget(self.tittle_infoText)
-        self.tittlelayout.addWidget(self.tittle_pathBox)
+        self.ui.buttonBox.accepted.connect(self.savePrompt)
+        self.shower()
 
-        self.tittleFrame.setLayout(self.tittlelayout)
+    def savePrompt(self):
+        self.disconnect()
+        prompt = self.ui.textEdit.toPlainText()
+        if prompt not in ["", " ", None]:
+            if prompt != LlamaConfig.currentPrompt():
+                LlamaConfig.setCurrentPrompt(prompt)
+                LlamaConfig.clearContext(prompt=True)
 
-        self.input_info = QLabel(self.secondWin['inputText'])
-        self.input_inputPath = QTextEdit()
-        self.input_inputPath.setMaximumHeight(40)
-        self.input_saveButton = QPushButton(self.secondWin['saveButton'])
-        self.input_saveButton.clicked.connect(self._savePath)
-        self.input_saveButton.setObjectName("saveButton")
+            self.ui.label.setText('✅'+self.ui.label.text())
+            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+        else:
+            self.ui.textEdit.setText(self.lang['error_e'])
+            self.ui.buttonBox.accepted.connect(self.savePrompt)
 
-        self.inputlayout.addWidget(self.input_info)
-        self.inputlayout.addWidget(self.input_inputPath)
-        self.inputlayout.addWidget(self.input_saveButton)
+    def show_OllamaNameChange(self):
+        self.disconnect()
+        self.ui.label.setText(self.lang['OllamaNameChange']['text'])
+        self.ui.textEdit.setPlaceholderText(self.lang['OllamaNameChange']['placeHolderText'])
+        self.ui.textEdit.setText(LlamaConfig.currentModel())
 
-        self.inputFrame.setLayout(self.inputlayout)
+        self.ui.buttonBox.accepted.connect(self.saveName)
+        self.shower()
 
-        self.info_path = QLabel(self.secondWin["infoPath"]+self.activePath)
-        self.info_deltButton = QPushButton(self.secondWin["deleteButton"])
-        self.info_deltButton.clicked.connect(self._delete)
-        self.info_deltButton.setObjectName("deltButton")
-        self.info_cancButton = QPushButton(self.secondWin["cancelButton"])
-        self.info_cancButton.clicked.connect(self._cancel)
-        self.info_cancButton.setObjectName("cancButton")
-
-        self.infolayout.addWidget(self.info_path)
-        self.infolayout.addWidget(self.info_deltButton)
-        self.infolayout.addWidget(self.info_cancButton)
-
-        self.infoFrame.setLayout(self.infolayout)
-
-        self.mainlayout.addWidget(self.tittleFrame)
-        self.mainlayout.addWidget(self.inputFrame)
-        self.mainlayout.addWidget(self.infoFrame)
-
-        self.setCentralWidget(self.widget)
-
-    def mousePressEvent(self, event: QMouseEvent) -> None:
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.oldpos = event.globalPos()
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        if self.oldpos is not None:
-            diff = event.globalPos() - self.oldpos
-            self.move(self.pos() + diff)
-            self.oldpos = event.globalPos()
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        self.oldpos = None
-
-    def getBoxText_(self) -> str: return self.tittle_pathBox.currentText()
-
-    def getPath_(self) -> str:
-        _path = self.input_inputPath.toPlainText()
-        if any([_path is None, _path == "", _path == " "]):
-            selected = self.tittle_pathBox.currentText()
-            _path = selected if selected == self.activePath else self.activePath
-        if _path[0] == '"': _path = _path.replace('"', '')
-        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])
-                                                 ) or not os.path.isfile(_path):
-            self.notificator.changeText(self.notify_lang["pathError_w"])
-            self.notificator.show()
-        return _path
-    
-    def remove_(self) -> None:
-        if self.windows is not None:
-            self.windows[0].removeWidget(self.windows[1])
-            self.windows[1].deleteLater()
-
-    def _delete(self) -> None:
-        Applicator.deleteApp(self.name, appKey=True)
-        self.remove_()
-        self.close()
-
-    def _savePath(self) -> None:
-        _path = self.getPath_()
-
-        Applicator.deleteApp(self.name, acceptKey=True, path=_path)
-        self.close()
-
-    def _cancel(self) -> None: self.close()
-    def boxTrigger(self): self.input_inputPath.setText(self.getBoxText_())
+    def saveName(self):
+        self.disconnect()
+        name = self.ui.textEdit.toPlainText()
+        if name not in ["", " ", None]:
+            if name != LlamaConfig.currentModel():
+                LlamaConfig.setModelName(name)
+            
+            self.ui.label.setText('✅'+self.ui.label.text())
+            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+        else:
+            self.ui.textEdit.setText(self.lang['error_e'])
+            self.ui.buttonBox.accepted.connect(self.saveName)
 
 def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict):
 
@@ -244,8 +226,10 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
         remover(layout, widget)
         Applicator.deleteApp(name, appKey=True)
 
-    def _change(layout: QLayout, widget: QWidget):
-        pchangershow(PathChanger(data, [layout, widget]))
+    def _change():
+        ch = Changer()
+        ch.path_init(data)
+        pchangershow(ch)
 
     dataNeed = data["possible_path"] is None
     accessNeed = data['relative_path'] is None and not dataNeed
@@ -297,7 +281,7 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
     editButton.setToolTip(ToolTip_lang["editBtn"])
     editButton.setToolTipDuration(0.5)
     editButton.setIcon(QIcon("ui/svg/edit.svg"))
-    editButton.clicked.connect(lambda: _change(mainlayout, widget))
+    editButton.clicked.connect(_change)
 
     deleteButton = QPushButton("")
     deleteButton.setIconSize(buttonSize)
@@ -420,53 +404,11 @@ class AppConfigurator(QMainWindow):
         self.scroller.setWidget(self.appWidget)
         self.setCentralWidget(self.widget)
 
-    def pchangershow(self, pchange: PathChanger):
+    def pchangershow(self, pchange: Changer):
         self.pchange = pchange
-        self.pchange.show()
+        self.pchange.show_PathChanger()
 
     def newApp(self):
-        self.appCreator = AppCreator()
-        self.appCreator.show()
-
-    """def confirm(self):
-        def close(): self.tempFrame.deleteLater()
-        def agree():
-            for app in self.appsPath:
-                Applicator.deleteApp(app, acceptKey=True)
-            self.warningText.setText(
-                self.localizationSeconds["warningText"]
-            )
-            self.agreeButton.deleteLater()
-            for i, app in enumerate(self.apps): app.deleteLater()
-
-        text = self.localizationSeconds["warningText_1"]+"\n"
-        text += self.localizationSeconds["warningText_2"]+"\n"
-
-        for app in self.appsPath.values():
-            text = f"{text}\n{str(app)}"
-
-        self.tempLayout = QVBoxLayout()
-        self.tempFrame = QFrame()
-        self.tempFrame.setObjectName("mainTempFrame")
-        self.secondTempLayout = QHBoxLayout()
-        self.secondTempFrame = QFrame()
-
-        self.warningText = QLabel(text)
-
-        self.agreeButton = QPushButton(self.localizationSeconds["agreeButton"])
-        self.agreeButton.setObjectName("agreeButton")
-        self.agreeButton.clicked.connect(agree)
-        
-        self.backButton = QPushButton(self.localizationSeconds["backdButton"])
-        self.backButton.clicked.connect(close)
-
-        self.secondTempLayout.addWidget(self.agreeButton)
-        self.secondTempLayout.addWidget(self.backButton)
-        self.secondTempFrame.setLayout(self.secondTempLayout)
-
-        self.tempLayout.addWidget(self.warningText)
-        self.tempLayout.addWidget(self.secondTempFrame)
-
-        self.tempFrame.setLayout(self.tempLayout)
-
-        self.mainlayout.addWidget(self.tempFrame)"""
+        self.appCreator = Changer()
+        self.appCreator.create_init()
+        self.appCreator.show_AppCreator()

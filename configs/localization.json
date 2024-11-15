@@ -104,6 +104,8 @@
         "Changer": {
             "notify": "Пожалуйста  перезагрузите приложение чтобы изменения вступили в силу",
             "error_e": "Не может быть пустым",
+            "error_wp": "Неправильный путь или он не существует",
+            "error_rp": "Путь повторяет предыдущий",
             "OllamaNameChange": {
                 "text": "Введите имя вашей модели, например: llama3.1",
                 "placeHolderText": "Имя сюда"
@@ -111,6 +113,16 @@
             "OllamaPromptChange": {
                 "text": "Введите ваш промпт, по возможности не используйте символы вроде ',/,| ",
                 "placeHolderText": "Промпт сюда"
+            },
+            "PathChange":{
+                "text": "Введите ваш путь к :APP:",
+                "placeHolderText": "Пример: C:\\Program Files\\Game\\game.exe"
+            },
+            "AppCreate": {
+                "text_0": "Введите имя приложения",
+                "text_1": "Введите путь к приложению",
+                "placeHolderText_0": "Имя приложения, например: Minecraft",
+                "placeHolderText_1": "Путь к приложению, например: C:\\Program Files\\Game\\game.exe"
             }
         }
     },
@@ -216,6 +228,8 @@
         "Changer": {
             "notify": "Please restart the application for the changes to take effect",
             "error_e": "Cannot be empty",
+            "error_wp": "Invalid path or it does not exist",
+            "error_rp": "Path already exists",
             "OllamaNameChange": {
                 "text": "Enter the name of your model, for example: llama3.1",
                 "placeHolderText": "Name here"
@@ -223,6 +237,16 @@
             "OllamaPromptChange": {
                 "text": "Enter your prompt, if possible, do not use characters like: ',/,| ",
                 "placeHolderText": "Prompt here"
+            },
+            "PathChange":{
+                "text": "Enter your path to :APP:",
+                "placeHolderText": "Example: C:\\Program Files\\Game\\game.exe"
+            },
+            "AppCreate": {
+                "text_0": "Enter application name",
+                "text_1": "Enter path to application",
+                "placeHolderText_0": "Application name, e.g.: Minecraft",
+                "placeHolderText_1": "Path to application, e.g.: C:\\Program Files\\Game\\game.exe"
             }
         }
     }

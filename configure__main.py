@@ -162,6 +162,23 @@ class Applicator:
 
         Applicator.saveOption = True
 
+    @staticmethod
+    def updateApp(appName: str, path: str) -> None:
+        Applicator.application[appName] = {
+            "name": appName,
+            "possible_path": path,
+            "relative_path": path,
+            "user_application": True,
+            "status": True
+        }
+        Applicator.application['settings']['readyApp'][appName] = path
+        if appName in Applicator.application['settings']['needDataApps']:
+            Applicator.application['settings']['needDataApps'].pop(appName)
+        if appName in Applicator.application['settings']['needAcceptApps']:
+            Applicator.application['settings']['needAcceptApps'].pop(appName)
+
+        Applicator.saveOption = True
+
     @staticmethod # Сохранение файла конфигурации (в конце сессии)
     def __save() -> None:
         # Если конфигурация никогда не загружалась

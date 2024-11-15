@@ -1,9 +1,6 @@
 {
     "settings": {
-        "readyAppslen": 0,
-        "needDataAppslen": 0,
-        "needAcceptAppslen": 0,
-        "load": true,
+        "load": false,
         "triggers": [
             "windows",
             "java",

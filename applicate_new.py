@@ -1,7 +1,7 @@
 import sys
 
 from configure__main import App, Applicator, LlamaConfig, Localization
-from applicate_dialogs import AppConfigurator, Notify
+from applicate_dialogs import AppConfigurator, Notify, Changer
 
 from ui_int import *
 from ui_changer import *
@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QSystemTrayIcon, QMenu
 class Application:
     def __init__(self, params = None):
         self.app = QApplication(sys.argv+['-style', 'fusion', '-platform', 'windows:darkmode=0'])
+        self.app.setFont(QFont("Mi Sans", 10))
 
         self._window()
         if params is None: self._tray()
@@ -89,9 +90,10 @@ class MainWindow(QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(2)
     
     def _configurating(self): # Конфигуратор приложений
-        self.confWindow = AppConfigurator(self.appUpdater, 0)
+        # Перезагрузка сетки приложений если она изменялась (защита)
+        self.confWindow = AppConfigurator()
         self.confWindow.show()
-    
+        
     def showNormal(self):
         self.show()
     def _hideNormal(self):
@@ -147,12 +149,7 @@ class MainWindow(QMainWindow):
     def _mod(self): pass # Изменим под управление поиском в интерноте
     def _NoLlama(self): pass # Мод отключения функции Ламы (только после добавления поиска в интернете)
     # Перезагрузка и пересчет найденных приложений (монитор отсутствует)
-    def _reloadApps(self):
-        Applicator.reloadAppList()
-        countALL = Applicator.getAppsCount()
-        countReady = Applicator.getReadyAppsCount()
-        countData = Applicator.getNeedDataAppsCount()
-        countConfirm = Applicator.getNeedAcceptAppsCount()
+    def _reloadApps(self): Applicator.reloadAppList()
     # Перезагрузка RVC моделей из папки weights
     def _reloadModels(self):
         App.search()
@@ -197,12 +194,6 @@ class MainWindow(QMainWindow):
             self.ui.ActiveModelLabel.setText(AML)
             self.ui.SelectModelBox.setCurrentIndex(0)
             self.ui.SelectVModBox.setCurrentIndex(0)
-    # Не используется с нового интерфейса (нужно кнопку добавить)
-    def enumerating(self):
-        self.newWindow = AppConfigurator(self.appUpdater, 1)
-        self.newWindow.show()
-    # Внутрянка
-    def appUpdater(self): Applicator.reloadAppList()
     ## Управление положением окна
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
@@ -257,7 +248,7 @@ class MainWindow(QMainWindow):
         App.change_f0_key_up(value)
         self.ui.tempKeyLabelVAL.setText(str(App.model()["f0_key_up"]))
     ## Локализация приложения
-    def load_language(self):
+    def load_language(self):        
         lang = Localization.getLANG().replace("_TG", "")
         self.lang_Local = Localization.get_AppLang()
         self.notify_lang = Localization.get_NotificateLang()
@@ -319,60 +310,6 @@ class MainWindow(QMainWindow):
         self.ui.tempLabel.setText("temp0")
         self.ui.speedLabel.setText("speed")
         self.ui.protect0Label.setText("protect0")
-
-class Changer(QDialog):
-    def __init__(self) -> None:
-        QDialog.__init__(self)
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
-        self.notify = Notify()
-
-        self.lang = Localization.get_ChangerLang()
-        self.ui.buttonBox.rejected.connect(self.close)
-
-        self.setWindowFlags(Qt.FramelessWindowHint)
-
-    def shower(self):
-        self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
-        self.show()
-
-    def show_OllamaPromptChange(self):
-        self.ui.label.setText(self.lang['OllamaPromptChange']['text'])
-        self.ui.textEdit.setPlaceholderText(self.lang['OllamaPromptChange']['placeHolderText'])
-        self.ui.textEdit.setText(LlamaConfig.currentPrompt())
-
-        self.ui.buttonBox.accepted.connect(self.savePrompt)
-        self.shower()
-
-    def savePrompt(self):
-        prompt = self.ui.textEdit.toPlainText()
-        if prompt not in ["", " ", None]:
-            if prompt != LlamaConfig.currentPrompt():
-                LlamaConfig.setCurrentPrompt(prompt)
-                LlamaConfig.clearContext(prompt=True)
-
-            self.ui.label.setText('✅'+self.ui.label.text())
-            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
-        else: self.ui.textEdit.setText(self.lang['error_e'])
-
-    def show_OllamaNameChange(self):
-        self.ui.label.setText(self.lang['OllamaNameChange']['text'])
-        self.ui.textEdit.setPlaceholderText(self.lang['OllamaNameChange']['placeHolderText'])
-        self.ui.textEdit.setText(LlamaConfig.currentModel())
-
-        self.ui.buttonBox.accepted.connect(self.saveName)
-        self.shower()
-
-    def saveName(self):
-        name = self.ui.textEdit.toPlainText()
-        if name not in ["", " ", None]:
-            if name != LlamaConfig.currentModel():
-                LlamaConfig.setModelName(name)
-            
-            self.ui.label.setText('✅'+self.ui.label.text())
-            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
-        else: self.ui.textEdit.setText(self.lang['error_e'])
-
 
 class Menu(QMenu):
     def __init__(self, title: str) -> None:

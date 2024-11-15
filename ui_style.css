@@ -2,7 +2,6 @@
 	color: #fff;
 	background-color : transparent;
 	background: transparent;
-	font: 10pt "MiSans";
 	padding: 0;
 	margin: 0;
 	border: none;
@@ -47,6 +46,31 @@ QComboBox {
 	selection-background-color: rgb(235, 235, 235); 
 	color: #30354c;
 }
+QComboBox::drop-down {
+	border: 0px;
+}
+QComboBox::down-arrow {
+	color: rgba(0, 0, 0, 0%);
+	background-color: rgba(0, 0, 0, 0%);
+}
+QComboBox QListView {
+	border: 1px solid rgba(0, 0, 0, 10%);
+	padding: 5px;
+	background-color: #ffffff;
+	outline: 0px;
+}
+QComboBox QListView::item {
+	padding-left: 10px;
+	background-color: #ffffff;	
+}
+QComboBox QListView::item:hover {
+	background-color: #30354c;
+	color:#ffffff;
+}
+QComboBox QListView::item:selected {
+	background-color: #30354c;
+}
+
 QPushButton {
 	border-color: rgb(235, 235, 235);  
 }

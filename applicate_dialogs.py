@@ -1,22 +1,20 @@
 import os
 
-from configure__main import Applicator, Localization
+from configure__main import Applicator, Localization, LlamaConfig
 
-from ui_notify import *
-from ui_appendApp import Ui_MainWindow as ac_Ui_MainWindow
+from ui_notify import Ui_Dialog as UID_notify
+from ui_changer import *
 
 from PySide6.QtWidgets import QLayout, QScrollArea, QGridLayout
-from PySide6.QtWidgets import QWidget, QMainWindow, QLabel
-from PySide6.QtWidgets import QFrame, QComboBox, QVBoxLayout
-from PySide6.QtWidgets import QHBoxLayout, QPushButton, QTextEdit
-from PySide6.QtGui import QMouseEvent, Qt, QIcon
-
-colorCircles = {"red": "🟥", "yellow": "🟨", "green": "🟩"}
+from PySide6.QtWidgets import QWidget, QMainWindow, QLabel, QSpacerItem
+from PySide6.QtWidgets import QFrame, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QPushButton
+from PySide6.QtGui import Qt, QIcon
 
 class Notify(QDialog):
     def __init__(self) -> None:
         QDialog.__init__(self)
-        self.ui = Ui_Dialog()
+        self.ui = UID_notify()
         self.ui.setupUi(self)
         self.setWindowTitle("Fairy VA - Notificate/Уведомление")
         self.setWindowIcon(QIcon("ui/icon.png"))
@@ -26,198 +24,183 @@ class Notify(QDialog):
     def notify(self): self.show()
     def changeText(self, text): self.ui.label.setText(text)
 
-class AppCreator(QMainWindow):
-    def __init__(self, updater) -> None:
-        QMainWindow.__init__(self)
-        self.ui = ac_Ui_MainWindow()
+class Changer(QDialog):
+    def __init__(self) -> None:
+        QDialog.__init__(self)
+        self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-
-        self.setWindowTitle(f"Fairy!!")
         self.setWindowIcon(QIcon("ui/icon.png"))
-        self.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
 
-        self.updater = updater
-        self.notificator = Notify()
-        self.ui.saveButton.clicked.connect(self.save_app)
+        self.notify = Notify()
 
-    def save_app(self):
-        notify_lang = Localization.get_NotificateLang()
+        self.lang = Localization.get_ChangerLang()
+        self.ui.buttonBox.rejected.connect(self.closer)
 
-        _name = self.ui.inputName.toPlainText()
-        _path = self.ui.inputPath.toPlainText()
+    def passing(self):
+        pass
 
-        if _name in ["", " ", None]:
-            self.notificator.changeText(notify_lang["nameError_e"])
-            self.notificator.show()
-            return
-        if _path in ["", " ", None]:
-            self.notificator.changeText(notify_lang["pathError_e"])
-            self.notificator.show()
-            return
-        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])):
-            self.notificator.changeText(notify_lang["pathError_w"])
-            self.notificator.show()
-            return
-        if not os.path.isfile(_path):
-            self.notificator.changeText(notify_lang["pathError_f"])
-            self.notificator.show()
-            return
+    def closer(self):
+        self.ui.buttonBox.accepted.connect(self.passing)
+
+    def shower(self):
+        self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(True)
+        self.show()
+
+    def disconnect(self):
+        try: self.ui.buttonBox.accepted.disconnect()
+        except: pass
+
+    def path_init(self, app_dict: dict):
+        self.disconnect()
+        name = app_dict["name"]
+        self.setWindowTitle(name)
+        self.ui.label.setText(self.lang["PathChange"]["text"].replace(":APP:", name))
+        _path = app_dict["possible_path"]
+        pht = self.lang["PathChange"]["placeHolderText"] if _path is None else _path 
+        self.ui.textEdit.setPlaceholderText(pht)
+
+        self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
+
+    def show_PathChanger(self): self.shower()
         
-        Applicator.appendApp(_name, _path)
-        self.updater()
+    def savePath(self, app_dict: dict):
+        self.disconnect()
+        path_ = app_dict["possible_path"]
+        _path = self.ui.textEdit.toPlainText()
+        if _path not in ["", " ", None]:
+            if _path != path_:
+                if all(
+                    [
+                        _path[1] == ":",
+                        os.path.isfile(_path)
+                    ]
+                    ):
+                    Applicator.updateApp(app_dict["name"], _path)
+                    
+                    self.ui.label.setText('✅'+self.ui.label.text())
+                    self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
 
-class PathChanger(QMainWindow):
-    def __init__(
-            self,
-            datapack: dict, updater,
-            windows: list[QLayout, QWidget] = None
-            ) -> None:
-        super().__init__()
-        
-        self.windows = windows
-        self.updater = updater
-        self.notificator = Notify()
+                else:
+                    self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_wp"])
+                    self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
+            else:
+                self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_rp"])
+                self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
+        else:
+            self.ui.textEdit.setPlaceholderText(self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(lambda: self.savePath(app_dict))
 
-        self.secondWin = Localization.get_SecondsWinLang()
-        self.notify_lang = Localization.get_NotificateLang()
+    def create_init(self):
+        self.disconnect()
+        self.setWindowTitle("Create app")
+        self.ui.label.setText(self.lang["AppCreate"]["text_0"])
+        self.ui.textEdit.setPlaceholderText(self.lang["AppCreate"]["placeHolderText_0"])
 
-        self.activePath = datapack['possible_path']
-        if self.activePath is None: self.activePath = "None"
-        self.name = datapack['name']
+        self.ui.buttonBox.accepted.connect(self.next_step)
 
-        self.setWindowTitle("Fairy!!"+self.name)
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setWindowIcon(QIcon("ui/icon.png"))
-        self.setStyleSheet(
-            "QFrame {border-color: black; border-width: 2px}\n"\
-            "#tittle {border-style: solid solid dotted solid;}\n"\
-            "#input {border-style: none solid none solid;}\n"\
-            "#info {border-style: dotted solid solid solid;}\n"\
-            "#saveButton:hover {background-color: #00d26a;}\n"\
-            "#deltButton:hover {background-color: #ff5252;}\n"\
-            "#cancButton:hover {background-color: lightblue;}"
-            )
-        
-        self.oldpos = None
+    def show_AppCreator(self): self.shower()
 
-        self.widget = QWidget()
-        self.mainlayout = QVBoxLayout(self.widget)
+    def next_step(self):
+        self.disconnect()
+        _name = self.ui.textEdit.toPlainText()
+        if _name not in ["", " ", None]:
+            self.ui.label.setText(self.lang["AppCreate"]["text_1"] +" "+ _name)
+            self.ui.textEdit.setPlaceholderText(self.lang["AppCreate"]["placeHolderText_1"])
+            self.ui.textEdit.setText("")
+            self.ui.buttonBox.accepted.connect(lambda: self.saveApp(_name))
+        else:
+            self.ui.textEdit.setPlaceholderText(self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(self.next_step)
 
-        self.tittleFrame = QFrame()
-        self.inputFrame = QFrame()
-        self.infoFrame = QFrame()
+    def saveApp(self, name: str):
+        self.disconnect()
+        text = self.ui.label.text()
+        if "\n" in text:
+            self.ui.label.setText(text[:text.index("\n")])
+        _path = self.ui.textEdit.toPlainText()
+        if _path not in ["", " ", None]:
+            if all(
+                [
+                    _path[1] == ":",
+                    os.path.isfile(_path)
+                ]
+                ):
+                Applicator.appendApp(name, _path)
 
-        self.inputFrame.setObjectName("input")
-        self.tittleFrame.setObjectName("tittle")
-        self.infoFrame.setObjectName("info")
+                self.ui.label.setText('✅'+self.ui.label.text())
+                self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
 
-        self.tittlelayout = QHBoxLayout()
-        self.inputlayout = QHBoxLayout()
-        self.infolayout = QHBoxLayout()
+            else:
+                self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_wp"])
+                self.ui.buttonBox.accepted.connect(lambda: self.saveApp(name))
+        else:
+            self.ui.textEdit.setPlaceholderText(self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(lambda: self.saveApp(name))
 
-        self.tittle_infoText = QLabel(self.secondWin['infoText']+self.name)
-        self.tittle_pathBox = QComboBox()
-        self.tittle_pathBox.addItem(self.activePath)
-        self.tittle_pathBox.activated.connect(self.boxTrigger)
+    def show_OllamaPromptChange(self):
+        self.disconnect()
+        self.ui.label.setText(self.lang['OllamaPromptChange']['text'])
+        self.ui.textEdit.setPlaceholderText(self.lang['OllamaPromptChange']['placeHolderText'])
+        self.ui.textEdit.setText(LlamaConfig.currentPrompt())
 
-        self.tittlelayout.addWidget(self.tittle_infoText)
-        self.tittlelayout.addWidget(self.tittle_pathBox)
+        self.ui.buttonBox.accepted.connect(self.savePrompt)
+        self.shower()
 
-        self.tittleFrame.setLayout(self.tittlelayout)
+    def savePrompt(self):
+        self.disconnect()
+        prompt = self.ui.textEdit.toPlainText()
+        if prompt not in ["", " ", None]:
+            if prompt != LlamaConfig.currentPrompt():
+                LlamaConfig.setCurrentPrompt(prompt)
+                LlamaConfig.clearContext(prompt=True)
 
-        self.input_info = QLabel(self.secondWin['inputText'])
-        self.input_inputPath = QTextEdit()
-        self.input_inputPath.setMaximumHeight(40)
-        self.input_saveButton = QPushButton(self.secondWin['saveButton'])
-        self.input_saveButton.clicked.connect(self._savePath)
-        self.input_saveButton.setObjectName("saveButton")
+            self.ui.label.setText('✅'+self.ui.label.text())
+            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+        else:
+            self.ui.textEdit.setText(self.lang['error_e'])
+            self.ui.buttonBox.accepted.connect(self.savePrompt)
 
-        self.inputlayout.addWidget(self.input_info)
-        self.inputlayout.addWidget(self.input_inputPath)
-        self.inputlayout.addWidget(self.input_saveButton)
+    def show_OllamaNameChange(self):
+        self.disconnect()
+        self.ui.label.setText(self.lang['OllamaNameChange']['text'])
+        self.ui.textEdit.setPlaceholderText(self.lang['OllamaNameChange']['placeHolderText'])
+        self.ui.textEdit.setText(LlamaConfig.currentModel())
 
-        self.inputFrame.setLayout(self.inputlayout)
+        self.ui.buttonBox.accepted.connect(self.saveName)
+        self.shower()
 
-        self.info_path = QLabel(self.secondWin["infoPath"]+self.activePath)
-        self.info_deltButton = QPushButton(self.secondWin["deleteButton"])
-        self.info_deltButton.clicked.connect(self._delete)
-        self.info_deltButton.setObjectName("deltButton")
-        self.info_cancButton = QPushButton(self.secondWin["cancelButton"])
-        self.info_cancButton.clicked.connect(self._cancel)
-        self.info_cancButton.setObjectName("cancButton")
+    def saveName(self):
+        self.disconnect()
+        name = self.ui.textEdit.toPlainText()
+        if name not in ["", " ", None]:
+            if name != LlamaConfig.currentModel():
+                LlamaConfig.setModelName(name)
+            
+            self.ui.label.setText('✅'+self.ui.label.text())
+            self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+        else:
+            self.ui.textEdit.setText(self.lang['error_e'])
+            self.ui.buttonBox.accepted.connect(self.saveName)
 
-        self.infolayout.addWidget(self.info_path)
-        self.infolayout.addWidget(self.info_deltButton)
-        self.infolayout.addWidget(self.info_cancButton)
-
-        self.infoFrame.setLayout(self.infolayout)
-
-        self.mainlayout.addWidget(self.tittleFrame)
-        self.mainlayout.addWidget(self.inputFrame)
-        self.mainlayout.addWidget(self.infoFrame)
-
-        self.setCentralWidget(self.widget)
-
-    def mousePressEvent(self, event: QMouseEvent) -> None:
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.oldpos = event.globalPos()
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        if self.oldpos is not None:
-            diff = event.globalPos() - self.oldpos
-            self.move(self.pos() + diff)
-            self.oldpos = event.globalPos()
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        self.oldpos = None
-
-    def getBoxText_(self) -> str: return self.tittle_pathBox.currentText()
-
-    def getPath_(self) -> str:
-        _path = self.input_inputPath.toPlainText()
-        if any([_path is None, _path == "", _path == " "]):
-            selected = self.tittle_pathBox.currentText()
-            _path = selected if selected == self.activePath else self.activePath
-        if _path[0] == '"': _path = _path.replace('"', '')
-        if _path[1] != ":" or not _path.endswith(tuple([".exe", ".lnk", ".url"])
-                                                 ) or not os.path.isfile(_path):
-            self.notificator.changeText(self.notify_lang["pathError_w"])
-            self.notificator.show()
-        return _path
-    
-    def remove_(self) -> None:
-        if self.windows is not None:
-            self.windows[0].removeWidget(self.windows[1])
-            self.windows[1].deleteLater()
-
-    def _delete(self) -> None:
-        Applicator.deleteApp(self.name)
-        self.updater()
-        self.remove_()
-        self.close()
-
-    def _savePath(self) -> None:
-        _path = self.getPath_()
-
-        Applicator.deleteNeedAcceptApps(self.name, _path)
-        self.updater()
-        self.remove_()
-        self.close()
-
-    def _cancel(self) -> None: self.close()
-    def boxTrigger(self): self.input_inputPath.setText(self.getBoxText_())
-
-def generateApp(data: dict, updater, pch, confirmBtn: bool):
+def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict):
 
     notificator = Notify()
-    notify_lang = Localization.get_NotificateLang()
+
+    colors = ["#ff5252", "#e4ce0c", "rgba(0, 0, 0, 0)"]
 
     def remover(layout: QLayout, widget: QWidget):
         layout.removeWidget(widget)
         widget.deleteLater()
 
-    def confirm(layout: QLayout, widget: QWidget):
-        remover(layout, widget)
-        Applicator.deleteNeedAcceptApps(data["name"], data["possible_path"])
-        updater()
+    def confirm(layout:QLayout, button: QWidget, infoButton: QWidget, mainframe: QFrame):
+        Applicator.deleteApp(data["name"], acceptKey=True)
+        remover(layout, button)
+        infoButton.setToolTip(str(ToolTip_lang["infoBtn_0"]))
+        mainframe.setStyleSheet("#mainframeB {"\
+                                    "border-left-style: solid;"\
+                                    "border-left-width: 3px;"\
+                                    "border-left-color: rgba(0, 0, 0, 0);"\
+                                "}")
 
     def openDir(_path: str | None):
         if _path is None:
@@ -241,113 +224,118 @@ def generateApp(data: dict, updater, pch, confirmBtn: bool):
 
     def _delete(layout: QLayout, widget: QWidget, name: str):
         remover(layout, widget)
-        Applicator.deleteApp(name)
-        updater()
+        Applicator.deleteApp(name, appKey=True)
 
-    def _change(layout: QLayout, widget: QWidget):
-        pch(PathChanger(data, updater, [layout, widget]))
+    def _change():
+        ch = Changer()
+        ch.path_init(data)
+        pchangershow(ch)
 
-    localization = Localization.get_SecondsWinLang()
-    toolTips = Localization.get_ToolLang()
+    dataNeed = data["possible_path"] is None
+    accessNeed = data['relative_path'] is None and not dataNeed
+
+    color = colors[0] if dataNeed else colors[1] if accessNeed else colors[2]
 
     widget = QWidget()
 
-    mainlayout = QVBoxLayout(widget)
-    mainframe = QFrame()
-    mainframe_Layout = QVBoxLayout()
-
-    _firstdlayout = QVBoxLayout()
-    _firstlayout_adt = QHBoxLayout()
-    _secondlayout = QHBoxLayout()
-
-    __firstdFrame, __firstFrame_adt = QFrame(), QFrame()
-    __secondFrame = QFrame()
-
-    colorCircle, color = colorCircles["green"], '#00d26a'
-    toolTip = toolTips['green']
-    if data["possible_path"] is None:
-        colorCircle, color = colorCircles["red"], '#ff5252'
-        toolTip = toolTips['red']
-    elif data["relative_path"] is None:
-        colorCircle, color = colorCircles["yellow"], '#ffda13'
-        toolTip = toolTips['yellow']
-
-    mainframe.setObjectName("mainFrameB")
-    mainframe.setStyleSheet(
-        "* {background-color: #373737;}\n"\
-        "#mainFrameB "\
-        "{\n"\
-        "   border-style: none none none solid;\n"\
-        "   border-width: 5px;\n"\
-        "   border-radius: 10px;\n"\
-        "   border-color: "+color+";\n"\
-        "}")
+    mainlayout = QHBoxLayout(widget)
+    mainlayout.setContentsMargins(0, 0, 0, 0)
     
-    appName, appPath = QLabel(data["name"]), data["possible_path"]
-    openButton = QPushButton(localization["openphButton"])
-    chngButton = QPushButton(localization["changeButton"])
-    _delButton = QPushButton(localization["deleteButton"])
-    _appStatus = QLabel(colorCircle)
-    _appStatus.setToolTip(toolTip)
+    secondlayout = QHBoxLayout()
+    secondlayout.setContentsMargins(0, 0, 0, 0)
+    
+    mainframe = QFrame()
+    mainframe.setObjectName("mainframeB")
+    mainframe.setStyleSheet("#mainframeB {"\
+                                    "border-left-style: solid;"\
+                                    "border-left-width: 3px;"\
+                                    "border-left-color: "+color+";"\
+                                "}")
+    mainframe.setContentsMargins(0, 0, 0, 0)
 
-    _delButton.setStyleSheet("QPushButton:hover {background-color: #ff5252;}")
+    Name = QLabel(data["name"])
+    Name.setObjectName("namer")
 
-    openButton.setToolTip(data['possible_path'])
+    spacer_item = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-    openButton.clicked.connect(lambda: openDir(appPath))
-    _delButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
-    chngButton.clicked.connect(lambda: _change(mainlayout, widget))
+    buttonSize = QSize(18, 18)
 
-    _firstlayout_adt.addWidget(appName)
-    _firstlayout_adt.addWidget(_appStatus, alignment=Qt.AlignRight)
+    infoButton = QPushButton("")
+    infoButton.setIconSize(buttonSize)
+    infoButton.setObjectName("infoBtn")
+    key = "infoBtn_1" if accessNeed and not dataNeed else "infoBtn_0"
+    infoButton.setToolTip(ToolTip_lang[key])
+    infoButton.setToolTipDuration(0.5)
+    infoButton.setIcon(QIcon("ui/svg/alert-circle.svg"))
 
-    __firstFrame_adt.setLayout(_firstlayout_adt)
+    warnButton = QPushButton("")
+    warnButton.setIconSize(buttonSize)
+    warnButton.setObjectName("warnBtn")
+    warnButton.setToolTip(ToolTip_lang["warnBtn"])
+    warnButton.setToolTipDuration(0.5)
+    warnButton.setIcon(QIcon("ui/svg/alert-triangle.svg"))
 
-    _firstdlayout.addWidget(__firstFrame_adt)
-    _firstdlayout.addWidget(openButton)
+    editButton = QPushButton("")
+    editButton.setIconSize(buttonSize)
+    editButton.setObjectName("editBtn")
+    editButton.setToolTip(ToolTip_lang["editBtn"])
+    editButton.setToolTipDuration(0.5)
+    editButton.setIcon(QIcon("ui/svg/edit.svg"))
+    editButton.clicked.connect(_change)
 
-    if confirmBtn:
-        confirmButton = QPushButton(localization['confrmButton'])
-        confirmButton.setStyleSheet("QPushButton:hover {background-color: #00d26a;}")
-        confirmButton.clicked.connect(lambda: confirm(mainlayout, widget))
-        _secondlayout.addWidget(confirmButton)
-    _secondlayout.addWidget(chngButton)
-    _secondlayout.addWidget(_delButton)
+    deleteButton = QPushButton("")
+    deleteButton.setIconSize(buttonSize)
+    deleteButton.setObjectName("deleteBtn")
+    deleteButton.setToolTip(ToolTip_lang["deleteBtn"])
+    deleteButton.setToolTipDuration(0.5)
+    deleteButton.setIcon(QIcon("ui/svg/slash.svg"))
+    deleteButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
+    
+    applyButton = QPushButton("")
+    applyButton.setIconSize(buttonSize)
+    applyButton.setObjectName("applyBtn")
+    applyButton.setToolTip(ToolTip_lang["applyBtn"])
+    applyButton.setToolTipDuration(0.5)
+    applyButton.setIcon(QIcon("ui/svg/check.svg"))
+    applyButton.clicked.connect(lambda: confirm(secondlayout, applyButton, infoButton, mainframe))
 
-    _firstdlayout.setContentsMargins(0, 0, 0, 0)
-    _secondlayout.setContentsMargins(0, 0, 0, 0)
+    urlButton = QPushButton("")
+    urlButton.setIconSize(buttonSize)
+    urlButton.setObjectName("urlBtn")
+    urlButton.setToolTip(ToolTip_lang["urlBtn"]+str(data['possible_path']))
+    urlButton.setToolTipDuration(0.5)
+    urlButton.setIcon(QIcon("ui/svg/arrow-up-right.svg"))
+    urlButton.clicked.connect(lambda: openDir(data["possible_path"]))
 
-    __firstdFrame.setLayout(_firstdlayout)
-    __secondFrame.setLayout(_secondlayout)
+    if not dataNeed: secondlayout.addWidget(infoButton)
+    else: secondlayout.addWidget(warnButton)
 
-    mainframe_Layout.addWidget(__firstdFrame)
-    mainframe_Layout.addWidget(__secondFrame)
+    secondlayout.addWidget(Name)
+    secondlayout.addItem(spacer_item)
 
-    mainframe.setLayout(mainframe_Layout)
+    if accessNeed and not dataNeed: secondlayout.addWidget(applyButton)
+    if not dataNeed: secondlayout.addWidget(urlButton)
 
+    secondlayout.addWidget(editButton)
+    secondlayout.addWidget(deleteButton)
+
+    mainframe.setLayout(secondlayout)
     mainlayout.addWidget(mainframe)
 
     return widget
 
 class AppConfigurator(QMainWindow):
-    def __init__(self, updater, enumerator):
+    def __init__(self):
         super().__init__()
 
-        self.setStyleSheet(
-            "* {background-color: #171717;}\n"\
-            "QLabel {color: white;}\n"\
-            "QPushButton {color: white;}\n"\
-            "QPushButton:hover {background-color: gray; color: black;}\n"\
-            "#CA_Button:hover {background-color: lightgreen;}"
-            )
+        with open("ui_confStyle.css", "r") as file:
+            self.setStyleSheet(file.read())
         self.setWindowTitle(f"Fairy!! | App Configurator / Конфигуратор приложений")
         self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notificator = Notify()
-        self.updater = updater
 
-        self.localizationSeconds = Localization.get_SecondsWinLang()
-        self.localizationToolTip = Localization.get_ToolLang()
+        self.lang_load()
 
         self.pchange = None
         self.appCreator = None
@@ -360,34 +348,20 @@ class AppConfigurator(QMainWindow):
         self.infoLayout = QHBoxLayout()
 
         self.addAppButton = QPushButton(self.localizationSeconds["addAppButton"])
-        self.addAppButton.clicked.connect(lambda: self.newApp(updater))
+        self.addAppButton.setObjectName("AABtn")
+        self.addAppButton.clicked.connect(self.newApp)
+        
+        apps = Applicator.getApps().values()
+        self.apps, self.appsPath = [], {}
 
-        self.infotext = QLabel(
-            "| "\
-            f"{colorCircles['green']} - Good |"\
-            f"{colorCircles['yellow']} - Need confirm to use |"\
-            f"{colorCircles['red']} - Need path |"
-            )
-        self.infotext.setAlignment(Qt.AlignCenter)
-
-        self.infoLayout.addWidget(self.infotext)
-
-        if enumerator:
-            self.confirmAllPathButton = QPushButton(self.localizationSeconds['confirmAllBt'])
-            self.confirmAllPathButton.setObjectName("CA_Button")
-            self.confirmAllPathButton.setToolTip(self.localizationToolTip['confirmTip'])
-            self.confirmAllPathButton.clicked.connect(self.confirm)
-            self.infoLayout.addWidget(self.confirmAllPathButton)
-
-        confirmBtn = True if enumerator else False
-        apps = Applicator.getNeedAcceptApps().values() if enumerator else Applicator.getApps().values()
-        self.apps = []
-        self.appsPath = {}
         for data in apps:
             if "name" in data:
-                self.apps.append(generateApp(
-                    data, self.updater, self.pchangershow, confirmBtn)
-                    )
+                self.apps.append(
+                    generateApp(
+                        data,
+                        self.pchangershow,
+                        self.notifyLang,
+                        self.localizationToolTip))
                 if data['relative_path'] is None and data['possible_path'] is not None:
                     self.appsPath[data['name']] = data['possible_path']  
 
@@ -396,8 +370,13 @@ class AppConfigurator(QMainWindow):
 
         self.matrix_build()
 
-        self.setMinimumWidth(int(self.scroller.width()*1.2))
+        self.setMinimumWidth(int(self.scroller.width()))
         self.setMinimumHeight(570)
+
+    def lang_load(self):
+        self.notifyLang = Localization.get_NotificateLang()
+        self.localizationSeconds = Localization.get_SecondsWinLang()
+        self.localizationToolTip = Localization.get_ToolLang()
 
     def closeEvent(self, event):
         if self.pchange is not None:
@@ -406,19 +385,15 @@ class AppConfigurator(QMainWindow):
         if self.appCreator is not None:
             try: self.appCreator.close()
             except: pass
+        Applicator._checkSave()
 
     def matrix_build(self):
-        matrix = [0, 0]
         self.appLayout = QGridLayout(self.appWidget)
         for i, app in enumerate(self.apps):
             self.appLayout.addWidget(
-                app, matrix[0], matrix[1],
+                app, i, 0,
                 alignment=Qt.AlignTop
                 )
-            if matrix[1] != 1: matrix[1] += 1
-            else:
-                matrix[0] += 1
-                matrix[1] = 0
 
         self.scroller = QScrollArea()
         self.scroller.setWidgetResizable(True)
@@ -427,63 +402,13 @@ class AppConfigurator(QMainWindow):
         self.mainlayout.addWidget(self.scroller)
 
         self.scroller.setWidget(self.appWidget)
-
         self.setCentralWidget(self.widget)
 
-    def pchangershow(self, pchange: PathChanger):
+    def pchangershow(self, pchange: Changer):
         self.pchange = pchange
-        self.pchange.show()
+        self.pchange.show_PathChanger()
 
-    def newApp(self, updater):
-        self.appCreator = AppCreator(updater)
-        self.appCreator.show()
-
-    def confirm(self):
-        def close(): self.tempFrame.deleteLater()
-        def agree():
-            for app in self.appsPath:
-                Applicator.deleteNeedAcceptApps(app, self.appsPath[app])
-            self.updater()
-            self.warningText.setText(
-                self.localizationSeconds["warningText"]
-            )
-            self.agreeButton.deleteLater()
-            for i, app in enumerate(self.apps): app.deleteLater()
-
-        text = self.localizationSeconds["warningText_1"]+"\n"
-        text += self.localizationSeconds["warningText_2"]+"\n"
-
-        for app in self.appsPath.values():
-            text = f"{text}\n{str(app)}"
-
-        self.tempLayout = QVBoxLayout()
-        self.tempFrame = QFrame()
-        self.tempFrame.setObjectName("mainTempFrame")
-        self.tempFrame.setStyleSheet(
-            "QFrame {background-color: #373737;}\n"\
-            "QLabel {color: white}\n"\
-            "#mainTempFrame {border-style: dotted none none none; border-width: 1.5px; border-color: white;}\n"\
-            "#agreeButton:hover {background-color: #ff5252;}"
-            )
-        self.secondTempLayout = QHBoxLayout()
-        self.secondTempFrame = QFrame()
-
-        self.warningText = QLabel(text)
-
-        self.agreeButton = QPushButton(self.localizationSeconds["agreeButton"])
-        self.agreeButton.setObjectName("agreeButton")
-        self.agreeButton.clicked.connect(agree)
-        
-        self.backButton = QPushButton(self.localizationSeconds["backdButton"])
-        self.backButton.clicked.connect(close)
-
-        self.secondTempLayout.addWidget(self.agreeButton)
-        self.secondTempLayout.addWidget(self.backButton)
-        self.secondTempFrame.setLayout(self.secondTempLayout)
-
-        self.tempLayout.addWidget(self.warningText)
-        self.tempLayout.addWidget(self.secondTempFrame)
-
-        self.tempFrame.setLayout(self.tempLayout)
-
-        self.mainlayout.addWidget(self.tempFrame)
+    def newApp(self):
+        self.appCreator = Changer()
+        self.appCreator.create_init()
+        self.appCreator.show_AppCreator()

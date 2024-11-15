@@ -92,6 +92,18 @@ class InstallApplication:
                         self.launchFile = self.expectLaunchFile
                         
     def getinfo(self) -> dict:
+        """
+        Возвращает словарь данных приложения с базовыми статусами формата:\n
+        ```python
+        {
+            "name": self.name,
+            "possible_path": self.expectLaunchFile,
+            "relative_path": self.launchFile,
+            "user_application": False,
+            "status": True if self.launchFile is not None else False
+        }
+        ```
+        """
         return {
             "name": self.name,
             "possible_path": self.expectLaunchFile,
@@ -100,7 +112,10 @@ class InstallApplication:
             "status": True if self.launchFile is not None else False
         }
     
-def search(triggers) -> list[list[InstallApplication]]:
+def search(triggers) -> list[InstallApplication]:
+    """
+    Возвращает Сортированный список [Объект приложения `InstallApplication`]
+    """
     installed = [x for x in winapps.search_installed()]
 
     startM = start_menu_searcher()
@@ -132,12 +147,4 @@ def search(triggers) -> list[list[InstallApplication]]:
                 app.launchFile = startMpaths[startMnames[name]]
                 app.expectLaunchFile = startMpaths[startMnames[name]]
 
-    readyApp, needData, needAccept = [], [], []
-
-    for i in [item for item in sorteds]:
-        if i.expectLaunchFile is None: needData.append(i)
-        else:
-            if i.launchFile is None: needAccept.append(i)
-            else: readyApp.append(i)
-
-    return [sorteds, [readyApp, needData, needAccept]]
+    return sorteds

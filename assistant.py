@@ -28,6 +28,8 @@ class Assistant:
 
         self.restart = False
 
+        self.__updater = False
+
         self.import_llama_and_voice()
 
     def import_llama_and_voice(self) -> None: # Импорт модулей
@@ -48,6 +50,9 @@ class Assistant:
                 print("youshika ||  ", exc)
                 self.soundModule._notify()
 
+    def setApplicationUpdater(self, obj: object):
+        self.__updater = obj
+
     def response_clear(self, response) -> str:
         items = ["*"]
         for i in items:
@@ -60,14 +65,13 @@ class Assistant:
         """
         >>> Возвращает True если команда не требует ответа
         >>> Возвращает False если команда заимствует ответ
-        >>> Возвращает None если команда не найдена\
- (Передача в ollama если включен голосовой модуль)
+        >>> Возвращает None если команда не найдена\(Передача в ollama если включен голосовой модуль)
         """
         botTrigger = self.com_handler.get_botTrigger(text)
         if not botTrigger:
             request = self.com_handler.diff_command_search(text)
             if type(request) is str:
-                print(request)
+                print(f"assistant || {request}")
                 return None
             elif request: return True
             return None
@@ -108,20 +112,22 @@ class Assistant:
                 print(f"RVC || Generate voice.. --> 0.0")
                 start = time.time()
                 response = self.response_clear(response)
-                self.voiceModule.generate(response)
-                RVCtimer = round(time.time() - start, 2)
-                timer = round(LLMtimer+RVCtimer, 2)
-                print(f"RVC || Voice generated. --> {RVCtimer}")
-                print("RVC || Speaking..")
-                self.voiceModule.speak()
-                print("assistant || All time spend -> ", timer)
+                result = self.voiceModule.generate(response)
+                if result:
+                    RVCtimer = round(time.time() - start, 2)
+                    timer = round(LLMtimer+RVCtimer, 2)
+                    print(f"RVC || Voice generated. --> {RVCtimer}")
+                    print("RVC || Speaking..")
+                    self.voiceModule.speak()
+                    print("assistant || All time spend -> ", timer)
+                else: self.soundModule._notify()
         print("assistant || listening..")
 
     def callback(self, c_recognizer: sr.Recognizer, audio: sr.AudioData):
         try: # Распознование речи
             text = c_recognizer.recognize_google(audio, language="ru_RU").lower()
-            # Распознование команд
             print("assistant || Found text:", text)
+            # Распознование команд
             self.recognize_command(text)
         except sr.UnknownValueError as exc: # Речь не найдена
             print("assistant || UnknownValue -> None speech")
@@ -152,6 +158,10 @@ class Assistant:
             if App.LOAD():
                 self.import_llama_and_voice()
                 App.reLOAD()
+            # Обновление данных монитора
+            if App.voiceModule():
+                if self.llamaModule.update():
+                    self.__updater()
             time.sleep(1)
         self.soundModule._stop_listen()
         print("assistant || Stop loop -", time.strftime('%X'))

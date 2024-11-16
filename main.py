@@ -15,13 +15,21 @@ if not os.path.exists(_temppath): os.mkdir(_temppath)
 if not os.path.exists(voicepath): os.mkdir(voicepath)
 Applicator.checkApplicationLoad()
 print("youshika-es |INFO| found ", Applicator.getAppsCount(), " application.")
-print("youshika-es |INFO| ", Applicator.getReadyAppsCount(), " ready to use.")
+print("youshika-es |INFO|", Applicator.getReadyAppsCount(), " ready to use.")
 print("youshika-es |INFO| your local path is ", localpath)
 print("youshika-es |INFO| your temp path is ", _temppath)
+
 assistante = Assistant()
-applicate = Thread(target=Application, daemon=True)
+
+def load_application():
+    app = Application()
+    window = app.get_window()
+    assistante.setApplicationUpdater(window.__update)
+    app.set_exec()
 
 def main():
+    applicate = Thread(target=load_application, daemon=True)
+    
     applicate.start()
     assistante.start_while()
 

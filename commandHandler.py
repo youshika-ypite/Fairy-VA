@@ -548,7 +548,7 @@ class ComandHandler:
         >>> Возвращает путь к приложению или `None`"""
         base_req = self.request.lower()
         UDCD_req = unidecode.unidecode(self.request).lower()
-        print(base_req, UDCD_req)
+        #print(base_req, UDCD_req)
 
         for app in readyApps.keys():
             if base_req in app.lower() or UDCD_req in app.lower():

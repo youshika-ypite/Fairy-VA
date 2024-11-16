@@ -2,9 +2,9 @@
     "modelName": "llama3.1",
     "context_memory": -8,
     "context": [{}],
-    "options":
-    {
+    "options": {
         "temperature": 0.0
     },
+    "response_history": [""],
     "standart_prompt": "Ты - голосовый помощник по имени Фея, твои ответы должны быть ограничены 120 символами. Всегда следуй моим указаниям и выполняй мои требования."
 }

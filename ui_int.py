@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'newWCSSeejuoB.ui'
+## Form generated from reading UI file 'newWCSSDNkNvc.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
@@ -533,6 +533,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_20.setContentsMargins(0, 0, 0, 0)
         self.Sliders = QFrame(self.allSlfFrame)
         self.Sliders.setObjectName(u"Sliders")
+        self.Sliders.setMinimumSize(QSize(0, 0))
         self.Sliders.setFrameShape(QFrame.Shape.StyledPanel)
         self.Sliders.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_11 = QVBoxLayout(self.Sliders)
@@ -673,13 +674,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_22.addWidget(self.ContextIndexLabel)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_22.addItem(self.horizontalSpacer_2)
-
         self.IndexspinBox = QSpinBox(self.changeContextIndexFrame)
         self.IndexspinBox.setObjectName(u"IndexspinBox")
         self.IndexspinBox.setMinimumSize(QSize(80, 0))
+        self.IndexspinBox.setMaximumSize(QSize(80, 16777215))
         self.IndexspinBox.setWrapping(False)
         self.IndexspinBox.setFrame(True)
         self.IndexspinBox.setReadOnly(False)
@@ -691,6 +689,7 @@ class Ui_MainWindow(object):
 
         self.saveIndexButton = QPushButton(self.changeContextIndexFrame)
         self.saveIndexButton.setObjectName(u"saveIndexButton")
+        self.saveIndexButton.setMaximumSize(QSize(24, 24))
         icon9 = QIcon()
         icon9.addFile(u"ui/svg/check-square.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.saveIndexButton.setIcon(icon9)
@@ -716,7 +715,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_21.setContentsMargins(9, 0, 9, 0)
         self.resourceMonitor = QLabel(self.resourceFrame)
         self.resourceMonitor.setObjectName(u"resourceMonitor")
+        self.resourceMonitor.setMaximumSize(QSize(315, 117))
+        self.resourceMonitor.setScaledContents(True)
         self.resourceMonitor.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
+        self.resourceMonitor.setWordWrap(True)
 
         self.verticalLayout_21.addWidget(self.resourceMonitor)
 

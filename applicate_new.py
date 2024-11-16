@@ -4,27 +4,9 @@ from configure__main import App, Applicator, LlamaConfig, Localization
 from applicate_dialogs import AppConfigurator, Notify, Changer
 
 from ui_int import *
-from ui_changer import *
 
 from PySide6.QtGui import QAction, QMouseEvent
 from PySide6.QtWidgets import QSystemTrayIcon, QMenu
-
-class Application:
-    def __init__(self, params = None):
-        self.app = QApplication(sys.argv+['-style', 'fusion', '-platform', 'windows:darkmode=0'])
-        self.app.setFont(QFont("Mi Sans", 10))
-
-        self._window()
-        if params is None: self._tray()
-
-        self.app.exec()
-
-    def _window(self):
-        self.window = MainWindow()
-        self.window.showNormal()
-
-    def _tray(self):
-        self.tray = Tray(self.window)
 
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
@@ -247,6 +229,16 @@ class MainWindow(QMainWindow):
     def _changeTemp0(self, value):
         App.change_f0_key_up(value)
         self.ui.tempKeyLabelVAL.setText(str(App.model()["f0_key_up"]))
+    ## Последнее сообщение от Ollama модели
+    def load_last_message(self) -> str:
+        lastmessage = ""
+        try: response = LlamaConfig.currentResponses()[-1]
+        except Exception as exc:
+            print("Please reload llama.json | ", exc)
+            response = "None"
+        if len(response) != 0: lastmessage = response
+        return str(lastmessage)
+
     ## Локализация приложения
     def load_language(self):        
         lang = Localization.getLANG().replace("_TG", "")
@@ -263,6 +255,9 @@ class MainWindow(QMainWindow):
         self.ui.AppVILabel.setText(self.lang_Local['AppVILabel'])
         self.ui.closeButton.setText(self.lang_Local['closeButton'])
         self.ui.hideButton.setText(self.lang_Local['hideButton'])
+
+        message = self.lang_Local['ContextMessage'] + self.load_last_message()
+        self.ui.resourceMonitor.setText(message)
 
         self.ui.ContextIndexLabel.setText(self.lang_Local['ContextIndexLabel'])
         self.ui.clearContextButton.setText(self.lang_Local['clearContextButton'])
@@ -310,6 +305,35 @@ class MainWindow(QMainWindow):
         self.ui.tempLabel.setText("temp0")
         self.ui.speedLabel.setText("speed")
         self.ui.protect0Label.setText("protect0")
+    
+    # Обновление вне системы (для обработки событий алгоритма)
+    def __update(self):
+        if LlamaConfig.isNewContent():
+            message = self.lang_Local['ContextMessage'] + self.load_last_message()
+            self.ui.resourceMonitor.setText(message)
+            LlamaConfig.setNewContent(False)
+
+
+class Application:
+    def __init__(self):
+        self.app = QApplication(sys.argv+['-style', 'fusion', '-platform', 'windows:darkmode=0'])
+        self.app.setFont(QFont("Mi Sans", 10))
+
+        self._window()
+
+    def set_exec(self):
+        self.app.exec()
+
+    def _window(self):
+        self.window = MainWindow()
+        self.window.showNormal()
+        self._tray()
+
+    def get_window(self) -> MainWindow:
+        return self.window
+
+    def _tray(self):
+        self.tray = Tray(self.window)
 
 class Menu(QMenu):
     def __init__(self, title: str) -> None:

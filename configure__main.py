@@ -2,7 +2,7 @@ import os
 import webbrowser
 from json import load, dump
 
-from configure_appFounder import search, InstallApplication
+from configure_appFounder import search
 
 class Pathlib_y:
 
@@ -348,6 +348,7 @@ class App:
 class LlamaConfig:
 
     config = load(open("configs/llama.json", "r", encoding="utf-8"))
+    newContent = False
 
     @staticmethod
     def save(): # Сохранение данных
@@ -372,8 +373,14 @@ class LlamaConfig:
     def currentContextIndex() -> int:
         return LlamaConfig.config['context_memory']*-1
     @staticmethod
-    def currentContext() -> list:
+    def currentContext() -> list[dict]:
         return LlamaConfig.config['context']
+    @staticmethod
+    def currentResponses() -> list[str]:
+        return LlamaConfig.config['response_history']
+    @staticmethod
+    def isNewContent() -> bool:
+        return LlamaConfig.newContent
     
     @staticmethod
     def updateCurrentContext(msg):
@@ -403,6 +410,12 @@ class LlamaConfig:
     @staticmethod
     def setContext(context: list[dict]):
         LlamaConfig.config['context'] = context
+
+    @staticmethod
+    def newResponse(response: str):
+        responses = LlamaConfig.currentResponses()
+        responses.append(response)
+        LlamaConfig.config['response_history'] = responses
         
 
     @staticmethod
@@ -415,6 +428,10 @@ class LlamaConfig:
             LlamaConfig.save()
         else:
             LlamaConfig.config["context"] = [LlamaConfig.config["context"][0]]
+
+    @staticmethod
+    def setNewContent(status: bool) -> None:
+        LlamaConfig.newContent = status
 
 
 class Localization:

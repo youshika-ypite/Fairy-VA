@@ -50,7 +50,8 @@
             "promptEditButton": "Изменить промпт",
             "ollamaNameChangeButton": "Модель LLM",
             "GitHubbtn": "GitHub",
-            "Supportbtn": "Поддержать"
+            "Supportbtn": "Поддержать",
+            "ContextMessage": "Последний ollama ответ: \n"
         },
         "ToolTips": {
             "editBtn": "Изменить путь к приложению",
@@ -173,7 +174,8 @@
             "promptEditButton": "Change prompt",
             "ollamaNameChangeButton": "LLM model",
             "GitHubbtn": "GitHub",
-            "Supportbtn": "Support"
+            "Supportbtn": "Support",
+            "ContextMessage": "Last ollama response: \n"
         },
         "ToolTips": {
             "editBtn": "Edit App Path",

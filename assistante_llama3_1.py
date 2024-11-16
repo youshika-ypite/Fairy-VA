@@ -41,10 +41,14 @@ class Llama:
             messages = _msgs,
             options = _copt
             )
+        
+        response_message = response['message']['content']
 
         LlamaConfig.updateCurrentContext({'role': 'system', 'content': prompt})
+        LlamaConfig.newResponse(response_message)
+        LlamaConfig.setNewContent(True)
 
-        return response['message']['content']
+        return response_message
     
     def _update_chat_history(self, prompt, response) -> None:
         self.chat_history[prompt] = response
@@ -61,6 +65,9 @@ class Llama:
         self._update_chat_history(updated_prompt, response)
         # Возврат ответа
         return response
+    
+    def update(self) -> bool:
+        return LlamaConfig.isNewContent()
     
     def _SAVE(self) -> None: # Сохранение истории о сообщениях
         dump(

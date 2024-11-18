@@ -161,7 +161,8 @@ class Assistant:
             # Обновление данных монитора
             if App.voiceModule():
                 if self.llamaModule.update():
-                    self.__updater()
+                    if self.__updater is not False:
+                        self.__updater()
             time.sleep(1)
         self.soundModule._stop_listen()
         print("assistant || Stop loop -", time.strftime('%X'))

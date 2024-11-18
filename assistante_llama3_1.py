@@ -5,13 +5,17 @@ from datetime import datetime as dt
 
 from configure__main import Pathlib_y, LlamaConfig
 
+SYSTEM = 'system'
+USER = 'user'
+ASSISTANT = 'assistant'
+
 class Llama:
     def __init__(self) -> None:
         self.history_path = Pathlib_y.get_mainTEMPpath()+"/llama-chat-history.json"
         # Стандартный промпт для ассистента
         self.prompt = LlamaConfig.currentPrompt()
         self.generate = ollama.chat
-        self.role = 'system'
+        self.role = SYSTEM
 
         self.status = True
         self.modelName = LlamaConfig.currentModel()
@@ -29,12 +33,21 @@ class Llama:
         return self.prompt, self.role
     
     def _generate_response(self, prompt, role) -> str:
-        if role == "system": _prmpt = []
+        _copt = LlamaConfig.currentOptions()
+        
+        if role == SYSTEM: _prmpt = []
         else: _prmpt = [LlamaConfig.currentContext()[0]]
 
-        _msgs = _prmpt + LlamaConfig.currentContext()[LlamaConfig.currentContextIndex():]
-        _msgs = _msgs + [{'role': role, 'content': prompt}]
-        _copt = LlamaConfig.currentOptions()
+        context = LlamaConfig.currentContext()
+        index = LlamaConfig.currentContextIndex() * -1
+        # Защита без замены llama.json (Будет убрано в следующем большом обновлении)
+        if index > 0:
+            LlamaConfig.setCurrentContextIndex(index)
+            LlamaConfig.save()
+            index = index * -1
+
+        _cntx = _prmpt + context[index:]
+        _msgs = _cntx + [{'role': role, 'content': prompt}]
 
         response = self.generate(
             model = self.modelName,
@@ -44,7 +57,8 @@ class Llama:
         
         response_message = response['message']['content']
 
-        LlamaConfig.updateCurrentContext({'role': 'system', 'content': prompt})
+        LlamaConfig.updateCurrentContext({'role': SYSTEM, 'content': prompt})
+        LlamaConfig.updateCurrentContext({'role': ASSISTANT, 'content': response_message})
         LlamaConfig.newResponse(response_message)
         LlamaConfig.setNewContent(True)
 
@@ -72,7 +86,8 @@ class Llama:
     def _SAVE(self) -> None: # Сохранение истории о сообщениях
         dump(
             self.chat_history,
-            open(self.history_path, "w", encoding="utf-8"),
-            ensure_ascii=False
+            open(self.history_path, "w+", encoding="utf-8"),
+            ensure_ascii=False,
+            indent=4
             )
         LlamaConfig.save()

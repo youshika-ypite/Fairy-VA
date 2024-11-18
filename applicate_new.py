@@ -53,7 +53,14 @@ class MainWindow(QMainWindow):
         self.ui.ReloadModels.clicked.connect(self._reloadModels)
         self.ui.ReloadConfig.clicked.connect(self._reloadConfig)
 
-        self.ui.IndexspinBox.setValue(LlamaConfig.currentContextIndex())
+        # Защита без замены llama.json (Будет убрано в следующем большом обновлении)
+        index = LlamaConfig.currentContextIndex()
+        if index < 0:
+            index = index * -1
+            LlamaConfig.setCurrentContextIndex(index)
+            LlamaConfig.save()
+
+        self.ui.IndexspinBox.setValue(index)
         self.ui.saveIndexButton.clicked.connect(self._saveIndex)
         self.ui.clearContextButton.clicked.connect(self._clearContext)
         self.ui.ollamaNameChangeButton.clicked.connect(self._ollamaNameChange)
@@ -66,7 +73,13 @@ class MainWindow(QMainWindow):
     def _InfoClick(self): # Изменение страницы
         self.ui.stackedWidget.setCurrentIndex(0)
     def _SliderClick(self): # Изменение страницы
-        self.ui.IndexspinBox.setValue(LlamaConfig.currentContextIndex())
+        # Защита без замены llama.json (Будет убрано в следующем большом обновлении)
+        index = LlamaConfig.currentContextIndex()
+        if index < 0:
+            index = index * -1
+            LlamaConfig.setCurrentContextIndex(index)
+            LlamaConfig.save()
+        self.ui.IndexspinBox.setValue(index)
         self.ui.stackedWidget.setCurrentIndex(1)
     def _AboutClick(self): # Изменение страницы
         self.ui.stackedWidget.setCurrentIndex(2)
@@ -146,7 +159,7 @@ class MainWindow(QMainWindow):
     # Сохранение индекса кол-ва контекстных сообщений
     def _saveIndex(self):
         value = self.ui.IndexspinBox.value()
-        LlamaConfig.setCurrentContextIndex(value*-1)
+        LlamaConfig.setCurrentContextIndex(value)
     # Отчистка контекста ([0] сохранится - базовый промпт)
     def _clearContext(self):
         LlamaConfig.clearContext()
@@ -307,7 +320,7 @@ class MainWindow(QMainWindow):
         self.ui.protect0Label.setText("protect0")
     
     # Обновление вне системы (для обработки событий алгоритма)
-    def __update(self):
+    def __update(self) -> None:
         if LlamaConfig.isNewContent():
             message = self.lang_Local['ContextMessage'] + self.load_last_message()
             self.ui.resourceMonitor.setText(message)

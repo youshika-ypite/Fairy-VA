@@ -1,6 +1,6 @@
 {
     "modelName": "llama3.1",
-    "context_memory": -8,
+    "context_memory": 8,
     "context": [{}],
     "options": {
         "temperature": 0.0

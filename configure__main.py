@@ -371,7 +371,7 @@ class LlamaConfig:
         return LlamaConfig.config['standart_prompt']
     @staticmethod
     def currentContextIndex() -> int:
-        return LlamaConfig.config['context_memory']*-1
+        return LlamaConfig.config['context_memory']
     @staticmethod
     def currentContext() -> list[dict]:
         return LlamaConfig.config['context']

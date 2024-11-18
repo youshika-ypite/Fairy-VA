@@ -22,16 +22,7 @@ if EXIST venv\Script\activate.bat (
 	echo venv - OK
 )
 call venv\Scripts\activate
-:test
-call pip --version || findstr /I "pip 21.3.1" > nul
-if %errorlevel% == 0 (
-	echo pip - OK
-	goto go
-) else (
-	call python -m pip install -U pip==21.3.1
-	goto test
-)
-:go
+call python -m pip install -U pip==21.3.1
 
 :cudatest
 if "%CUDA_VERSION%" == "cpu" (

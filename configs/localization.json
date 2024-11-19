@@ -45,6 +45,7 @@
             "ReloadApps": "Сбросить приложения",
             "ReloadModels": "Найти модели",
             "ReloadConfig": "Перезагрузить настройки",
+            "LinkChange": "Изменить ссылки",
             "ContextIndexLabel": "Размер памяти модели (запросов): ",
             "clearContextButton": "Удалить память",
             "promptEditButton": "Изменить промпт",
@@ -123,7 +124,16 @@
                 "text_1": "Введите путь к приложению",
                 "placeHolderText_0": "Имя приложения, например: Minecraft",
                 "placeHolderText_1": "Путь к приложению, например: C:\\Program Files\\Game\\game.exe"
+            },
+            "LinkConfigure": {
+                "text_0": "Введите название ссылки (произношение) без дополнительных знаков",
+                "text_1": "Введите ссылку",
+                "placeHolderText_0": "Название (произношение) ссылки, например: гитхаб",
+                "placeHolderText_1": "Ссылка"
             }
+        },
+        "LinkConfigurator": {
+            "NewLinkButton": "Добавить ссылку"
         }
     },
     "EN_TG": {
@@ -169,6 +179,7 @@
             "ReloadApps": "Reload apps",
             "ReloadModels": "Find models",
             "ReloadConfig": "Reload config",
+            "LinkChange": "Change links",
             "ContextIndexLabel": "Size LLM memory (requests): ",
             "clearContextButton": "Clear memory",
             "promptEditButton": "Change prompt",
@@ -230,6 +241,7 @@
             "error_e": "Cannot be empty",
             "error_wp": "Invalid path or it does not exist",
             "error_rp": "Path already exists",
+            "error_lc": "Cannot connect ot web-url",
             "OllamaNameChange": {
                 "text": "Enter the name of your model, for example: llama3.1",
                 "placeHolderText": "Name here"
@@ -247,7 +259,16 @@
                 "text_1": "Enter path to application",
                 "placeHolderText_0": "Application name, e.g.: Minecraft",
                 "placeHolderText_1": "Path to application, e.g.: C:\\Program Files\\Game\\game.exe"
+            },
+            "LinkConfigure": {
+                "text_0": "Enter the link name (pronunciation) without additional characters",
+                "text_1": "Enter the link",
+                "placeHolderText_0": "Name (pronunciation) of the link, for example: github",
+                "placeHolderText_1": "Link"
             }
+        },
+        "LinkConfigurator": {
+            "NewLinkButton": "Append link"
         }
     }
 }

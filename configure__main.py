@@ -231,7 +231,37 @@ class Commandlibrary_y:
     def get_RUALPH() -> list: return Commandlibrary_y.library['RUALPH']
     @staticmethod
     def get_MONTHS() -> dict: return Commandlibrary_y.library['MONTHS']
-        
+
+    @staticmethod
+    def updateLinkDict(newDict: dict = None, Name: str = None, Link: str = None, oldName: str = None) -> None | bool:
+        if newDict is not None:
+            Commandlibrary_y.library["weblink"] = newDict
+        else:
+            if Name is None or Link is None: return False
+
+            if oldName is not None:
+                Commandlibrary_y.library["weblink"].pop(oldName)
+            Commandlibrary_y.library["weblink"][Name.lower()] = Link
+
+        Commandlibrary_y.__save()
+        return True
+    
+    @staticmethod
+    def deleteLink(name: str) -> bool:
+        try:
+            Commandlibrary_y.library["weblink"].pop(name)
+            Commandlibrary_y.__save()
+            return True
+        except: return False
+
+    @staticmethod
+    def __save() -> None:
+        dump(
+            Commandlibrary_y.library,
+            open("configs/library.json", "w", encoding="utf-8"),
+            ensure_ascii=False,
+            indent=4
+        )
 
 class App:
 
@@ -250,7 +280,6 @@ class App:
     @staticmethod
     def save(): # Сохранение данных (сброс значений)
         App.config["appStatus"] = True
-        App.config["pauseStatus"] = False
         App.config["voiceLoad"] = False
         dump(
             App.config,
@@ -274,6 +303,9 @@ class App:
     def voiceModule() -> bool: return App.config["voiceModule"]
     @staticmethod # Возвращает статус "Загрузки моделей"
     def voiceLoad() -> bool: return App.config["voiceLoad"]
+
+    @staticmethod # Возвращает статус использования ollama
+    def ollamaUsage() -> bool: return App.config["ollamaUsageOPT"]
 
     @staticmethod # Возвращает настройки для генерации
     def voice() -> dict: return App.config["voice"]
@@ -301,6 +333,10 @@ class App:
     @staticmethod
     def setVoiceLoad():
         App.config["voiceLoad"] = True
+
+    @staticmethod
+    def setOllamaOption(option: bool = False):
+        App.config["ollamaUsageOPT"] = option
 
     @staticmethod
     def reverseVoiceModule():
@@ -479,6 +515,12 @@ class Localization:
 
         lang = Localization.getLANG()
         return Localization.__getChangerLang(lang)
+    
+    @staticmethod
+    def get_LinkConfigureLang() -> dict:
+
+        lang = Localization.getLANG()
+        return Localization.__getLinkConfigureLang(lang)
 
     @staticmethod
     def getLANG() -> str:
@@ -519,6 +561,10 @@ class Localization:
     @staticmethod
     def __getChangerLang(lang) -> dict:
         return Localization.configuration[lang]['Changer']
+    
+    @staticmethod
+    def __getLinkConfigureLang(lang) -> dict:
+        return Localization.configuration[lang]['LinkConfigurator']
 
     
 

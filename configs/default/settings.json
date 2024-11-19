@@ -6,6 +6,8 @@
     "voiceModule": false,
     "voiceLoad": false,
 
+    "ollamaUsageOPT": true,
+
     "voice": {
         "model": {
             "f0_key_up": 8,

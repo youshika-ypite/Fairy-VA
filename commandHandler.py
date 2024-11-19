@@ -235,11 +235,6 @@ class ComandHandler:
         self.botTriggers = BotTriggers()
         self.launcher = launcher()
 
-        self.linkDictPath = Pathlib_y.get_mainLOCALpath() + "/links.json"
-        if not os.path.exists(self.linkDictPath):
-            with open(self.linkDictPath, "w", encoding="utf-8") as file:
-                json.dump(Commandlibrary_y.get_baseLinkDict(), file, ensure_ascii=False)
-        
         self.botCommands = {
             "passive": self.botTriggers._PASSIVE,
             "weather": self.botTriggers._WEATHER,
@@ -294,16 +289,7 @@ class ComandHandler:
         self.treshold = 0.275
         self.appTreshold = 0.6
         self.commandTreshold = 0.4
-
-        self.__updater()
-
-    def __updater(self):
-        try:
-            with open(self.linkDictPath, "r", encoding="utf-8") as file:
-                self.linkDict = json.load(file)
-            self.programs = Commandlibrary_y.get_programs()
-        except Exception as exc: print("youshika-es |ERROR| CommandHandler.py __updater() | ", exc)
-
+        
     def diff_command_search(self, request: str) -> str | bool | str:
         """
         >>> Возвращает "Command not found" если команда не найдена
@@ -419,6 +405,9 @@ class ComandHandler:
         return 1
 
     def _openHandler(self) -> bool:
+        self.programs = Commandlibrary_y.get_programs()
+        self.linkDict = Commandlibrary_y.get_baseLinkDict()
+        
         function = None
         data = [self.request] if " " not in self.request else self.request.split(" ")
         for word in data:

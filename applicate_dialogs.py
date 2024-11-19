@@ -1,6 +1,7 @@
 import os
 
 from configure__main import Applicator, Localization, LlamaConfig
+from configure__main import Commandlibrary_y
 
 from ui_notify import Ui_Dialog as UID_notify
 from ui_changer import *
@@ -11,13 +12,21 @@ from PySide6.QtWidgets import QFrame, QVBoxLayout
 from PySide6.QtWidgets import QHBoxLayout, QPushButton
 from PySide6.QtGui import Qt, QIcon
 
+
+ICON = QIcon("ui/icon.png")
+ICONSIZE = QSize(18, 18)
+
+
+
+
+
 class Notify(QDialog):
     def __init__(self) -> None:
         QDialog.__init__(self)
         self.ui = UID_notify()
         self.ui.setupUi(self)
         self.setWindowTitle("Fairy VA - Notificate/Уведомление")
-        self.setWindowIcon(QIcon("ui/icon.png"))
+        self.setWindowIcon(ICON)
 
         self.ui.label.setText("None")
 
@@ -29,12 +38,14 @@ class Changer(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.setWindowIcon(QIcon("ui/icon.png"))
+        self.setWindowIcon(ICON)
 
         self.notify = Notify()
 
         self.lang = Localization.get_ChangerLang()
         self.ui.buttonBox.rejected.connect(self.closer)
+
+        self.url_TRIGGER = None
 
     def passing(self):
         pass
@@ -49,6 +60,57 @@ class Changer(QDialog):
     def disconnect(self):
         try: self.ui.buttonBox.accepted.disconnect()
         except: pass
+
+    def link_init(self, name: str = None, url: str = None):
+        self.disconnect()
+        self.setWindowTitle("Link changer / Редактор ссылок")
+        self.ui.label.setText(self.lang["LinkConfigure"]["text_0"])
+        if name is None: name = ""
+        else: self.url_TRIGGER = name
+        self.ui.textEdit.setText(name)
+        self.ui.textEdit.setPlaceholderText(self.lang["LinkConfigure"]["placeHolderText_0"])
+
+        self.ui.buttonBox.accepted.connect(lambda: self.next_link_step(url))
+
+    def show_linkChanger(self): self.shower()
+
+    def next_link_step(self, url):
+        self.disconnect()
+        new_name = self.ui.textEdit.toPlainText()
+        
+        if new_name in ["", " ", None]:
+            self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(lambda: self.next_link_step(url))
+            return
+        
+        self.ui.label.setText(self.lang["LinkConfigure"]["text_1"])
+        if url is None: url = ""
+        self.ui.textEdit.setText(url)
+        self.ui.textEdit.setPlaceholderText(self.lang["LinkConfigure"]["placeHolderText_1"])
+
+        self.ui.buttonBox.accepted.connect(lambda: self.save_link(new_name, url))
+
+    def save_link(self, name, url):
+        self.disconnect()
+        new_url = self.ui.textEdit.toPlainText()
+
+        if new_url in ["", " ", None]:
+            self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_e"])
+            self.ui.buttonBox.accepted.connect(lambda: self.save_link(name, url))
+            return
+
+        if name is not None and url is not None:
+            if self.url_TRIGGER is not None: oldName = self.url_TRIGGER
+            else: oldName = None
+            r = Commandlibrary_y.updateLinkDict(Name=name, Link=new_url, oldName=oldName)
+            if r is True:
+                self.url_TRIGGER = None
+                self.ui.label.setText('✅'+self.ui.label.text())
+                self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Save).setEnabled(False)
+            else:
+                if r == False: self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_e"])
+                else: self.ui.label.setText(self.ui.label.text()+"\n"+self.lang["error_lc"])
+                self.ui.buttonBox.accepted.connect(lambda: self.save_link(name, url))
 
     def path_init(self, app_dict: dict):
         self.disconnect()
@@ -258,10 +320,8 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
 
     spacer_item = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-    buttonSize = QSize(18, 18)
-
     infoButton = QPushButton("")
-    infoButton.setIconSize(buttonSize)
+    infoButton.setIconSize(ICONSIZE)
     infoButton.setObjectName("infoBtn")
     key = "infoBtn_1" if accessNeed and not dataNeed else "infoBtn_0"
     infoButton.setToolTip(ToolTip_lang[key])
@@ -269,14 +329,14 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
     infoButton.setIcon(QIcon("ui/svg/alert-circle.svg"))
 
     warnButton = QPushButton("")
-    warnButton.setIconSize(buttonSize)
+    warnButton.setIconSize(ICONSIZE)
     warnButton.setObjectName("warnBtn")
     warnButton.setToolTip(ToolTip_lang["warnBtn"])
     warnButton.setToolTipDuration(0.5)
     warnButton.setIcon(QIcon("ui/svg/alert-triangle.svg"))
 
     editButton = QPushButton("")
-    editButton.setIconSize(buttonSize)
+    editButton.setIconSize(ICONSIZE)
     editButton.setObjectName("editBtn")
     editButton.setToolTip(ToolTip_lang["editBtn"])
     editButton.setToolTipDuration(0.5)
@@ -284,7 +344,7 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
     editButton.clicked.connect(_change)
 
     deleteButton = QPushButton("")
-    deleteButton.setIconSize(buttonSize)
+    deleteButton.setIconSize(ICONSIZE)
     deleteButton.setObjectName("deleteBtn")
     deleteButton.setToolTip(ToolTip_lang["deleteBtn"])
     deleteButton.setToolTipDuration(0.5)
@@ -292,7 +352,7 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
     deleteButton.clicked.connect(lambda: _delete(mainlayout, widget, data["name"]))
     
     applyButton = QPushButton("")
-    applyButton.setIconSize(buttonSize)
+    applyButton.setIconSize(ICONSIZE)
     applyButton.setObjectName("applyBtn")
     applyButton.setToolTip(ToolTip_lang["applyBtn"])
     applyButton.setToolTipDuration(0.5)
@@ -300,7 +360,7 @@ def generateApp(data: dict, pchangershow, notify_lang: dict, ToolTip_lang: dict)
     applyButton.clicked.connect(lambda: confirm(secondlayout, applyButton, infoButton, mainframe))
 
     urlButton = QPushButton("")
-    urlButton.setIconSize(buttonSize)
+    urlButton.setIconSize(ICONSIZE)
     urlButton.setObjectName("urlBtn")
     urlButton.setToolTip(ToolTip_lang["urlBtn"]+str(data['possible_path']))
     urlButton.setToolTipDuration(0.5)
@@ -331,7 +391,7 @@ class AppConfigurator(QMainWindow):
         with open("ui_confStyle.css", "r") as file:
             self.setStyleSheet(file.read())
         self.setWindowTitle(f"Fairy!! | App Configurator / Конфигуратор приложений")
-        self.setWindowIcon(QIcon("ui/icon.png"))
+        self.setWindowIcon(ICON)
 
         self.notificator = Notify()
 
@@ -412,3 +472,106 @@ class AppConfigurator(QMainWindow):
         self.appCreator = Changer()
         self.appCreator.create_init()
         self.appCreator.show_AppCreator()
+
+def generateLink(linkName: str, linkUrl: str, lang: dict) -> QWidget:
+
+    def edit_link():
+        objChanger = Changer()
+        objChanger.link_init(linkName, linkUrl)
+        objChanger.show_linkChanger()
+
+    def delete_link(widget: QWidget, layout: QLayout):
+        r = Commandlibrary_y.deleteLink(linkName)
+        if r:
+            layout.removeWidget(widget)
+            widget.deleteLater()
+    
+    widget = QWidget()
+    layout = QHBoxLayout(widget)
+    mainlayout = QHBoxLayout()
+    mainframe = QFrame()
+    mainframe.setObjectName("mainframeB")
+    layout.setContentsMargins(0, 0, 0, 0)
+    mainlayout.setContentsMargins(0, 0, 0, 0)
+    mainframe.setContentsMargins(0, 0, 0, 0)
+
+    name = QLabel(linkName)
+    _url = QLabel(linkUrl)
+
+    spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+    editBtn = QPushButton()
+    editBtn.setIconSize(ICONSIZE)
+    editBtn.setIcon(QIcon("ui/svg/edit.svg"))
+    editBtn.setObjectName("editBtn")
+    editBtn.clicked.connect(edit_link)
+
+    _delBtn = QPushButton()
+    _delBtn.setIconSize(ICONSIZE)
+    _delBtn.setIcon(QIcon("ui/svg/slash.svg"))
+    _delBtn.setObjectName("deleteBtn")
+    _delBtn.clicked.connect(lambda: delete_link(widget, mainlayout))
+
+    mainlayout.addWidget(name)
+    mainlayout.addItem(spacer)
+    mainlayout.addWidget(_url)
+    #mainlayout.addItem(spacer)
+    mainlayout.addWidget(editBtn)
+    mainlayout.addWidget(_delBtn)
+
+    mainframe.setLayout(mainlayout)
+    layout.addWidget(mainframe)
+    
+    return widget
+
+class LinkConfigurator(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        with open("ui_confStyle.css", "r") as file:
+            self.setStyleSheet(file.read())
+        self.setWindowTitle(f"Fairy!! | Link Configurator / Конфигуратор ссылок")
+        self.setWindowIcon(ICON)
+
+        self.notificator = Notify()
+
+        self.lang_load()
+
+        self.links = Commandlibrary_y.get_baseLinkDict()
+        self.widgets = []
+
+        for linkName in self.links:
+            self.widgets.append(generateLink(linkName, self.links[linkName], self.linkLang))
+
+        self.widget = QWidget()
+        self.appWidget = QWidget()
+        self.mainlayout = QVBoxLayout(self.widget)
+
+        self.appendButton = QPushButton(self.linkLang["NewLinkButton"])
+        self.appendButton.clicked.connect(self._addLink)
+        
+        self.appLayout = QGridLayout(self.appWidget)
+        for i, app in enumerate(self.widgets):
+            self.appLayout.addWidget(
+                app, i, 0,
+                alignment=Qt.AlignTop
+                )
+
+        self.scroller = QScrollArea()
+        self.scroller.setWidgetResizable(True)
+
+        self.mainlayout.addWidget(self.appendButton)
+        self.mainlayout.addWidget(self.scroller)
+
+        self.scroller.setWidget(self.appWidget)
+        self.setMinimumWidth(int(self.scroller.width()*1.2))
+        self.setCentralWidget(self.widget)
+
+    def lang_load(self):
+        self.notifyLang = Localization.get_NotificateLang()
+        self.linkLang = Localization.get_LinkConfigureLang()
+
+    def _addLink(self):
+        self.changer = Changer()
+        self.changer.link_init()
+        self.changer.show_linkChanger()

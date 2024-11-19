@@ -112,10 +112,10 @@ QPushButton {
 	border-width: 1px;
     border-style: solid none solid solid;
 }
-#ReloadApps, #ReloadModels, #ReloadConfig, #clearContextButton, #promptEditButton,  #ollamaNameChangeButton, #GitHubbtn, #Telegrambtn, #Supportbtn, #saveIndexButton {
+#ReloadApps, #ReloadModels, #ReloadConfig, #clearContextButton, #promptEditButton,  #ollamaNameChangeButton, #GitHubbtn, #Telegrambtn, #Supportbtn, #saveIndexButton, #LinkChangeButton {
 	padding: 5px;
 }
-#ReloadApps:hover, #ReloadModels:hover, #ReloadConfig:hover, #clearContextButton:hover, #promptEditButton:hover, #ollamaNameChangeButton:hover, #GitHubbtn:hover, #Telegrambtn:hover, #Supportbtn:hover {
+#ReloadApps:hover, #ReloadModels:hover, #ReloadConfig:hover, #clearContextButton:hover, #promptEditButton:hover, #ollamaNameChangeButton:hover, #GitHubbtn:hover, #Telegrambtn:hover, #Supportbtn:hover, #LinkChangeButton:hover {
 	border-width: 1px;
     border-style: solid;
     border-radius: 10px; 

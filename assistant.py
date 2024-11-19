@@ -98,15 +98,19 @@ class Assistant:
                 self.voiceModule.speakReady()
             # Иначе обращаемся к модели
             else:
-                print("LLM || Generate response.. --> 0.0")
-                print("LLM || Request:", text)
-                start = time.time()
-                response = self.llamaModule.getResponse(text)
-                if response is None:
+                if App.ollamaUsage():
+                    print("LLM || Generate response.. --> 0.0")
+                    print("LLM || Request:", text)
+                    start = time.time()
+                    response = self.llamaModule.getResponse(text)
+                    if response is None:
+                        speaks = False
+                        self.soundModule._notify()
+                    LLMtimer = round(time.time() - start, 2)
+                    print(f"LLM || Response generated. --> {LLMtimer}")
+                else: # Заготовка под другие ответы
+                    print("LLM || Ollama generate option is not active, skip voice generate.")
                     speaks = False
-                    self.soundModule._notify()
-                LLMtimer = round(time.time() - start, 2)
-                print(f"LLM || Response generated. --> {LLMtimer}")
 
             if speaks:
                 print(f"RVC || Generate voice.. --> 0.0")

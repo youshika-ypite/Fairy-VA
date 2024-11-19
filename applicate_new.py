@@ -1,7 +1,7 @@
 import sys
 
 from configure__main import App, Applicator, LlamaConfig, Localization
-from applicate_dialogs import AppConfigurator, Notify, Changer
+from applicate_dialogs import AppConfigurator, Notify, Changer, LinkConfigurator
 
 from ui_int import *
 
@@ -46,19 +46,15 @@ class MainWindow(QMainWindow):
         self.ui.SelectLangBox.activated.connect(self._change_language)
         self.ui.SelectVModBox.activated.connect(self._changeModel)
         self.ui.PauseButton.clicked.connect(self.pause)
-        self.ui.ModButton.clicked.connect(self._mod)
+        #self.ui.ModButton.clicked.connect(self._mod)
         self.ui.NoLlamaButton.clicked.connect(self._NoLlama)
 
         self.ui.ReloadApps.clicked.connect(self._reloadApps)
         self.ui.ReloadModels.clicked.connect(self._reloadModels)
         self.ui.ReloadConfig.clicked.connect(self._reloadConfig)
+        self.ui.LinkChangeButton.clicked.connect(self._linkChanger)
 
-        # Защита без замены llama.json (Будет убрано в следующем большом обновлении)
         index = LlamaConfig.currentContextIndex()
-        if index < 0:
-            index = index * -1
-            LlamaConfig.setCurrentContextIndex(index)
-            LlamaConfig.save()
 
         self.ui.IndexspinBox.setValue(index)
         self.ui.saveIndexButton.clicked.connect(self._saveIndex)
@@ -73,12 +69,7 @@ class MainWindow(QMainWindow):
     def _InfoClick(self): # Изменение страницы
         self.ui.stackedWidget.setCurrentIndex(0)
     def _SliderClick(self): # Изменение страницы
-        # Защита без замены llama.json (Будет убрано в следующем большом обновлении)
         index = LlamaConfig.currentContextIndex()
-        if index < 0:
-            index = index * -1
-            LlamaConfig.setCurrentContextIndex(index)
-            LlamaConfig.save()
         self.ui.IndexspinBox.setValue(index)
         self.ui.stackedWidget.setCurrentIndex(1)
     def _AboutClick(self): # Изменение страницы
@@ -141,8 +132,19 @@ class MainWindow(QMainWindow):
         spld = text.split(": ")
         self.ui.PauseStatusLabel.setText(text.replace(spld[1], str(pause)))
 
-    def _mod(self): pass # Изменим под управление поиском в интерноте
-    def _NoLlama(self): pass # Мод отключения функции Ламы (только после добавления поиска в интернете)
+    #def _mod(self): pass
+    # Отключение/Включение генерации ответов ollama
+    def _NoLlama(self):
+        if App.ollamaUsage():
+            option = False
+            key = "off"
+        else:
+            option = True
+            key = "on"
+        
+        self.ui.NoLlamaButton.setText(self.lang_Local["NoLlamaButton"+"-"+key])
+        App.setOllamaOption(option)
+
     # Перезагрузка и пересчет найденных приложений (монитор отсутствует)
     def _reloadApps(self): Applicator.reloadAppList()
     # Перезагрузка RVC моделей из папки weights
@@ -156,6 +158,11 @@ class MainWindow(QMainWindow):
         else: self.ui.SelectModelBox.setCurrentIndex(0)
     # Принудительная перезагрузка конфигурации из файлов (на случай ошибочной записи в самой программе)
     def _reloadConfig(self): App.load()
+    # Изменение файла с ссылками
+    def _linkChanger(self):
+        self.lc = LinkConfigurator()
+        self.lc.show()
+
     # Сохранение индекса кол-ва контекстных сообщений
     def _saveIndex(self):
         value = self.ui.IndexspinBox.value()
@@ -281,12 +288,14 @@ class MainWindow(QMainWindow):
 
         pause = App.PAUSE()
         voiceActive = App.voiceModule()
+        ollamaMode = App.ollamaUsage()
 
         self.ui.ModLabel.setText(self.lang_Local['ModLabel'])
         key = 'on' if not voiceActive else 'off'
         self.ui.ModButton.setText(self.lang_Local['ModButton-'+key])
 
         self.ui.NoLlamaLabel.setText(self.lang_Local['NoLlamaLabel'])
+        key = 'on' if ollamaMode else 'off'
         self.ui.NoLlamaButton.setText(self.lang_Local['NoLlamaButton-'+key])
 
         self.ui.PauseLabel.setText(self.lang_Local['PauseLabel'])
@@ -300,6 +309,7 @@ class MainWindow(QMainWindow):
         self.ui.ReloadApps.setText(self.lang_Local['ReloadApps'])
         self.ui.ReloadModels.setText(self.lang_Local['ReloadModels'])
         self.ui.ReloadConfig.setText(self.lang_Local['ReloadConfig'])
+        self.ui.LinkChangeButton.setText(self.lang_Local['LinkChange'])
         
         if not App.modelsList(): App.search()
         vmodels = App.modelsList()

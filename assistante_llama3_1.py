@@ -40,11 +40,6 @@ class Llama:
 
         context = LlamaConfig.currentContext()
         index = LlamaConfig.currentContextIndex() * -1
-        # Защита без замены llama.json (Будет убрано в следующем большом обновлении)
-        if index > 0:
-            LlamaConfig.setCurrentContextIndex(index)
-            LlamaConfig.save()
-            index = index * -1
 
         _cntx = _prmpt + context[index:]
         _msgs = _cntx + [{'role': role, 'content': prompt}]

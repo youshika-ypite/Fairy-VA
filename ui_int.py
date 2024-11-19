@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'newWCSSDNkNvc.ui'
+## Form generated from reading UI file 'newWCSSHMYnEb.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.0
 ##
@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(960, 476)
+        MainWindow.resize(960, 439)
         MainWindow.setMinimumSize(QSize(960, 0))
         font = QFont()
         font.setFamilies([u"MiSans"])
@@ -103,10 +103,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.SliderButtonFrame)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_2.addItem(self.verticalSpacer_3)
-
         self.AppsButtonFrame = QFrame(self.LeftMenuFrame)
         self.AppsButtonFrame.setObjectName(u"AppsButtonFrame")
         self.AppsButtonFrame.setFrameShape(QFrame.Shape.StyledPanel)
@@ -147,6 +143,10 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_2.addWidget(self.AboutButtonFrame)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_2.addItem(self.verticalSpacer_3)
 
 
         self.verticalLayout.addWidget(self.LeftMenuFrame)
@@ -520,6 +520,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_19.addWidget(self.ReloadConfig)
 
+        self.LinkChangeButton = QPushButton(self.paramFrame)
+        self.LinkChangeButton.setObjectName(u"LinkChangeButton")
+        icon9 = QIcon()
+        icon9.addFile(u"ui/svg/link.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.LinkChangeButton.setIcon(icon9)
+        self.LinkChangeButton.setIconSize(QSize(24, 24))
+
+        self.horizontalLayout_19.addWidget(self.LinkChangeButton)
+
 
         self.verticalLayout_20.addWidget(self.paramFrame)
 
@@ -690,9 +699,9 @@ class Ui_MainWindow(object):
         self.saveIndexButton = QPushButton(self.changeContextIndexFrame)
         self.saveIndexButton.setObjectName(u"saveIndexButton")
         self.saveIndexButton.setMaximumSize(QSize(24, 24))
-        icon9 = QIcon()
-        icon9.addFile(u"ui/svg/check-square.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.saveIndexButton.setIcon(icon9)
+        icon10 = QIcon()
+        icon10.addFile(u"ui/svg/check.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.saveIndexButton.setIcon(icon10)
         self.saveIndexButton.setIconSize(QSize(24, 24))
 
         self.horizontalLayout_22.addWidget(self.saveIndexButton)
@@ -734,9 +743,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_23.setObjectName(u"horizontalLayout_23")
         self.clearContextButton = QPushButton(self.clearContextFrame)
         self.clearContextButton.setObjectName(u"clearContextButton")
-        icon10 = QIcon()
-        icon10.addFile(u"ui/svg/trash.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clearContextButton.setIcon(icon10)
+        icon11 = QIcon()
+        icon11.addFile(u"ui/svg/trash.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clearContextButton.setIcon(icon11)
         self.clearContextButton.setIconSize(QSize(24, 24))
 
         self.horizontalLayout_23.addWidget(self.clearContextButton)
@@ -744,18 +753,18 @@ class Ui_MainWindow(object):
         self.promptEditButton = QPushButton(self.clearContextFrame)
         self.promptEditButton.setObjectName(u"promptEditButton")
         self.promptEditButton.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        icon11 = QIcon()
-        icon11.addFile(u"ui/svg/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.promptEditButton.setIcon(icon11)
+        icon12 = QIcon()
+        icon12.addFile(u"ui/svg/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.promptEditButton.setIcon(icon12)
         self.promptEditButton.setIconSize(QSize(24, 24))
 
         self.horizontalLayout_23.addWidget(self.promptEditButton)
 
         self.ollamaNameChangeButton = QPushButton(self.clearContextFrame)
         self.ollamaNameChangeButton.setObjectName(u"ollamaNameChangeButton")
-        icon12 = QIcon()
-        icon12.addFile(u"ui/svg/ollama-white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.ollamaNameChangeButton.setIcon(icon12)
+        icon13 = QIcon()
+        icon13.addFile(u"ui/svg/ollama-white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.ollamaNameChangeButton.setIcon(icon13)
         self.ollamaNameChangeButton.setIconSize(QSize(24, 24))
 
         self.horizontalLayout_23.addWidget(self.ollamaNameChangeButton)
@@ -771,18 +780,18 @@ class Ui_MainWindow(object):
         self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
         self.GitHubbtn = QPushButton(self.linksFrame)
         self.GitHubbtn.setObjectName(u"GitHubbtn")
-        icon13 = QIcon()
-        icon13.addFile(u"ui/svg/github.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.GitHubbtn.setIcon(icon13)
+        icon14 = QIcon()
+        icon14.addFile(u"ui/svg/github.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.GitHubbtn.setIcon(icon14)
         self.GitHubbtn.setIconSize(QSize(24, 24))
 
         self.horizontalLayout_21.addWidget(self.GitHubbtn)
 
         self.Supportbtn = QPushButton(self.linksFrame)
         self.Supportbtn.setObjectName(u"Supportbtn")
-        icon14 = QIcon()
-        icon14.addFile(u"ui/svg/thumbs-up.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.Supportbtn.setIcon(icon14)
+        icon15 = QIcon()
+        icon15.addFile(u"ui/svg/thumbs-up.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.Supportbtn.setIcon(icon15)
         self.Supportbtn.setIconSize(QSize(24, 24))
 
         self.horizontalLayout_21.addWidget(self.Supportbtn)
@@ -839,7 +848,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.InfoButton.setDefault(False)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -887,6 +896,7 @@ class Ui_MainWindow(object):
         self.ReloadModels.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.ReloadApps.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.ReloadConfig.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.LinkChangeButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.speedLabel.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.speedKeyLabelVAL.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.protect0Label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))

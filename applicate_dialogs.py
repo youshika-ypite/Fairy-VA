@@ -13,7 +13,6 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton
 from PySide6.QtGui import Qt, QIcon
 
 
-ICON = QIcon("ui/icon.png")
 ICONSIZE = QSize(18, 18)
 
 
@@ -26,7 +25,7 @@ class Notify(QDialog):
         self.ui = UID_notify()
         self.ui.setupUi(self)
         self.setWindowTitle("Fairy VA - Notificate/Уведомление")
-        self.setWindowIcon(ICON)
+        self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.ui.label.setText("None")
 
@@ -38,7 +37,7 @@ class Changer(QDialog):
         QDialog.__init__(self)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.setWindowIcon(ICON)
+        self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notify = Notify()
 
@@ -391,7 +390,7 @@ class AppConfigurator(QMainWindow):
         with open("ui_confStyle.css", "r") as file:
             self.setStyleSheet(file.read())
         self.setWindowTitle(f"Fairy!! | App Configurator / Конфигуратор приложений")
-        self.setWindowIcon(ICON)
+        self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notificator = Notify()
 
@@ -531,7 +530,7 @@ class LinkConfigurator(QMainWindow):
         with open("ui_confStyle.css", "r") as file:
             self.setStyleSheet(file.read())
         self.setWindowTitle(f"Fairy!! | Link Configurator / Конфигуратор ссылок")
-        self.setWindowIcon(ICON)
+        self.setWindowIcon(QIcon("ui/icon.png"))
 
         self.notificator = Notify()
 

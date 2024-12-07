@@ -1,9 +1,11 @@
 import os
 import json
+import pynput.keyboard as pkb
 import requests
 import unidecode
 import webbrowser
 import pygetwindow
+
 
 from datetime import datetime as dt
 
@@ -12,6 +14,11 @@ from sklearn.linear_model import LogisticRegression
 
 from configure__main import Commandlibrary_y, Pathlib_y, App
 from configure__main import Applicator
+
+
+BASE_VOLUME_UP_STEP = 2
+BASE_VOLUME_DOWN_STEP = 3
+
 
 def similarity(list1, list2, round_count = 3) -> float | int:
     """Сравнение матрицами
@@ -164,8 +171,9 @@ class launcher:
     def control_EXPLORER(self, elseType): pass
 
 
-
 class BotTriggers:
+
+    controller = pkb.Controller()
 
     def _PASSIVE(self) -> True: return True
     def _SYSOUT(self) -> None: self._OFF(True)
@@ -173,6 +181,36 @@ class BotTriggers:
         Applicator._checkSave()
         App.stopApp()
         if system_target: os.system('shutdown -s')
+
+    def _PAUSECONT(self) -> list[str]:
+        self.controller.press(pkb.Key.media_play_pause)
+        return ["media"]
+    
+    def _MEDIA_NEXT(self) -> list[str]:
+        self.controller.press(pkb.Key.media_next)
+        return ["media"]
+
+    def _MEDIA_PREVIOUS(self) -> list[str]:
+        self.controller.press(pkb.Key.media_previous)
+        return ["media"]
+    
+    def _VOLUME_UP(self) -> list[str]:
+        for time in range(BASE_VOLUME_UP_STEP):
+            self.controller.press(pkb.Key.media_volume_up)
+        return ["media"]
+    
+    def _VOLUME_DOWN(self) -> list[str]:
+        for time in range(BASE_VOLUME_DOWN_STEP):
+            self.controller.press(pkb.Key.media_volume_down)
+        return ["media"]
+    
+    def _VOLUME_MUTE(self) -> list[str]:
+        self.controller.press(pkb.Key.media_volume_mute)
+        return ["media"]
+    
+    def _SCREEN(self) -> list[str]:
+        self.controller.press(pkb.Key.print_screen)
+        return ["media"]
 
     def _WEATHER(self) -> list:
         weatherConfig = Commandlibrary_y.get_openweathermap()
@@ -241,7 +279,14 @@ class ComandHandler:
             "time": self.botTriggers._TIME,
             "date": self.botTriggers._DATE,
             "offbot": self.botTriggers._OFF,
-            "sysout": self.botTriggers._SYSOUT
+            "sysout": self.botTriggers._SYSOUT,
+            "pausecont": self.botTriggers._PAUSECONT,
+            "medianext": self.botTriggers._MEDIA_NEXT,
+            "mediaprevious": self.botTriggers._MEDIA_PREVIOUS,
+            "volumeup": self.botTriggers._VOLUME_UP,
+            "volumedown": self.botTriggers._VOLUME_DOWN,
+            "volumemute": self.botTriggers._VOLUME_MUTE,
+            "printscreen": self.botTriggers._SCREEN
         }
 
         self.funcs = [
@@ -388,6 +433,9 @@ class ComandHandler:
         if output is None: return 0
 
         if output[0] in ['d', 't']: self.response = output[1]
+        elif output[0] == "media":
+            self.response = "-"
+            return 1
         else:
             self.response = None
             ######################

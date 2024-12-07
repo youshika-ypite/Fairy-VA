@@ -1,3 +1,2 @@
 @echo off
-call venv\Scripts\activate
-main.py
+call some.bat 0>assets/log.txt 2>&0
